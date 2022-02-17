@@ -1,9 +1,9 @@
 {
   "name": "@mirrorworld/mirage.core",
   "version": "0.0.0",
-  "description": "Medusa SDK Core",
+  "description": "Mirage SDK Core",
   "keywords": [
-    "medusa",
+    "mirage",
     "core",
     "sdk"
   ],

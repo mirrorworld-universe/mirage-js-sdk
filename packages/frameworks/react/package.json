@@ -1,9 +1,9 @@
 {
   "name": "@mirrorworld/mirage.react",
   "version": "0.0.0",
-  "description": "React hooks for Medusa SDK",
+  "description": "React hooks for Mirage SDK",
   "keywords": [
-    "medusa",
+    "mirage",
     "react"
   ],
   "author": "Jonathan Bakebwa <codebender828@gmail.com>",
