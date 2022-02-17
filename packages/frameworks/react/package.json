@@ -1,0 +1,37 @@
+{
+  "name": "@mirrorworld/mirage.react",
+  "version": "0.0.0",
+  "description": "React hooks for Medusa SDK",
+  "keywords": [
+    "medusa",
+    "react"
+  ],
+  "author": "Jonathan Bakebwa <codebender828@gmail.com>",
+  "homepage": "https://github.com/mirrorworld-universe/mirage-js-sdk#readme",
+  "license": "MIT",
+  "main": "dist/mirrorworld-mirage.react.cjs.js",
+  "module": "dist/mirrorworld-mirage.react.esm.js",
+  "repository": "https://github.com/mirrorworld-universe/mirage-js-sdk/tree/main/packages/core/react",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "bugs": {
+    "url": "ttps://github.com/mirrorworld-universe/mirage-js-sdk/issues"
+  },
+  "scripts": {
+    "clean": "rimraf dist"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.18",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.6",
+    "react-dom": ">=16.8.6"
+  }
+}

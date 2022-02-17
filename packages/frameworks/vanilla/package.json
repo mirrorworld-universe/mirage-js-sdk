@@ -1,0 +1,28 @@
+{
+  "name": "@mirrorworld/mirage.vanilla",
+  "version": "0.0.0",
+  "description": "Vanilla library for Medusa SDK",
+  "keywords": [
+    "medusa",
+    "vanilla"
+  ],
+  "author": "Jonathan Bakebwa <codebender828@gmail.com>",
+  "homepage": "https://github.com/mirrorworld-universe/mirage-js-sdk#readme",
+  "license": "MIT",
+  "main": "dist/mirrorworld-mirage.vanilla.cjs.js",
+  "module": "dist/mirrorworld-mirage.vanilla.esm.js",
+  "repository": "https://github.com/mirrorworld-universe/mirage-js-sdk/tree/main/packages/core/vanilla",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "bugs": {
+    "url": "https://github.com/mirrorworld-universe/mirage-js-sdk/issues"
+  },
+  "scripts": {
+    "clean": "rimraf dist"
+  }
+}

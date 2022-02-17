@@ -1,0 +1,37 @@
+{
+  "name": "@mirrorworld/mirage.vue",
+  "version": "0.0.0",
+  "description": "Vue composables for Medusa SDK",
+  "keywords": [
+    "medusa",
+    "vue"
+  ],
+  "author": "Jonathan Bakebwa <codebender828@gmail.com>",
+  "homepage": "https://github.com/mirrorworld-universe/mirage-js-sdk#readme",
+  "license": "MIT",
+  "main": "dist/mirrorworld-mirage.vue.cjs.js",
+  "module": "dist/mirrorworld-mirage.vue.esm.js",
+  "repository": "https://github.com/mirrorworld-universe/mirage-js-sdk/tree/main/packages/core/vue",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "bugs": {
+    "url": "ttps://github.com/mirrorworld-universe/mirage-js-sdk/issues"
+  },
+  "scripts": {
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@mirrorworld/mirage.core": "0.0.0"
+  },
+  "devDependencies": {
+    "vue": "^3.2.6"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.5"
+  }
+}

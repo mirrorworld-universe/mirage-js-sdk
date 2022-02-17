@@ -1,0 +1,37 @@
+{
+  "name": "@mirrorworld/mirage.utils",
+  "version": "0.0.0",
+  "description": "Mirage SDK Core",
+  "keywords": [
+    "mirage",
+    "solana",
+    "marketplace",
+    "metaplex",
+    "core",
+    "sdk"
+  ],
+  "author": "Jonathan Bakebwa <codebender828@gmail.com>",
+  "homepage": "https://github.com/mirrorworld-universe/mirage-js-sdk#readme",
+  "license": "MIT",
+  "main": "dist/mirrorworld-mirage.utils.cjs.js",
+  "module": "dist/mirrorworld-mirage.utils.esm.js",
+  "repository": "https://github.com/mirrorworld-universe/mirage-js-sdk/tree/main/packages/utils",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "preconstruct": {
+    "entrypoints": [
+      "index.ts"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "bugs": {
+    "url": "https://github.com/mirrorworld-universe/mirage-js-sdk/issues"
+  },
+  "scripts": {
+    "clean": "rimraf dist"
+  }
+}
