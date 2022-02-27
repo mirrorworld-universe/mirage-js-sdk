@@ -33,5 +33,11 @@
   "peerDependencies": {
     "react": ">=16.8.6",
     "react-dom": ">=16.8.6"
+  },
+  "dependencies": {
+    "@solana/wallet-adapter-react": "^0.15.3",
+    "@solana/wallet-adapter-wallets": "^0.15.4",
+    "antd": "^4.18.7",
+    "react-router-dom": "^6.2.1"
   }
 }

@@ -33,5 +33,19 @@
   },
   "scripts": {
     "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@metaplex/arweave-cost": "^2.0.0",
+    "@mirrorworld/metaplex": "0.0.0",
+    "@solana/spl-token": "0.1.6",
+    "@solana/spl-token-registry": "^0.2.2373",
+    "@solana/wallet-adapter-base": "^0.9.3",
+    "@solana/web3.js": "^1.34.0",
+    "bn.js": "^5.2.0",
+    "borsh": "^0.7.0",
+    "bs58": "^4.0.1",
+    "buffer-layout": "^1.2.2",
+    "dayjs": "^1.10.7",
+    "eventemitter3": "^4.0.7"
   }
 }
