@@ -31,7 +31,7 @@ export type ENDPOINT_NAME =
   | 'localnet'
   | 'lending';
 
-type Endpoint = {
+export type Endpoint = {
   name: ENDPOINT_NAME;
   label: string;
   url: string;

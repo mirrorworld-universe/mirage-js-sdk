@@ -30,6 +30,7 @@ import sha256 from 'crypto-js/sha256';
 
 import BN from 'bn.js';
 import { Collection, DataV2, Uses } from '@mirrorworld/metaplex';
+import { prepPayForFilesTxn } from '../utils';
 
 const RESERVED_TXN_MANIFEST = 'manifest.json';
 const RESERVED_METADATA = 'metadata.json';
@@ -48,40 +49,6 @@ export interface IMetadata {
   collection?: string;
   uses?: Uses;
 }
-
-interface IArweaveResult {
-  error?: string;
-  messages?: Array<{
-    filename: string;
-    status: 'success' | 'fail';
-    transactionId?: string;
-    error?: string;
-  }>;
-}
-
-const uploadToArweave = async (data: FormData): Promise<IArweaveResult> => {
-  const resp = await fetch(ARWEAVE_UPLOAD_ENDPOINT, {
-    method: 'POST',
-    // @ts-ignore
-    body: data,
-  });
-
-  if (!resp.ok) {
-    return Promise.reject(
-      new Error(
-        'Unable to upload the artwork to Arweave. Please wait and then try again.'
-      )
-    );
-  }
-
-  const result: IArweaveResult = await resp.json();
-
-  if (result.error) {
-    return Promise.reject(new Error(result.error));
-  }
-
-  return result;
-};
 
 export const mintNFT = async (
   connection: Connection,
@@ -363,43 +330,4 @@ export const mintNFT = async (
 
   console.log({ metadataAccount });
   return { metadataAccount };
-};
-
-export const prepPayForFilesTxn = async (
-  wallet: WalletSigner,
-  files: File[]
-): Promise<{
-  instructions: TransactionInstruction[];
-  signers: Keypair[];
-}> => {
-  const memo = programIds().memo;
-
-  const instructions: TransactionInstruction[] = [];
-  const signers: Keypair[] = [];
-
-  if (wallet.publicKey)
-    instructions.push(
-      SystemProgram.transfer({
-        fromPubkey: wallet.publicKey,
-        toPubkey: AR_SOL_HOLDER_ID,
-        lamports: await getAssetCostToStore(files),
-      })
-    );
-
-  for (let i = 0; i < files.length; i++) {
-    const hashSum = sha256(await files[i].text());
-    const hex = hashSum.toString();
-    instructions.push(
-      new TransactionInstruction({
-        keys: [],
-        programId: memo,
-        data: Buffer.from(hex),
-      })
-    );
-  }
-
-  return {
-    instructions,
-    signers,
-  };
 };

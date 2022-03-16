@@ -8,12 +8,14 @@ import {
   MasterEditionV1,
   MasterEditionV2,
   METADATA,
-  Metadata,
+  // Metadata,
   SafetyDepositBox,
   Vault,
   getAuctionExtended,
+  AccountParser,
+  ParsedAccount,
 } from '../../actions';
-import { AccountParser, ParsedAccount } from '../../contexts';
+// import { AccountParser, ParsedAccount } from '../../contexts';
 import {
   findProgramAddress,
   programIds,
@@ -26,6 +28,7 @@ import {
   DEPRECATED_SCHEMA,
   ParticipationConfigV1,
 } from './deprecatedStates';
+import { Metadata } from '@mirrorworld/metaplex';
 
 export * from './deprecatedInitAuctionManagerV1';
 export * from './redeemBid';
@@ -279,8 +282,10 @@ export class AuctionManager {
               winningConfigType: it.winningConfigType,
               safetyDeposit: boxes[it.safetyDepositBoxIndex],
               amount: new BN(it.amount),
+              // @ts-expect-error
               masterEdition: metadata?.info?.masterEdition
-                ? masterEditions[metadata?.info.masterEdition]
+                ? // @ts-expect-error
+                  masterEditions[metadata?.info.masterEdition]
                 : undefined,
             };
           });
@@ -304,8 +309,10 @@ export class AuctionManager {
                 winningConfigType: s.info.winningConfigType,
                 safetyDeposit,
                 amount,
+                // @ts-expect-error
                 masterEdition: metadata?.info?.masterEdition
-                  ? masterEditions[metadata?.info.masterEdition]
+                  ? // @ts-expect-error
+                    masterEditions[metadata?.info.masterEdition]
                   : undefined,
               });
             }

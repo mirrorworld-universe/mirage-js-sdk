@@ -27,13 +27,16 @@
     "@mirrorworld/metaplex": "0.0.0",
     "@mirrorworld/mirage.utils": "0.0.0",
     "@solana/spl-token": "0.1.6",
+    "@solana/spl-token-registry": "^0.2.2562",
     "@solana/web3.js": "^1.35.0",
     "@types/crypto-js": "^4.1.1",
     "@types/js-md5": "^0.4.3",
+    "@types/lodash.uniqwith": "^4.5.6",
     "bn.js": "^5.2.0",
     "crypto-browserify": "^3.12.0",
     "crypto-js": "^4.1.1",
-    "js-md5": "^0.7.3"
+    "js-md5": "^0.7.3",
+    "lodash.uniqwith": "^4.5.0"
   },
   "publishConfig": {
     "access": "public"

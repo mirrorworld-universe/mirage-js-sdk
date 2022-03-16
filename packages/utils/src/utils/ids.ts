@@ -77,28 +77,8 @@ export const AUCTION_ID =
 export const METAPLEX_ID =
   'p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98' as StringPublicKey;
 
-// export const METADATA_PROGRAM_ID =
-//   'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s' as StringPublicKey;
-// // export const METADATA_PROGRAM_ID =
-// //   'FFNkyCwG4aJqQhuM9ucz1Tp8k2g6LYBi83vJXhs1cnQo' as StringPublicKey;
-
-// export const VAULT_ID =
-//   'knNyuDpFBkk6zRpTrKTUpuRS3EfzhYgimD9tFDi4LT7' as StringPublicKey;
-// // export const VAULT_ID =
-// //   'ENw52X18cvSKebzZ836AjYKWFJnsZggXFR5i8oGQ1kYg' as StringPublicKey;
-
-// export const AUCTION_ID =
-//   '72BGobTt82sFietRQGPW7F6jT4G9hV6uArGwGELmqg6q' as StringPublicKey;
-// // export const AUCTION_ID =
-// //   '7JhozZUGwWsXPT6R1LPHsFH2dUyxcEnuREvTu3Ur8FiE' as StringPublicKey;
-
-// export const METAPLEX_ID =
-//   '2g6EkQRyypPSD3nv76Cet6M5xFTACCYmyyjToQwbjE5a' as StringPublicKey;
-// // export const METAPLEX_ID =
-// //   '2bHpQM2CX9Qc7gDVW38Y7RzkM637vhZkmoiUMQKwVV47' as StringPublicKey;
-
 export const COLLECTION_ID =
-  'dZc6E8quno4Z2nTnEt9jCp8k6TJhVqrJFMn4YVHw4C5' as StringPublicKey;
+  'ErLxMRs8KWSbvmMex131ZVhxMwpigWNgHnDs7B3iZ1L9' as StringPublicKey;
 
 export const PACK_CREATE_ID = new PublicKey(
   'packFeFNZzMfD9aVWL7QbGz1WcU7R9zpf6pvNsw2BLu'
