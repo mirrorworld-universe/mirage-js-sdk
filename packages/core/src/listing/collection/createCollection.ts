@@ -20,41 +20,12 @@ import {
   TransactionInstruction,
 } from '@solana/web3.js';
 import { serialize } from 'borsh';
-import { AddMembersArgs } from './addMembers';
 import {
   prepPayForFilesTxn,
   uploadToArweave,
   IArweaveResult,
 } from '../../utils';
-
-// export class CreateCollectionArgs {
-//   instruction: number = 0;
-//   name: string;
-//   description: string;
-//   image: string;
-//   advanced: number;
-//   maxSize: number;
-//   members: StringPublicKey[];
-//   memberOf: CollectionSignature[];
-
-//   constructor(args: {
-//     name: string;
-//     description: string;
-//     image: string;
-//     advanced: number;
-//     maxSize: number;
-//     members: StringPublicKey[];
-//     memberOf: CollectionSignature[];
-//   }) {
-//     this.name = args.name;
-//     this.description = args.description;
-//     this.image = args.image;
-//     this.advanced = args.advanced;
-//     this.maxSize = args.maxSize;
-//     this.members = args.members;
-//     this.memberOf = args.memberOf;
-//   }
-// }
+import { appendAddAuthorityInstruction } from './addAuthority';
 
 export const mintCollection = async (
   connection: Connection,
@@ -141,6 +112,13 @@ export const mintCollection = async (
       payerPublicKey
     );
 
+    await appendAddAuthorityInstruction(
+      wallet,
+      toPublicKey(collectionAccount),
+      toPublicKey(payerPublicKey),
+      instructions
+    );
+
     const txid = await sendTransactionWithRetry(
       connection,
       wallet,
@@ -210,8 +188,6 @@ async function createCollection(
     members,
     memberOf,
   });
-
-  console.log({ CreateCollectionArgs: value });
 
   const txnData = Buffer.from(serialize(COLLECTION_SCHEMA, value));
 

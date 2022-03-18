@@ -1,1 +1,2 @@
-export * from './createCollection'
+export * from './createCollection';
+export * from './addMembers';

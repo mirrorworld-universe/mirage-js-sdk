@@ -6,9 +6,11 @@ import { AddMemberOfArgs } from './addMemberOf';
 import { FreezeCollectionArgs } from './freezeCollection';
 import { AddAuthorityArgs } from './addAuthority';
 import { RemoveAuthorityArgs } from './removeAuthority';
-import { AddMembersArgs } from './addMembers';
 
 export const COLLECTION_PREFIX = 'collection';
+export class AddMembersArgs {
+  instruction: number = 1;
+}
 
 export class CreateCollectionArgs {
   instruction: number = 0;

@@ -660,11 +660,7 @@ export async function createMetadataV2(
     'Metadata V2',
     new CreateMetadataV2Args({ data, isMutable: true })
   );
-  console.log(
-    'Metadata Schema',
-    new Map([DataV2.SCHEMA, ...METADATA_SCHEMA, ...CreateMetadataV2Args.SCHEMA])
-  );
-  console.log('DataV2.SCHEMA', DataV2.SCHEMA);
+
   const txnData = Buffer.from(
     serialize(
       new Map([

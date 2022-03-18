@@ -31,6 +31,7 @@ import sha256 from 'crypto-js/sha256';
 import BN from 'bn.js';
 import { Collection, DataV2, Uses } from '@mirrorworld/metaplex';
 import { prepPayForFilesTxn } from '../utils';
+import { appendAddMembersInstruction } from '../listing/collection/addMembers';
 
 const RESERVED_TXN_MANIFEST = 'manifest.json';
 const RESERVED_METADATA = 'metadata.json';
@@ -58,7 +59,8 @@ export const mintNFT = async (
   metadata: IMetadata,
   progressCallback: (val: number) => any,
   maxSupply?: number,
-  metadataUri?: string
+  metadataUri?: string,
+  collectionAddress?: string | undefined
 ): Promise<{
   metadataAccount: StringPublicKey;
 } | void> => {
@@ -149,6 +151,9 @@ export const mintNFT = async (
     toPublicKey(mintKey)
   );
 
+  // Created token account
+  progressCallback(1);
+
   const metadataAccount = await createMetadataV2(
     new DataV2({
       symbol: metadata.symbol,
@@ -173,8 +178,21 @@ export const mintNFT = async (
     wallet.publicKey.toBase58()
   );
 
-  console.log({ metadataAccount });
+  // Created metadata
   progressCallback(2);
+
+  if (collectionAddress) {
+    const collectionKey = toPublicKey(collectionAddress);
+    appendAddMembersInstruction(
+      wallet,
+      collectionKey,
+      instructions,
+      toPublicKey(metadataAccount)
+    );
+  }
+
+  // Added token to collection
+  progressCallback(3);
 
   // TODO: enable when using payer account to avoid 2nd popup
   // const block = await connection.getRecentBlockhash('singleGossip');
@@ -204,30 +222,8 @@ export const mintNFT = async (
 
   // Force wait for max confirmations
   // await connection.confirmTransaction(txid, 'max');
-  await connection.getParsedConfirmedTransaction(txid, 'confirmed');
-
+  await connection.getParsedTransaction(txid, 'confirmed');
   progressCallback(5);
-
-  // this means we're done getting AR txn setup. Ship it off to ARWeave!
-  const data = new FormData();
-  data.append('transaction', txid);
-  data.append('env', endpoint);
-
-  const tags = realFiles.reduce(
-    (acc: Record<string, Array<{ name: string; value: string }>>, f) => {
-      acc[f.name] = [{ name: 'mint', value: mintKey }];
-      return acc;
-    },
-    {}
-  );
-  console.log(data);
-  data.append('tags', JSON.stringify(tags));
-  realFiles.map((f) => data.append('file[]', f));
-
-  // TODO: convert to absolute file name for image
-
-  // const result: IArweaveResult = await uploadToArweave(data);
-  progressCallback(6);
 
   // const metadataFile = result.messages?.find(
   //   (m) => m.filename === RESERVED_TXN_MANIFEST
@@ -262,6 +258,9 @@ export const mintNFT = async (
     metadataAccount
   );
 
+  // Finalizing metadata
+  progressCallback(5);
+
   updateInstructions.push(
     Token.createMintToInstruction(
       TOKEN_PROGRAM_ID,
@@ -273,10 +272,10 @@ export const mintNFT = async (
     )
   );
 
-  progressCallback(7);
+  // Creating minting instruction
+  progressCallback(6);
   // // In this instruction, mint authority will be removed from the main mint, while
   // // minting authority will be maintained for the Printing mint (which we want.)
-  console.log({ maxSupply: new BN(maxSupply!) });
   await createMasterEditionV3(
     // @ts-ignore
     maxSupply !== undefined ? new BN(maxSupply) : undefined,
@@ -287,26 +286,7 @@ export const mintNFT = async (
     updateInstructions
   );
 
-  // TODO: enable when using payer account to avoid 2nd popup
-  /*  if (maxSupply !== undefined)
-      updateInstructions.push(
-        setAuthority({
-          target: authTokenAccount,
-          currentAuthority: payerPublicKey,
-          newAuthority: wallet.publicKey,
-          authorityType: 'AccountOwner',
-        }),
-      );
-*/
-  // TODO: enable when using payer account to avoid 2nd popup
-  // Note with refactoring this needs to switch to the updateMetadataAccount command
-  // await transferUpdateAuthority(
-  //   metadataAccount,
-  //   payerPublicKey,
-  //   wallet.publicKey,
-  //   updateInstructions,
-  // );
-
+  // Create master edition
   progressCallback(8);
 
   await sendTransactionWithRetry(
@@ -316,17 +296,12 @@ export const mintNFT = async (
     updateSigners
   );
 
+  // Success
+  progressCallback(9);
+
   // TODO: Notify user when transaction is successful
   console.log('Art created on Solana');
   alert('Art created on Solana');
-
-  // TODO: refund funds
-
-  // send transfer back to user
-  // }
-  // TODO:
-  // 1. Jordan: --- upload file and metadata to storage API
-  // 2. pay for storage by hashing files and attaching memo for each file
 
   console.log({ metadataAccount });
   return { metadataAccount };

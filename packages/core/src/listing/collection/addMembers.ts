@@ -1,15 +1,19 @@
-import { PublicKey, TransactionInstruction } from '@solana/web3.js';
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  Transaction,
+  TransactionInstruction,
+} from '@solana/web3.js';
 import {
   programIds,
+  sendTransactionWithRetry,
+  StringPublicKey,
   toPublicKey,
   WalletSigner,
 } from '@mirrorworld/mirage.utils';
 import { serialize } from 'borsh';
-import { COLLECTION_SCHEMA } from './schema';
-
-export class AddMembersArgs {
-  instruction: number = 1;
-}
+import { AddMembersArgs, COLLECTION_SCHEMA } from './schema';
 
 export async function appendAddMembersInstruction(
   wallet: WalletSigner,
@@ -41,14 +45,6 @@ export async function appendAddMembersInstruction(
       },
     ];
 
-    // memberKeys.forEach(function (item) {
-    //   keys.push({
-    //     pubkey: item,
-    //     isSigner: false,
-    //     isWritable: true,
-    //   });
-    // });
-
     instructions.push(
       new TransactionInstruction({
         keys,
@@ -57,4 +53,30 @@ export async function appendAddMembersInstruction(
       })
     );
   }
+  return instructions;
+}
+
+export async function addMintToCollection(
+  connection: Connection,
+  wallet: WalletSigner,
+  mintKey: StringPublicKey,
+  collectionAddress: StringPublicKey
+) {
+  const transaction = new Transaction();
+  const instructions = await appendAddMembersInstruction(
+    wallet,
+    toPublicKey(collectionAddress),
+    transaction.instructions,
+    toPublicKey(mintKey)
+  );
+
+  const { txid } = await sendTransactionWithRetry(
+    connection,
+    wallet,
+    instructions,
+    [],
+    'single'
+  );
+
+  return txid;
 }
