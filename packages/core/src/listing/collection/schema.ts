@@ -6,6 +6,9 @@ import { AddMemberOfArgs } from './addMemberOf';
 import { FreezeCollectionArgs } from './freezeCollection';
 import { AddAuthorityArgs } from './addAuthority';
 import { RemoveAuthorityArgs } from './removeAuthority';
+import { Token } from '@solana/spl-token';
+
+console.log(Token.createAssociatedTokenAccountInstruction.toString());
 
 export const COLLECTION_PREFIX = 'collection';
 export class AddMembersArgs {

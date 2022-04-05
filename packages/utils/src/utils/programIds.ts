@@ -39,7 +39,9 @@ export const setProgramIds = async (store?: string) => {
   STORE = store ? toPublicKey(store) : undefined;
 };
 
-let STORE: PublicKey | undefined;
+let STORE: PublicKey | undefined = toPublicKey(
+  '4xpSF5aEEqpyHTFSHGbQs5wGFzFHtX86dtXz5QWndYJo'
+);
 
 export const programIds = () => {
   return {

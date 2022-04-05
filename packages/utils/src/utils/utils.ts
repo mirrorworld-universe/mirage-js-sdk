@@ -2,6 +2,7 @@ import { MintInfo } from '@solana/spl-token';
 import { TokenAccount } from './../models';
 import { PublicKey } from '@solana/web3.js';
 import BN from 'bn.js';
+import assert from 'assert';
 import { WAD, ZERO } from '../constants';
 import { TokenInfo } from '@solana/spl-token-registry';
 import { useLocalStorage } from './useLocalStorage';
@@ -269,4 +270,37 @@ export function sleep(ms: number): Promise<void> {
 
 export function royalty(value: number | undefined): string {
   return `${((value || 0) / 100).toFixed(2)}%`;
+}
+
+export class u64 extends BN {
+  /**
+   * Convert to Buffer representation
+   */
+  toBuffer() {
+    const a = super.toArray().reverse();
+    const b = Buffer.from(a);
+
+    if (b.length === 8) {
+      return b;
+    }
+
+    assert(b.length < 8, 'u64 too large');
+    const zeroPad = Buffer.alloc(8);
+    b.copy(zeroPad);
+    return zeroPad;
+  }
+  /**
+   * Construct a u64 from Buffer representation
+   */
+
+  static fromBuffer(buffer: any) {
+    assert(buffer.length === 8, `Invalid buffer length: ${buffer.length}`);
+    return new u64(
+      [...buffer]
+        .reverse()
+        .map((i) => `00${i.toString(16)}`.slice(-2))
+        .join(''),
+      16
+    );
+  }
 }

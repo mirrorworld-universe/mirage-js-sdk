@@ -1,6 +1,6 @@
 {
   "name": "@mirrorworld/mirage.core",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Mirage SDK Core",
   "keywords": [
     "mirage",
@@ -24,8 +24,8 @@
   },
   "dependencies": {
     "@metaplex-foundation/mpl-token-metadata": "^1.2.4",
-    "@mirrorworld/metaplex": "0.0.0",
-    "@mirrorworld/mirage.utils": "0.0.0",
+    "@mirrorworld/metaplex": "0.0.1",
+    "@mirrorworld/mirage.utils": "0.0.1",
     "@solana/spl-token": "0.1.6",
     "@solana/spl-token-registry": "^0.2.2562",
     "@solana/wallet-adapter-base": "^0.9.5",
@@ -37,6 +37,7 @@
     "borsh": "^0.7.0",
     "crypto-browserify": "^3.12.0",
     "crypto-js": "^4.1.1",
+    "dayjs": "^1.11.0",
     "js-md5": "^0.7.3",
     "lodash.uniqwith": "^4.5.0"
   },

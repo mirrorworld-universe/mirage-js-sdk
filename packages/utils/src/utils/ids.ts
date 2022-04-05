@@ -68,14 +68,23 @@ export const MEMO_ID = new PublicKey(
 export const METADATA_PROGRAM_ID =
   'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s' as StringPublicKey;
 
+// export const VAULT_ID =
+//   'vau1zxA2LbssAUEF7Gpw91zMM1LvXrvpzJtmZ58rPsn' as StringPublicKey;
+
+// export const AUCTION_ID =
+//   'auctxRXPeJoc4817jDhf4HbjnhEcr1cCXenosMhK5R8' as StringPublicKey;
+
+// export const METAPLEX_ID =
+//   'p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98' as StringPublicKey;
+
 export const VAULT_ID =
-  'vau1zxA2LbssAUEF7Gpw91zMM1LvXrvpzJtmZ58rPsn' as StringPublicKey;
+  'ENw52X18cvSKebzZ836AjYKWFJnsZggXFR5i8oGQ1kYg' as StringPublicKey;
 
 export const AUCTION_ID =
-  'auctxRXPeJoc4817jDhf4HbjnhEcr1cCXenosMhK5R8' as StringPublicKey;
+  '7JhozZUGwWsXPT6R1LPHsFH2dUyxcEnuREvTu3Ur8FiE' as StringPublicKey;
 
 export const METAPLEX_ID =
-  'p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98' as StringPublicKey;
+  '2bHpQM2CX9Qc7gDVW38Y7RzkM637vhZkmoiUMQKwVV47' as StringPublicKey;
 
 export const COLLECTION_ID =
   'ErLxMRs8KWSbvmMex131ZVhxMwpigWNgHnDs7B3iZ1L9' as StringPublicKey;

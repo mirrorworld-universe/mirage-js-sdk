@@ -8,11 +8,12 @@ import { deserializeUnchecked, serialize } from 'borsh';
 import BN from 'bn.js';
 import {
   DataV2,
-  Metadata,
+  Metadata as CMetadata,
   UpdateMetadataV2Args,
   CreateMetadataV2Args,
   CreateMasterEditionV3Args,
   MetadataData,
+  Collection,
 } from '@mirrorworld/metaplex';
 import { findProgramAddress, StringPublicKey, toPublicKey } from '../utils';
 export const METADATA_PREFIX = 'metadata';
@@ -379,7 +380,7 @@ export const METADATA_SCHEMA = new Map<any, any>([
     },
   ],
   [
-    Metadata,
+    CMetadata,
     {
       kind: 'struct',
       fields: [
@@ -405,7 +406,7 @@ export const METADATA_SCHEMA = new Map<any, any>([
   ],
 ]);
 
-export const decodeMetadata = (buffer: Buffer): Metadata => {
+export const decodeMetadata = (buffer: Buffer): CMetadata => {
   return MetadataData.deserialize(buffer);
 };
 
@@ -1448,4 +1449,63 @@ export async function getEditionMarkPda(
       toPublicKey(PROGRAM_IDS.metadata)
     )
   )[0];
+}
+
+export class Metadata {
+  key: MetadataKey;
+  updateAuthority: StringPublicKey;
+  mint: StringPublicKey;
+  data: Data;
+  primarySaleHappened: boolean;
+  isMutable: boolean;
+  editionNonce: number | null;
+  collection: Collection;
+  uses: number | null;
+
+  // set lazy
+  masterEdition?: StringPublicKey;
+  edition?: StringPublicKey;
+
+  constructor(args: {
+    updateAuthority: StringPublicKey;
+    mint: StringPublicKey;
+    data: Data;
+    primarySaleHappened: boolean;
+    isMutable: boolean;
+    editionNonce: number | null;
+    collection: Collection;
+    uses: number | null;
+  }) {
+    this.key = MetadataKey.MetadataV1;
+    this.updateAuthority = args.updateAuthority;
+    this.mint = args.mint;
+    this.data = args.data;
+    this.primarySaleHappened = args.primarySaleHappened;
+    this.isMutable = args.isMutable;
+    this.editionNonce = args.editionNonce ?? null;
+    this.collection = args.collection ?? null;
+    this.uses = args.uses ?? null;
+  }
+
+  public async init() {
+    //const metadata = toPublicKey(programIds().metadata);
+    /*
+    This nonce stuff doesnt work - we are doing something wrong here. TODO fix.
+    if (this.editionNonce !== null) {
+      this.edition = (
+        await PublicKey.createProgramAddress(
+          [
+            Buffer.from(METADATA_PREFIX),
+            metadata.toBuffer(),
+            toPublicKey(this.mint).toBuffer(),
+            new Uint8Array([this.editionNonce || 0]),
+          ],
+          metadata,
+        )
+      ).toBase58();
+    } else {*/
+    this.edition = await getEdition(this.mint);
+    //}
+    this.masterEdition = this.edition;
+  }
 }

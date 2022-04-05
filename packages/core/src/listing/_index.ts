@@ -28,7 +28,11 @@ import {
 import BN from 'bn.js';
 import { getMint } from '@mirrorworld/mirage.core/src/queries';
 import { pullPages } from '@mirrorworld/mirage.core/src/queries/get-store';
-import { AuctionState, TierDummyEntry, TieredAuctionState } from '@mirrorworld/mirage.core/src/types';
+import {
+  AuctionState,
+  TierDummyEntry,
+  TieredAuctionState,
+} from '@mirrorworld/mirage.core';
 import { QUOTE_MINT } from '@mirrorworld/mirage.core/src/listing/constants';
 
 // With Metaplex, you can create multiple auction

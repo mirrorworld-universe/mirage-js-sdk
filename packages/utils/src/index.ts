@@ -8,4 +8,6 @@ export * from './models';
 export * as models from './models';
 export * from './utils';
 export * as utils from './utils';
+export * from './meta';
+export * as meta from './meta';
 export { default as userNames } from './config/userNames.json';

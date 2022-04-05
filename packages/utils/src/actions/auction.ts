@@ -405,8 +405,6 @@ export interface IPartialCreateAuctionArgs {
   instantSalePrice: BN | null;
 
   name: number[] | null;
-
-  bidType: number | null;
 }
 
 export class CreateAuctionArgs implements IPartialCreateAuctionArgs {

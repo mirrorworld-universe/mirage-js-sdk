@@ -16,10 +16,10 @@ import {
   updateExternalPriceAccount,
   ExternalPriceAccount,
   MAX_EXTERNAL_ACCOUNT_SIZE,
-} from '@oyster/common/dist/lib/actions/vault';
+} from '@mirrorworld/mirage.utils';
 
 import BN from 'bn.js';
-import { QUOTE_MINT } from '../constants';
+import { QUOTE_MINT } from './constants';
 
 // This command creates the external pricing oracle
 export async function createExternalPriceAccount(

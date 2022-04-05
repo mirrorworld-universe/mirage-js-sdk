@@ -5,12 +5,12 @@ import {
   toPublicKey,
   WalletSigner,
 } from '@mirrorworld/mirage.utils';
-import { createTokenAccount } from '@oyster/common/dist/lib/actions/account';
 import {
+  createTokenAccount,
   activateVault,
   combineVault,
-} from '@oyster/common/dist/lib/actions/vault';
-import { approve } from '@oyster/common/dist/lib/models/account';
+  approve,
+} from '@mirrorworld/mirage.utils';
 
 import { AccountLayout } from '@solana/spl-token';
 import BN from 'bn.js';

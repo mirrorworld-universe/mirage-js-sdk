@@ -27,6 +27,9 @@ import {
 } from '../../utils';
 import { appendAddAuthorityInstruction } from './addAuthority';
 
+const STORAGE_API_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweENjZDcwZUI0NWQwZDY2OTAyMEFmZThDNUU1MkU0Qzg4NGIzNDBhRDUiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY0NzYxOTIyMDQ2NSwibmFtZSI6Ik1pcnJvcldvcmxkIn0.qKnxMKffCHvIYZVgVa_Z5bCXEKnWNovn39KPrbsrEAI';
+
 export const mintCollection = async (
   connection: Connection,
   wallet: WalletSigner | undefined,

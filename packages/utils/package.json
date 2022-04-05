@@ -1,6 +1,6 @@
 {
   "name": "@mirrorworld/mirage.utils",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Mirage SDK Core",
   "keywords": [
     "mirage",
@@ -36,17 +36,17 @@
   },
   "dependencies": {
     "@metaplex/arweave-cost": "^2.0.0",
-    "@mirrorworld/metaplex": "0.0.0",
-    "@solana/spl-token": "0.1.6",
-    "@solana/spl-token-registry": "^0.2.2373",
-    "@solana/wallet-adapter-base": "^0.9.3",
-    "@solana/web3.js": "^1.34.0",
+    "@mirrorworld/metaplex": "0.0.1",
+    "@solana/spl-token": "^0.2.0",
+    "@solana/spl-token-registry": "^0.2.2562",
+    "@solana/wallet-adapter-base": "^0.9.5",
+    "@solana/web3.js": "^1.35.0",
     "@types/bs58": "^4.0.1",
     "bn.js": "^5.2.0",
     "borsh": "^0.7.0",
-    "bs58": "^4.0.1",
+    "bs58": "^5.0.0",
     "buffer-layout": "^1.2.2",
-    "dayjs": "^1.10.7",
+    "dayjs": "^1.11.0",
     "eventemitter3": "^4.0.7"
   }
 }

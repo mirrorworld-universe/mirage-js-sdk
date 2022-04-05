@@ -1,5 +1,8 @@
 import { PublicKey } from '@solana/web3.js';
-import { AccountLayout, MintInfo, MintLayout, u64 } from '@solana/spl-token';
+import * as SPL from '@solana/spl-token';
+import type { MintInfo } from '@solana/spl-token';
+
+const { AccountLayout, MintLayout, u64 } = SPL;
 
 // TODO: expose in spl package
 export const deserializeAccount = (data: Buffer) => {

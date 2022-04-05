@@ -181,15 +181,17 @@ export const mintNFT = async (
   // Created metadata
   progressCallback(2);
 
-  if (collectionAddress) {
-    const collectionKey = toPublicKey(collectionAddress);
-    appendAddMembersInstruction(
-      wallet,
-      collectionKey,
-      instructions,
-      toPublicKey(metadataAccount)
-    );
-  }
+  // TODO: Add code to add NFT to collection during mint
+  // We can use this on the solana block syncer
+  // if (collectionAddress) {
+  //   const collectionKey = toPublicKey(collectionAddress);
+  //   appendAddMembersInstruction(
+  //     wallet,
+  //     collectionKey,
+  //     instructions,
+  //     toPublicKey(metadataAccount)
+  //   );
+  // }
 
   // Added token to collection
   progressCallback(3);

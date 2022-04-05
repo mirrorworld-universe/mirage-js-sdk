@@ -40,6 +40,9 @@ export * from './redeemParticipationBidV3';
 export * from './redeemPrintingV2Bid';
 export * from './withdrawMasterEdition';
 export * from './deprecatedStates';
+export * from './validateSafetyDepositBoxV2';
+export * from './deprecatedValidateParticipation';
+export * from './initAuctionManagerV2';
 
 export const METAPLEX_PREFIX = 'metaplex';
 export const INDEX = 'index';

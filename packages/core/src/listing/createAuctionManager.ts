@@ -41,8 +41,8 @@ import {
   SafetyDepositConfig,
   ParticipationStateV2,
   StoreIndexer,
-} from '@oyster/common/dist/lib/models/metaplex/index';
-import { createTokenAccount } from '@oyster/common/dist/lib/actions/account';
+} from '@mirrorworld/mirage.utils';
+import { createTokenAccount } from '@mirrorworld/mirage.utils';
 import { createVault } from './createVault';
 import { closeVault } from './closeVault';
 import {
@@ -51,13 +51,13 @@ import {
 } from './addTokensToVault';
 import { makeAuction } from './makeAuction';
 import { createExternalPriceAccount } from './createExternalPriceAccount';
-import { deprecatedValidateParticipation } from '@oyster/common/dist/lib/models/metaplex/deprecatedValidateParticipation';
+import { deprecatedValidateParticipation } from '@mirrorworld/mirage.utils';
 import { deprecatedCreateReservationListForTokens } from './deprecatedCreateReservationListsForTokens';
 import { deprecatedPopulatePrintingTokens } from './deprecatedPopulatePrintingTokens';
 import { setVaultAndAuctionAuthorities } from './setVaultAndAuctionAuthorities';
 import { markItemsThatArentMineAsSold } from './markItemsThatArentMineAsSold';
-import { validateSafetyDepositBoxV2 } from '@oyster/common/dist/lib/models/metaplex/validateSafetyDepositBoxV2';
-import { initAuctionManagerV2 } from '@oyster/common/dist/lib/models/metaplex/initAuctionManagerV2';
+import { validateSafetyDepositBoxV2 } from '@mirrorworld/mirage.utils';
+import { initAuctionManagerV2 } from '@mirrorworld/mirage.utils';
 import { cacheAuctionIndexer } from './cacheAuctionInIndexer';
 
 interface normalPattern {

@@ -1,6 +1,6 @@
 {
   "name": "@mirrorworld/mirage.react",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "React hooks for Mirage SDK",
   "keywords": [
     "mirage",
@@ -35,6 +35,7 @@
     "react-dom": ">=16.8.6"
   },
   "dependencies": {
+    "@mirrorworld/mirage.utils": "0.0.1",
     "@solana/wallet-adapter-react": "^0.15.3",
     "@solana/wallet-adapter-wallets": "^0.15.4",
     "antd": "^4.18.7",
