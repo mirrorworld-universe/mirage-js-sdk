@@ -23,23 +23,22 @@
     ]
   },
   "dependencies": {
-    "@metaplex-foundation/mpl-token-metadata": "^1.2.4",
-    "@mirrorworld/metaplex": "0.0.1",
-    "@mirrorworld/mirage.utils": "0.0.1",
+    "@metaplex-foundation/mpl-auction-house": "^1.1.1",
+    "@metaplex-foundation/mpl-core": "^0.6.0",
+    "@metaplex-foundation/mpl-token-metadata": "^2.1.0",
+    "@metaplex/js": "^4.12.0",
+    "@project-serum/anchor": "^0.23.0",
     "@solana/spl-token": "0.1.6",
-    "@solana/spl-token-registry": "^0.2.2562",
+    "@solana/spl-token-registry": "^0.2.3185",
     "@solana/wallet-adapter-base": "^0.9.5",
-    "@solana/web3.js": "^1.35.0",
-    "@types/crypto-js": "^4.1.1",
-    "@types/js-md5": "^0.4.3",
-    "@types/lodash.uniqwith": "^4.5.6",
-    "bn.js": "^5.2.0",
+    "@solana/web3.js": "^1.37.0",
+    "@types/isomorphic-fetch": "^0.0.36",
+    "@types/lodash.merge": "^4.6.6",
     "borsh": "^0.7.0",
-    "crypto-browserify": "^3.12.0",
-    "crypto-js": "^4.1.1",
-    "dayjs": "^1.11.0",
-    "js-md5": "^0.7.3",
-    "lodash.uniqwith": "^4.5.0"
+    "bs58": "^5.0.0",
+    "isomorphic-fetch": "^3.0.0",
+    "lodash.merge": "^4.6.2",
+    "percent-round": "^2.2.1"
   },
   "publishConfig": {
     "access": "public"
