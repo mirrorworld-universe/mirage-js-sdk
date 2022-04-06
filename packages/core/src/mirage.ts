@@ -18,9 +18,9 @@ import {
   SignatureResult,
   LAMPORTS_PER_SOL,
 } from '@solana/web3.js';
-import { Program, Provider, Wallet } from '@project-serum/anchor';
+import { Program, Provider } from '@project-serum/anchor';
+import type { Wallet } from '@project-serum/anchor';
 import merge from 'lodash.merge';
-import { sleep } from './transactions';
 import { decodeMetadata, Metadata as MetadataSchema } from './schema';
 import {
   getAccountInfo,
@@ -29,7 +29,8 @@ import {
   processCreatorShares,
   uploadNFTFileToStorage,
 } from './utils';
-import { SolanaNetwork, MetadataObject } from './types';
+import dayjs from 'dayjs';
+import { SolanaNetwork, MetadataObject, AuctionHouse } from './types';
 import { writeFileSync } from 'fs';
 import { resolve } from 'path';
 
@@ -156,6 +157,14 @@ export class Mirage {
     return nftsmetadata;
   }
 
+  /** Get single NFT by mint */
+  async getNft(mintKey: PublicKey) {
+    // const nftsmetadata = await Metadata.findByMint(this.connection, mintKey);
+    const metadataPDA = await Metadata.getPDA(mintKey);
+    const tokenMetadata = await Metadata.load(this.connection, metadataPDA);
+    return tokenMetadata;
+  }
+
   /** Gets the owner of an NFT */
   async getNftOwner(mint: string | PublicKey) {
     const largestAccounts = await this.connection.getTokenLargestAccounts(
@@ -194,7 +203,7 @@ export class Mirage {
 
   /** Loads provider instance */
   async getProvider(commitment: Commitment = 'processed') {
-    const wallet = new Wallet(Keypair.generate());
+    const wallet = this.wallet;
     const provider = new Provider(this.connection, wallet, {
       preflightCommitment: commitment,
     });
@@ -325,7 +334,7 @@ export class Mirage {
     txt.add(sellInstruction).add(printListingReceiptInstruction);
 
     txt.recentBlockhash = (
-      await this.connection.getRecentBlockhash()
+      await this.connection.getLatestBlockhash()
     ).blockhash;
     txt.feePayer = sellerWallet.publicKey;
 
@@ -339,7 +348,7 @@ export class Mirage {
     }
 
     let signature: string | undefined = undefined;
-    signature = await this.connection.sendRawTransaction(signed.serialize());
+    signature = await this.connection.sendRawTransaction(signed!.serialize());
     const result = await this.connection.confirmTransaction(
       signature,
       'confirmed'
@@ -589,7 +598,6 @@ export class Mirage {
         printPurchaseReceiptInstructionArgs
       );
 
-    const txt = new Transaction();
     const executeSaleInstruction = new TransactionInstruction({
       programId: AuctionHouseProgram.PUBKEY,
       data: _executeSaleInstruction.data,
@@ -597,28 +605,29 @@ export class Mirage {
       keys: [..._executeSaleInstruction.keys, ...creatorAccounts],
     });
 
-    txt
+    const buyTxt = new Transaction();
+    buyTxt
       .add(publicBuyInstruction)
       .add(printBidReceiptInstruction)
       .add(executeSaleInstruction)
       .add(printPurchaseReceiptInstruction);
 
-    txt.recentBlockhash = (
-      await this.connection.getRecentBlockhash()
+    buyTxt.recentBlockhash = (
+      await this.connection.getLatestBlockhash()
     ).blockhash;
-    txt.feePayer = buyerWallet.publicKey;
+    buyTxt.feePayer = buyerWallet.publicKey;
 
     let signed: Transaction | undefined = undefined;
 
     try {
-      signed = await buyerWallet.signTransaction(txt);
+      signed = await buyerWallet.signTransaction(buyTxt);
     } catch (e: any) {
       console.error(e.message);
       return;
     }
 
     let signature: string | undefined = undefined;
-    signature = await this.connection.sendRawTransaction(signed.serialize());
+    signature = await this.connection.sendRawTransaction(signed!.serialize());
 
     const result = await this.connection.confirmTransaction(
       signature,
@@ -729,7 +738,7 @@ export class Mirage {
     txt.add(cancelInstruction).add(cancelListingReceiptInstruction);
 
     txt.recentBlockhash = (
-      await this.connection.getRecentBlockhash()
+      await this.connection.getLatestBlockhash()
     ).blockhash;
     txt.feePayer = this.wallet.publicKey;
 
@@ -744,7 +753,7 @@ export class Mirage {
 
     let signature: string | undefined = undefined;
     console.info('Sending the transaction to Solana.');
-    signature = await this.connection.sendRawTransaction(signed.serialize());
+    signature = await this.connection.sendRawTransaction(signed!.serialize());
     const result = await this.connection.confirmTransaction(
       signature,
       'confirmed'
@@ -842,7 +851,7 @@ export class Mirage {
     txt.add(transferNftInstruction);
 
     txt.recentBlockhash = (
-      await this.connection.getRecentBlockhash()
+      await this.connection.getLatestBlockhash()
     ).blockhash;
     txt.feePayer = this.wallet.publicKey;
 
@@ -953,7 +962,7 @@ export class Mirage {
     return nftMetadata;
   }
 
-  async getTokenTransactionsV2(
+  async getTokenTransactions(
     mint: string | PublicKey
   ): Promise<(TransactionReceipt | undefined)[]> {
     const _mint = new PublicKey(mint);
@@ -1026,12 +1035,10 @@ export class Mirage {
             break;
         }
       });
-
       return await Promise.all(parsedAccounts);
     });
 
-    // @ts-expect-error TODO: Will figure out how to type this correctly
-    return await (
+    const result = await (
       await Promise.all(ReceiptAccounts)
     )
       .flat()
@@ -1041,31 +1048,36 @@ export class Mirage {
           receipt.metadata.toBase58() === metadata.pubkey.toBase58()
       )
       .map((receipt) => ({
-        ...receipt,
+        ...receipt!,
         /** @ts-ignore */
         tokenSize: receipt.tokenSize.toNumber(),
         /** @ts-ignore */
         price: receipt.price.toNumber() / LAMPORTS_PER_SOL,
         /** @ts-ignore */
-        createdAt: receipt.createdAt.toNumber(),
-        /** @ts-ignore */
-        cancelledAt: receipt.canceledAt?.toNumber?.(),
-      }));
+        createdAt: dayjs.unix(receipt.createdAt.toNumber()).toDate().getTime(),
+        cancelledAt: dayjs
+          /** @ts-ignore */
+          .unix(receipt.canceledAt?.toNumber?.())
+          .toDate()
+          .getTime(),
+      }))
+      .sort((a, b) => {
+        if (
+          (a.receipt_type === 'bid_receipt',
+          b.receipt_type === 'purchase_receipt')
+        ) {
+          return 1;
+        } else if (
+          (a.receipt_type === 'purchase_receipt',
+          b.receipt_type === 'bid_receipt')
+        ) {
+          return -1;
+        } else {
+          return 0;
+        }
+      })
+      .sort((a, b) => b.createdAt - a.createdAt);
+    console.log('result', result);
+    return result;
   }
-}
-
-export interface AuctionHouse {
-  auctionHouseFeeAccount: PublicKey;
-  auctionHouseTreasury: PublicKey;
-  treasuryWithdrawalDestination: PublicKey;
-  feeWithdrawalDestination: PublicKey;
-  treasuryMint: PublicKey;
-  authority: PublicKey;
-  creator: PublicKey;
-  bump: number;
-  treasuryBump: number;
-  feePayerBump: number;
-  sellerFeeBasisPoints: number;
-  requiresSignOff: boolean;
-  canChangeSalePrice: boolean;
 }

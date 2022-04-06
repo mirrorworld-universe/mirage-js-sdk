@@ -36,6 +36,7 @@
     "@types/lodash.merge": "^4.6.6",
     "borsh": "^0.7.0",
     "bs58": "^5.0.0",
+    "dayjs": "^1.11.0",
     "isomorphic-fetch": "^3.0.0",
     "lodash.merge": "^4.6.2",
     "percent-round": "^2.2.1"
