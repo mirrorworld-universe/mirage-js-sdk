@@ -4,7 +4,6 @@ import Components from 'vite-plugin-components';
 import Pages from 'vite-plugin-pages';
 import Layouts from 'vite-plugin-vue-layouts';
 import { componentResolver } from '@chakra-ui/vue-auto-import';
-import { handleSSG } from './src/utils/ssg';
 import inject from '@rollup/plugin-inject';
 import { resolve } from 'path';
 
@@ -14,16 +13,20 @@ export default defineConfig({
     'process.env.NODE_DEBUG': JSON.stringify(''),
   },
   optimizeDeps: {
-    include: ['buffer', '@solana/web3.js', '@solana/web3.js > bn.js', '@solana/web3.js > borsh', '@solana/web3.js > buffer', 'borsh', 'buffer-layout'],
+    include: [
+      'buffer',
+      '@solana/web3.js',
+      '@solana/web3.js > bn.js',
+      '@solana/web3.js > borsh',
+      '@solana/web3.js > buffer',
+      'borsh',
+      '@chakra-ui/vue-theme-tools > tinycolor2',
+      'buffer-layout',
+    ],
   },
   build: {
     commonjsOptions: {
-      include: ['borsh', '@solana/web3.js', 'buffer-layout'],
-    },
-  },
-  resolve: {
-    alias: {
-      // borsh: resolve(__dirname, '../../node_modules/borsh/lib/index.js'),
+      include: ['borsh', 'tinycolor2', '@solana/web3.js', 'buffer-layout'],
     },
   },
   plugins: [
@@ -43,9 +46,4 @@ export default defineConfig({
       layoutsDir: './src/layouts',
     }),
   ],
-  ssgOptions: {
-    script: 'async',
-    formatting: 'prettify',
-    onPageRendered: handleSSG,
-  },
 });
