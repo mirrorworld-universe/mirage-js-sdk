@@ -94,7 +94,7 @@ const metadataObject: MetadataObject = {
 };
 
 // Mint your new NFT
-await mirage.value.mintNFT(metadata)
+await mirage.mintNFT(metadata)
 ```
 See this example [here](https://github.com/mirrorworld-universe/mirage-js-sdk/blob/9904a20ac6e6d1c7856bac1d252df2dec4bb1eff/examples/vue-ts/src/pages/index.vue#L158-L181)
 
@@ -107,7 +107,7 @@ Listing an NFT is done with the `Mirage.listToken` method. See [docs](https://mi
 const mintAddress = "AQYAGzygMZQid99up64zFG75zwRX7DE1i2v9W4teq2xm"
 const listingPrice = 0.5
 
-await mirage.value.listToken(mintAddress, listingPrice)
+await mirage.listToken(mintAddress, listingPrice)
 ```
 
 ### Cancelling listings
@@ -121,7 +121,7 @@ const listingPrice = 0.5
 // matches the exact price for which it was listed.
 // Otherwise the transaction will fail.
 // In other words, you cannot buy a token without a corresponfing listing receipt.
-await mirage.value.cancelListing(mintAddress, listingPrice)
+await mirage.cancelListing(mintAddress, listingPrice)
 ```
 
 ### Buy an NFT
@@ -135,7 +135,7 @@ const listingPrice = 0.5
 // matches the exact price for which it was listed.
 // Otherwise the transaction will fail.
 // In other words, you cannot buy a token without a corresponfing listing receipt.
-await mirage.value.buyToken(mintAddress, listingPrice)
+await mirage.buyToken(mintAddress, listingPrice)
 ```
 
 ### Gift an NFT
@@ -144,7 +144,7 @@ Gifting an NFT is done with the `Mirage.transferNft` method. See [docs](https://
 const mintAddress = "AQYAGzygMZQid99up64zFG75zwRX7DE1i2v9W4teq2xm"
 const receipientAddress = "D5puQCwAbP29T4gRRfEuZ4Uai7UoFBcXgfutCJTBPAkL"
 
-await mirage.value.transferNft(mintAddress, receipientAddress)
+await mirage.transferNft(mintAddress, receipientAddress)
 ```
 
 
@@ -156,7 +156,7 @@ A transaction receipt contains the information used to determine the state of an
 This method sorts all receipts by the date they were ([`TransactionReceipt.createdAt`](https://mirage-js-sdk.vercel.app/interfaces/core_src.TransactionReceipt.html#createdAt)), and then by their receipt type ([`TransactionReceipt.receipt_type`](https://mirage-js-sdk.vercel.app/interfaces/core_src.TransactionReceipt.html#receipt_type)).
 
 ```ts
-const transactions = await mirage.value.getTokenTransactions(tokenAddress.value)
+const transactions = await mirage.getTokenTransactions(tokenAddress.value)
 ```
 
 In case you want to track this information yourself, you can view the source code for the [`getTokenTransactions`](https://github.com/mirrorworld-universe/mirage-js-sdk/blob/9904a20ac6e6d1c7856bac1d252df2dec4bb1eff/packages/core/src/mirage.ts#L743-L797) method.
