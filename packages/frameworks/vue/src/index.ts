@@ -1,5 +1,6 @@
-import { hello } from '@mirrorworld/mirage.core';
+import { AUCTION_HOUSE_PROGRAM_ID } from '@mirrorworld/mirage.core';
 
 console.log({
-  hello,
+  TODO: 'Create hook for this',
+  AUCTION_HOUSE_PROGRAM_ID,
 });
