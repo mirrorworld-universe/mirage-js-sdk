@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 1.0.0
+
+### Major Changes
+
+- 7262732: Refactored to use latest auctionhouse
+
 ## 0.0.1
 
 ### Patch Changes

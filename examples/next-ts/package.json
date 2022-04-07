@@ -1,7 +1,7 @@
 {
   "name": "next-ts",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@mirrorworld/mirage.core": "0.0.1",
+    "@mirrorworld/mirage.core": "1.0.0",
     "next": "12.0.10",
     "react": "17.0.2",
     "react-dom": "17.0.2"
