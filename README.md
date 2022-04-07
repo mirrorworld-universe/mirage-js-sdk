@@ -1,5 +1,5 @@
 # Mirage Marketplace JS Client SDK
-This repository contains the client side JDK for the MirrorWorld marketplace repository. The core functions that it contains are the listing of assets, Bank of assets, canceling of listings, and gifting NF tees to specific Salina addresses.
+This repository contains the client side JDK for the MirrorWorld marketplace repository. The core functions that it contains are the listing of assets, buying of assets, canceling of listings, and gifting NFTs to specific Solana addresses.
 
 [api-docs]: https://mirage-js-sdk.vercel.app/
 [**API Documentation**][api-docs]
