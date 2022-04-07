@@ -11,7 +11,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "lib": ["dom", "esnext"],
-    "module": "esnext",
+    "module": "ES6",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
