@@ -1,204 +1,146 @@
-import { MintInfo } from '@solana/spl-token';
-import {
-  WinningConfigType,
-  ParsedAccount,
-  MasterEditionV1,
-  MasterEditionV2,
-  Edition,
-  StringPublicKey,
-  AmountRange,
-  ParticipationConfigV2,
-  getEdition,
-  MetadataKey,
-  Data,
-  AuctionViewItem,
-  SafetyDepositBox,
-  AuctionData,
-  AuctionDataExtended,
-  AuctionManager,
-  Vault,
-  BidderMetadata,
-  BidderPot,
-  BidRedemptionTicket,
-  PublicKeyStringAndAccount,
-} from '@mirrorworld/mirage.utils';
-import { TokenInfo } from '@solana/spl-token-registry';
-import { MetaState } from './listing/types';
-import { AccountInfo } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
+import { Borsh } from '@metaplex-foundation/mpl-core';
 
-export enum AuctionCategory {
-  InstantSale,
-  Single,
-  DutchAuction,
-  Limited,
-  Open,
-  Tiered,
+export enum MetadataKey {
+  Uninitialized = 0,
+  MetadataV1 = 4,
+  EditionV1 = 1,
+  MasterEditionV1 = 2,
+  MasterEditionV2 = 6,
+  EditionMarker = 7,
+  UseAuthorityRecord = 8,
+  CollectionAuthorityRecord = 9,
 }
 
-export enum InstantSaleType {
-  Limited,
-  Single,
-  Open,
+export enum UseMethod {
+  Burn = 0,
+  Single = 1,
+  Multiple = 2,
 }
 
-export interface TierDummyEntry {
-  safetyDepositBoxIndex: number;
-  amount: number;
-  winningConfigType: WinningConfigType;
-}
+type UsesArgs = { useMethod: UseMethod; total: number; remaining: number };
+export class Uses extends Borsh.Data<UsesArgs> {
+  // @ts-ignore
+  static readonly SCHEMA = Uses.struct([
+    ['useMethod', 'u8'],
+    ['total', 'u64'],
+    ['remaining', 'u64'],
+  ]);
+  useMethod: UseMethod;
+  total: number;
+  remaining: number;
 
-export interface Tier {
-  items: (TierDummyEntry | {})[];
-  winningSpots: number[];
-}
-
-export interface TieredAuctionState {
-  items: SafetyDepositDraft[];
-  tiers: Tier[];
-  participationNFT?: SafetyDepositDraft;
-}
-
-export interface SafetyDepositDraft {
-  metadata: ParsedAccount<Metadata>;
-  masterEdition?: ParsedAccount<MasterEditionV1 | MasterEditionV2>;
-  edition?: ParsedAccount<Edition>;
-  holding: StringPublicKey;
-  printingMintHolding?: StringPublicKey;
-  winningConfigType: WinningConfigType;
-  amountRanges: AmountRange[];
-  participationConfig?: ParticipationConfigV2;
-}
-
-export interface AuctionState {
-  // Min price required for the item to sell
-  reservationPrice: number;
-
-  // listed NFTs
-  items: SafetyDepositDraft[];
-  participationNFT?: SafetyDepositDraft;
-  participationFixedPrice?: number;
-  // number of editions for this auction (only applicable to limited edition)
-  editions?: number;
-
-  // date time when auction should start UTC+0
-  startDate?: Date;
-
-  // suggested date time when auction should end UTC+0
-  endDate?: Date;
-
-  //////////////////
-  category: AuctionCategory;
-
-  price?: number;
-  priceFloor?: number;
-  priceTick?: number;
-
-  startSaleTS?: number;
-  startListTS?: number;
-  endTS?: number;
-
-  auctionDuration?: number;
-  auctionDurationType?: 'days' | 'hours' | 'minutes';
-  gapTime?: number;
-  gapTimeType?: 'days' | 'hours' | 'minutes';
-  tickSizeEndingPhase?: number;
-
-  spots?: number;
-  tiers?: Array<Tier>;
-
-  winnersCount: number;
-
-  instantSalePrice?: number;
-  instantSaleType?: InstantSaleType;
-
-  quoteMintAddress: string;
-  quoteMintInfo: MintInfo;
-  quoteMintInfoExtended: TokenInfo;
-}
-
-export class Metadata {
-  key: MetadataKey;
-  updateAuthority: StringPublicKey;
-  mint: StringPublicKey;
-  data: Data;
-  primarySaleHappened: boolean;
-  isMutable: boolean;
-  editionNonce: number | null;
-
-  // set lazy
-  masterEdition?: StringPublicKey;
-  edition?: StringPublicKey;
-
-  constructor(args: {
-    updateAuthority: StringPublicKey;
-    mint: StringPublicKey;
-    data: Data;
-    primarySaleHappened: boolean;
-    isMutable: boolean;
-    editionNonce: number | null;
-  }) {
-    this.key = MetadataKey.MetadataV1;
-    this.updateAuthority = args.updateAuthority;
-    this.mint = args.mint;
-    this.data = args.data;
-    this.primarySaleHappened = args.primarySaleHappened;
-    this.isMutable = args.isMutable;
-    this.editionNonce = args.editionNonce ?? null;
-  }
-
-  public async init() {
-    this.edition = await getEdition(this.mint);
-    //}
-    this.masterEdition = this.edition;
+  constructor(args: UsesArgs) {
+    super(args);
+    this.useMethod = args.useMethod;
+    this.total = args.total;
+    this.remaining = args.remaining;
   }
 }
 
-export enum AuctionViewState {
-  Live = '0',
-  Upcoming = '1',
-  Ended = '2',
-  BuyNow = '3',
-  Defective = '-1',
+export interface AuctionHouse {
+  auctionHouseFeeAccount: PublicKey;
+  auctionHouseTreasury: PublicKey;
+  treasuryWithdrawalDestination: PublicKey;
+  feeWithdrawalDestination: PublicKey;
+  treasuryMint: PublicKey;
+  authority: PublicKey;
+  creator: PublicKey;
+  bump: number;
+  treasuryBump: number;
+  feePayerBump: number;
+  sellerFeeBasisPoints: number;
+  requiresSignOff: boolean;
+  canChangeSalePrice: boolean;
 }
 
-export interface AuctionView {
-  // items 1:1 with winning configs FOR NOW
-  // once tiered auctions come along, this becomes an array of arrays.
-  items: AuctionViewItem[][];
-  safetyDepositBoxes: ParsedAccount<SafetyDepositBox>[];
-  auction: ParsedAccount<AuctionData>;
-  auctionDataExtended?: ParsedAccount<AuctionDataExtended>;
-  auctionManager: AuctionManager;
-  participationItem?: AuctionViewItem;
-  state: AuctionViewState;
-  thumbnail: AuctionViewItem;
-  myBidderMetadata?: ParsedAccount<BidderMetadata>;
-  myBidderPot?: ParsedAccount<BidderPot>;
-  myBidRedemption?: ParsedAccount<BidRedemptionTicket>;
-  vault: ParsedAccount<Vault>;
-  totallyComplete: boolean;
-  isInstantSale: boolean;
-  isDutchAuction: boolean;
+export enum SolanaNetwork {
+  mainnet = 'mainnet-beta',
+  devnet = 'devnet',
 }
 
-export type AccountAndPubkey = {
-  pubkey: string;
-  account: AccountInfo<Buffer>;
+export interface INFTStorageResponse {
+  ok: boolean;
+  value: Value;
+}
+export interface Value {
+  cid: string;
+  size: number;
+  created: string;
+  type: string;
+  scope: string;
+  pin: Pin;
+  files?: FilesEntity[] | null;
+  deals?: DealsEntity[] | null;
+}
+export interface Pin {
+  cid: string;
+  name: string;
+  meta: Meta;
+  status: string;
+  created: string;
+  size: number;
+}
+export interface Meta {}
+export interface FilesEntity {
+  name: string;
+  type: string;
+}
+export interface DealsEntity {
+  batchRootCid: string;
+  lastChange: string;
+  miner: string;
+  network: string;
+  pieceCid: string;
+  status: string;
+  statusText: string;
+  chainDealID: number;
+  dealActivation: string;
+  dealExpiration: string;
+}
+
+export interface IMetadata {
+  name: string;
+  symbol: string;
+  description: string;
+  image: string | undefined;
+  animation_url: string | undefined;
+  attributes: Attribute[] | undefined;
+  external_url: string;
+  properties: any;
+  creators: Creator[] | null;
+  seller_fee_basis_points: number;
+  collection?: string;
+  uses?: Uses;
+}
+export interface MetadataObject {
+  name: string;
+  symbol: string;
+  description: string;
+  image: string | undefined;
+  animation_url: string | undefined;
+  attributes: Attribute[] | undefined;
+  external_url: string;
+  properties: any;
+  seller_fee_basis_points: number;
+  collection?: string;
+  uses?: Uses;
+}
+
+export type Attribute = {
+  trait_type?: string;
+  display_type?: string;
+  value: string | number;
 };
 
-export type UpdateStateValueFunc<T = void> = (
-  prop: keyof MetaState,
-  key: string,
-  value: ParsedAccount<any>
-) => T;
+export class Creator {
+  address: string;
+  verified: boolean;
+  share: number;
 
-export type ProcessAccountsFunc = (
-  account: PublicKeyStringAndAccount<Buffer>,
-  setter: UpdateStateValueFunc
-) => void;
-
-export type CheckAccountFunc = (account: AccountInfo<Buffer>) => boolean;
-
-export type UnPromise<T extends Promise<any>> = T extends Promise<infer U>
-  ? U
-  : never;
+  constructor(args: { address: string; verified: boolean; share: number }) {
+    this.address = args.address;
+    this.verified = args.verified;
+    this.share = args.share;
+  }
+}

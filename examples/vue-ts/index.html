@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mirage JS SDK</title>
+    <link
+      rel="preload"
+      href="/fonts/SpaceGrotesk-Light.woff2"
+      as="font"
+      type="font/woff2"
+      crossOrigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href="/fonts/SpaceGrotesk-Regular.woff2"
+      as="font"
+      type="font/woff2"
+      crossOrigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href="/fonts/SpaceGrotesk-Bold.woff2"
+      as="font"
+      type="font/woff2"
+      crossOrigin="anonymous"
+    />
+    <style>
+      @font-face {
+        font-family: "SpaceGrotesk";
+        font-style: normal;
+        font-weight: 300;
+        font-display: swap;
+        src: url("/fonts/SpaceGrotesk-Light.woff2") format("woff2");
+      }
+
+      @font-face {
+        font-family: "SpaceGrotesk";
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url("/fonts/SpaceGrotesk-Regular.woff2") format("woff2");
+      }
+
+      @font-face {
+        font-family: "SpaceGrotesk";
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url("/fonts/SpaceGrotesk-Bold.woff2") format("woff2");
+      }
+      html,
+      body {
+        background-color: #EDF2F7;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      window.global = {}
+    </script>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
