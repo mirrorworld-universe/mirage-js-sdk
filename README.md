@@ -147,14 +147,6 @@ const receipientAddress = "D5puQCwAbP29T4gRRfEuZ4Uai7UoFBcXgfutCJTBPAkL"
 await mirage.value.transferNft(mintAddress, receipientAddress)
 ```
 
-### Gift an NFT
-Gifting an NFT is done with the `Mirage.transferNft` method. See [docs](https://mirage-js-sdk.vercel.app/classes/core_src.Mirage.html#transferNft) for details.
-```ts
-const mintAddress = "AQYAGzygMZQid99up64zFG75zwRX7DE1i2v9W4teq2xm"
-const receipientAddress = "D5puQCwAbP29T4gRRfEuZ4Uai7UoFBcXgfutCJTBPAkL"
-
-await mirage.value.transferNft(mintAddress, receipientAddress)
-```
 
 ## Querying NFT Transaction History
 Any client can query the transaction history of NFT by invoking the `Mirage.getTokenTransactions` method. This returns an array of transaction receipts typed as [`Promise<TransactionReceipt[]>`](https://mirage-js-sdk.vercel.app/interfaces/core_src.TransactionReceipt.html).
