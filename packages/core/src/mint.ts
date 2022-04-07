@@ -59,9 +59,12 @@ export const mintNFT = async ({
   const { mint, createMintTx, createAssociatedTokenAccountTx, mintToTx } =
     await prepareTokenAccountAndMintTxs(connection, wallet.publicKey);
 
+  const _retryLookupFunction = retryUntil(20000);
   const metadataPDA = await Metadata.getPDA(mint.publicKey);
   const editionPDA = await MasterEdition.getPDA(mint.publicKey);
-  const lookupResult = (await lookup(uri)()) as any as MetadataJson;
+  const lookupResult = (await _retryLookupFunction(
+    lookup(uri)
+  )) as any as MetadataJson;
 
   const {
     name,
@@ -161,6 +164,32 @@ export const mintNFT = async ({
     edition: editionPDA,
   };
 };
+
+const isFunction = (f: unknown) => typeof f === 'function';
+
+const retryUntil =
+  (duration: number) =>
+  (fn: Function, ...args: unknown[]) => {
+    let threw = true;
+    const start = Date.now();
+    const catcher = (er: Error) => {
+      const left = duration + start - Date.now();
+      if (left > 0) return retryUntil(left)(fn, ...args);
+      else throw er;
+    };
+
+    while (true) {
+      try {
+        const ret = fn(...args);
+        threw = false;
+        return ret && isFunction(ret.then) && isFunction(ret.catch)
+          ? ret.catch(catcher)
+          : ret;
+      } finally {
+        if (threw && Date.now() - start < duration) continue;
+      }
+    }
+  };
 
 interface ISendTransactionParams {
   connection: Connection;

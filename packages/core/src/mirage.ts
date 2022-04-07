@@ -85,16 +85,17 @@ export type ReceiptType =
   | 'cancel_listing_receipt'
   | 'bid_receipt'
   | 'cancel_bid_receipt';
-export type TransactionReceipt =
-  | (Omit<ListingReceipt, 'serialize' | 'pretty'> & {
-      receipt_type: ReceiptType;
-    })
-  | (Omit<BidReceipt, 'serialize' | 'pretty'> & {
-      receipt_type: ReceiptType;
-    })
-  | (Omit<PurchaseReceipt, 'serialize' | 'pretty'> & {
-      receipt_type: ReceiptType;
-    });
+
+export interface TransactionReceipt
+  extends Omit<ListingReceipt, 'serialize' | 'pretty'>,
+    Omit<BidReceipt, 'serialize' | 'pretty'>,
+    Omit<PurchaseReceipt, 'serialize' | 'pretty'> {
+  receipt_type: ReceiptType;
+  createdAt: number;
+  cancelledAt: number;
+  price: number;
+  tokenSize: number;
+}
 
 const {
   createPrintBidReceiptInstruction,
@@ -146,6 +147,11 @@ export class Mirage {
     this.auctionHouse = auctionHouse;
     this.program = await this.loadAuctionHouseProgram();
     console.log('Auctionhouse initialized at address', auctionHouse.toBase58());
+    console.log('Mirage SDK ready', {
+      wallet: this.wallet.publicKey.toBase58(),
+      auctionHouse: auctionHouse.toBase58(),
+      auctionHouseSigner: this.auctionHouseAuthority!.toBase58(),
+    });
   }
 
   /** Get user's NFTs */
@@ -498,9 +504,9 @@ export class Mirage {
     );
     const metadataDecoded: MetadataSchema = decodeMetadata(
       Buffer.from(metadataObj!.data)
-    )!;
+    );
 
-    const creatorAccounts = metadataDecoded.data.creators?.map((c) => ({
+    const creatorAccounts = metadataDecoded.data.creators!.map((c) => ({
       pubkey: new PublicKey(c.address),
       isWritable: true,
       isSigner: false,
@@ -939,7 +945,7 @@ export class Mirage {
         wallet: this.wallet,
         uri: metadataUrl,
         maxSupply: 1,
-        updateAuthority: this.auctionHouse!,
+        updateAuthority: this.auctionHouseAuthority!,
       });
       _metadata = mintNftResponse;
     } else {
@@ -948,7 +954,7 @@ export class Mirage {
         wallet: this.wallet,
         uri: metadataLink,
         maxSupply: 1,
-        updateAuthority: this.auctionHouse!,
+        updateAuthority: this.auctionHouseAuthority!,
       });
       _metadata = mintNftResponse;
     }
@@ -1061,6 +1067,10 @@ export class Mirage {
           .toDate()
           .getTime(),
       }))
+      .filter(
+        (receipt) =>
+          receipt.auctionHouse.toBase58() === this.auctionHouse!.toBase58()
+      )
       .sort((a, b) => {
         if (
           (a.receipt_type === 'bid_receipt',
