@@ -1,9 +1,4 @@
-import {
-  Connection,
-  PublicKey,
-  RpcResponseAndContext,
-  SignatureResult,
-} from '@solana/web3.js';
+import { Connection, PublicKey, RpcResponseAndContext, SignatureResult } from '@solana/web3.js';
 import { Keypair, SendOptions } from '@solana/web3.js';
 import { BN, Wallet } from '@project-serum/anchor';
 import fetch from 'isomorphic-fetch';
@@ -12,15 +7,7 @@ import { Transaction } from '@metaplex-foundation/mpl-core';
 
 const { prepareTokenAccountAndMintTxs } = actions;
 const {
-  metadata: {
-    Metadata,
-    MasterEdition,
-    MetadataDataData,
-    CreateMasterEdition,
-    CreateMetadata,
-    Creator,
-    UpdateMetadata,
-  },
+  metadata: { Metadata, MasterEdition, MetadataDataData, CreateMasterEdition, CreateMetadata, Creator, UpdateMetadata },
 } = programs;
 
 const lookup = (url: string) => async () => {
@@ -49,22 +36,13 @@ export interface MintNFTResponse {
   edition: PublicKey;
 }
 
-export const mintNFT = async ({
-  connection,
-  wallet,
-  uri,
-  maxSupply,
-  updateAuthority,
-}: MintNFTParams): Promise<MintNFTResponse> => {
-  const { mint, createMintTx, createAssociatedTokenAccountTx, mintToTx } =
-    await prepareTokenAccountAndMintTxs(connection, wallet.publicKey);
+export const mintNFT = async ({ connection, wallet, uri, maxSupply, updateAuthority }: MintNFTParams): Promise<MintNFTResponse> => {
+  const { mint, createMintTx, createAssociatedTokenAccountTx, mintToTx } = await prepareTokenAccountAndMintTxs(connection, wallet.publicKey);
 
   const _retryLookupFunction = retryUntil(20000);
   const metadataPDA = await Metadata.getPDA(mint.publicKey);
   const editionPDA = await MasterEdition.getPDA(mint.publicKey);
-  const lookupResult = (await _retryLookupFunction(
-    lookup(uri)
-  )) as any as MetadataJson;
+  const lookupResult = (await _retryLookupFunction(lookup(uri))) as any as MetadataJson;
 
   const {
     name,
@@ -133,13 +111,7 @@ export const mintNFT = async ({
   );
 
   const txt = new Transaction();
-  txt
-    .add(createMintTx)
-    .add(createMetadataTx)
-    .add(createAssociatedTokenAccountTx)
-    .add(mintToTx)
-    .add(masterEditionTx)
-    .add(updateMetaDataTx);
+  txt.add(createMintTx).add(createMetadataTx).add(createAssociatedTokenAccountTx).add(mintToTx).add(masterEditionTx).add(updateMetaDataTx);
 
   txt.recentBlockhash = (await connection.getRecentBlockhash()).blockhash;
   txt.feePayer = wallet.publicKey;
@@ -182,9 +154,7 @@ const retryUntil =
       try {
         const ret = fn(...args);
         threw = false;
-        return ret && isFunction(ret.then) && isFunction(ret.catch)
-          ? ret.catch(catcher)
-          : ret;
+        return ret && isFunction(ret.then) && isFunction(ret.catch) ? ret.catch(catcher) : ret;
       } finally {
         if (threw && Date.now() - start < duration) continue;
       }

@@ -1,16 +1,10 @@
 import { Connection } from '@solana/web3.js';
 import { ComputedRef } from 'vue';
 import { createContext } from './context';
-import {
-  Mirage,
-  MIRAGE_AUCTION_HOUSE_AUTHORITY,
-  NFT_STORAGE_API_KEY,
-} from '@mirrorworld/mirage.core';
+import { Mirage, MIRAGE_AUCTION_HOUSE_AUTHORITY, NFT_STORAGE_API_KEY } from '@mirrorworld/mirage.core';
 import type { Wallet } from '@project-serum/anchor';
 
-const [MirageContextProvider, useMirage, MirageInjectionKey] = createContext<
-  ComputedRef<Mirage>
->({
+const [MirageContextProvider, useMirage, MirageInjectionKey] = createContext<ComputedRef<Mirage>>({
   name: 'MirageContext',
   strict: true,
   errorMessage: 'useMirage requires you to provide the connection hook',

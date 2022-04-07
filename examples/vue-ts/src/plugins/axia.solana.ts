@@ -1,9 +1,5 @@
 import { App, Plugin } from 'vue';
-import {
-  ConnectionInjectionKey,
-  initializeConnection,
-  SolanaNetworks,
-} from '@axiajs/solana.vue';
+import { ConnectionInjectionKey, initializeConnection, SolanaNetworks } from '@axiajs/solana.vue';
 
 export interface AxiaSolanaPluginOptions {
   network: SolanaNetworks;

@@ -6,19 +6,29 @@ import Layouts from 'vite-plugin-vue-layouts';
 import { componentResolver } from '@chakra-ui/vue-auto-import';
 import { handleSSG } from './src/utils/ssg';
 import inject from '@rollup/plugin-inject';
+import { resolve } from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {
-    'process.env': process.env,
-    global: {},
+    'process.env.NODE_DEBUG': JSON.stringify(''),
   },
   optimizeDeps: {
-    include: ['buffer'],
+    include: ['buffer', '@solana/web3.js', '@solana/web3.js > bn.js', '@solana/web3.js > borsh', '@solana/web3.js > buffer', 'borsh', 'buffer-layout'],
+  },
+  build: {
+    commonjsOptions: {
+      include: ['borsh', '@solana/web3.js', 'buffer-layout'],
+    },
+  },
+  resolve: {
+    alias: {
+      // borsh: resolve(__dirname, '../../node_modules/borsh/lib/index.js'),
+    },
   },
   plugins: [
     vue(),
-    // @ts-expect-error
+    // @ts-ignore
     inject({
       Buffer: ['buffer', 'Buffer'],
     }),
@@ -29,6 +39,7 @@ export default defineConfig({
       pagesDir: ['./src/pages'],
     }),
     Layouts({
+      // @ts-ignore
       layoutsDir: './src/layouts',
     }),
   ],

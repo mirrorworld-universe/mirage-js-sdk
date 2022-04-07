@@ -1,8 +1,4 @@
-import {
-  AUCTION_HOUSE_PROGRAM_ID,
-  MINT_CONFIG,
-  NFT_STORAGE_API_KEY,
-} from './constants';
+import { AUCTION_HOUSE_PROGRAM_ID, MINT_CONFIG, NFT_STORAGE_API_KEY } from './constants';
 import { programs } from '@metaplex/js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token } from '@solana/spl-token';
 import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
@@ -22,13 +18,7 @@ import { Program, Provider } from '@project-serum/anchor';
 import type { Wallet } from '@project-serum/anchor';
 import merge from 'lodash.merge';
 import { decodeMetadata, Metadata as MetadataSchema } from './schema';
-import {
-  getAccountInfo,
-  getAtaForMint,
-  getMetadata,
-  processCreatorShares,
-  uploadNFTFileToStorage,
-} from './utils';
+import { getAccountInfo, getAtaForMint, getMetadata, processCreatorShares, uploadNFTFileToStorage } from './utils';
 import dayjs from 'dayjs';
 import { SolanaNetwork, MetadataObject, AuctionHouse } from './types';
 import { writeFileSync } from 'fs';
@@ -60,11 +50,7 @@ import {
 } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/instructions';
 
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import {
-  BidReceipt,
-  ListingReceipt,
-  PurchaseReceipt,
-} from '@metaplex-foundation/mpl-auction-house/dist/src/generated/accounts';
+import { BidReceipt, ListingReceipt, PurchaseReceipt } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/accounts';
 import { mintNFT, MintNFTResponse } from './mint';
 
 export interface IMirageOptions {
@@ -78,13 +64,7 @@ export interface IMirageOptions {
   };
 }
 
-export type ReceiptType =
-  | 'purchase_receipt'
-  | 'listing_receipt'
-  | 'cancel_receipt'
-  | 'cancel_listing_receipt'
-  | 'bid_receipt'
-  | 'cancel_bid_receipt';
+export type ReceiptType = 'purchase_receipt' | 'listing_receipt' | 'cancel_receipt' | 'cancel_listing_receipt' | 'bid_receipt' | 'cancel_bid_receipt';
 
 export interface TransactionReceipt
   extends Omit<ListingReceipt, 'serialize' | 'pretty'>,
@@ -114,13 +94,7 @@ export class Mirage {
   wallet: Wallet;
   NFTStorageAPIKey: string;
   mintConfig: IMirageOptions['mintConfig'];
-  constructor({
-    auctionHouseAuthority,
-    connection,
-    wallet,
-    NFTStorageAPIKey,
-    mintConfig: userMintConfig = MINT_CONFIG,
-  }: IMirageOptions) {
+  constructor({ auctionHouseAuthority, connection, wallet, NFTStorageAPIKey, mintConfig: userMintConfig = MINT_CONFIG }: IMirageOptions) {
     this.auctionHouseAuthority = auctionHouseAuthority;
     this.connection = connection;
     this.wallet = wallet;
@@ -156,10 +130,7 @@ export class Mirage {
 
   /** Get user's NFTs */
   async getUserNfts(publicKey: PublicKey) {
-    const nftsmetadata = await Metadata.findDataByOwner(
-      this.connection,
-      publicKey
-    );
+    const nftsmetadata = await Metadata.findDataByOwner(this.connection, publicKey);
     return nftsmetadata;
   }
 
@@ -173,37 +144,23 @@ export class Mirage {
 
   /** Gets the owner of an NFT */
   async getNftOwner(mint: string | PublicKey) {
-    const largestAccounts = await this.connection.getTokenLargestAccounts(
-      new PublicKey(mint)
-    );
-    const largestAccountInfo = await this.connection.getParsedAccountInfo(
-      largestAccounts.value[0].address
-    );
+    const largestAccounts = await this.connection.getTokenLargestAccounts(new PublicKey(mint));
+    const largestAccountInfo = await this.connection.getParsedAccountInfo(largestAccounts.value[0].address);
     /** @ts-expect-error "ParsedAccountInfo | Buffer" not typed correctly */
     const owner = largestAccountInfo.value.data.parsed.info.owner as string;
     console.log(`Owner of token ${mint.toString()} is ${owner}`);
-    return [
-      owner,
-      new PublicKey(owner),
-      largestAccountInfo.value!.data,
-    ] as const;
+    return [owner, new PublicKey(owner), largestAccountInfo.value!.data] as const;
   }
 
   /** Determines whether the client is the owner of the auctionhouse */
   get clientIsOwner() {
-    return (
-      this.auctionHouseAuthority.toBase58() === this.wallet.publicKey.toBase58()
-    );
+    return this.auctionHouseAuthority.toBase58() === this.wallet.publicKey.toBase58();
   }
 
   /** Get the auction house addresses by the owner */
   async getAuctionHouseAddress() {
-    if (!this.auctionHouseAuthority)
-      throw new Error('auctionHouseAuthority not provided');
-    const result = await AuctionHouseProgram.findAuctionHouseAddress(
-      this.auctionHouseAuthority,
-      new PublicKey('So11111111111111111111111111111111111111112')
-    );
+    if (!this.auctionHouseAuthority) throw new Error('auctionHouseAuthority not provided');
+    const result = await AuctionHouseProgram.findAuctionHouseAddress(this.auctionHouseAuthority, new PublicKey('So11111111111111111111111111111111111111112'));
     return result;
   }
 
@@ -250,54 +207,40 @@ export class Mirage {
       listingPrice,
     });
 
-    const auctionHouseObj = (await this.program!.account.auctionHouse.fetch(
-      this.auctionHouse!
-    )) as any as AuctionHouse;
+    const auctionHouseObj = (await this.program!.account.auctionHouse.fetch(this.auctionHouse!)) as any as AuctionHouse;
 
     const nftMetadataAccount = await getMetadata(_mint);
-    const [associatedTokenAccount] = await getAtaForMint(
+    const [associatedTokenAccount] = await getAtaForMint(_mint, sellerWallet.publicKey);
+
+    const [sellerTradeState, tradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
+      sellerWallet.publicKey,
+      this.auctionHouse!,
+      associatedTokenAccount,
+      auctionHouseObj.treasuryMint,
       _mint,
-      sellerWallet.publicKey
+      listingPrice,
+      1
     );
 
-    const [sellerTradeState, tradeStateBump] =
-      await AuctionHouseProgram.findTradeStateAddress(
-        sellerWallet.publicKey,
-        this.auctionHouse!,
-        associatedTokenAccount,
-        auctionHouseObj.treasuryMint,
-        _mint,
-        listingPrice,
-        1
-      );
+    const [freeTradeState, freeTradeBump] = await AuctionHouseProgram.findTradeStateAddress(
+      sellerWallet.publicKey,
+      this.auctionHouse!,
+      associatedTokenAccount,
+      auctionHouseObj.treasuryMint,
+      _mint,
+      0,
+      1
+    );
 
-    const [freeTradeState, freeTradeBump] =
-      await AuctionHouseProgram.findTradeStateAddress(
-        sellerWallet.publicKey,
-        this.auctionHouse!,
-        associatedTokenAccount,
-        auctionHouseObj.treasuryMint,
-        _mint,
-        0,
-        1
-      );
+    const [receipt, receiptBump] = await AuctionHouseProgram.findListingReceiptAddress(sellerTradeState);
 
-    const [receipt, receiptBump] =
-      await AuctionHouseProgram.findListingReceiptAddress(sellerTradeState);
+    console.log('[sellerTradeState, receipt]', [sellerTradeState.toBase58(), receipt.toBase58()]);
 
-    console.log('[sellerTradeState, receipt]', [
-      sellerTradeState.toBase58(),
-      receipt.toBase58(),
-    ]);
-
-    const [programAsSigner, programAsSignerBump] =
-      await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
+    const [programAsSigner, programAsSignerBump] = await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
 
     const sellInstructionAccounts: SellInstructionAccounts = {
       auctionHouse: this.auctionHouse!,
-      auctionHouseFeeAccount: new PublicKey(
-        auctionHouseObj.auctionHouseFeeAccount
-      ),
+      auctionHouseFeeAccount: new PublicKey(auctionHouseObj.auctionHouseFeeAccount),
       authority: new PublicKey(auctionHouseObj.authority),
       wallet: sellerWallet.publicKey,
       metadata: nftMetadataAccount,
@@ -315,33 +258,23 @@ export class Mirage {
       tokenSize,
     };
 
-    const sellInstruction = await createSellInstruction(
-      sellInstructionAccounts,
-      sellInstructionArgs
-    );
+    const sellInstruction = await createSellInstruction(sellInstructionAccounts, sellInstructionArgs);
 
-    const printListingReceiptInstructionAccounts: PrintListingReceiptInstructionAccounts =
-      {
-        receipt,
-        bookkeeper: sellerWallet.publicKey,
-        instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
-      };
-    const printListingReceiptInstructionArgs: PrintListingReceiptInstructionArgs =
-      {
-        receiptBump,
-      };
+    const printListingReceiptInstructionAccounts: PrintListingReceiptInstructionAccounts = {
+      receipt,
+      bookkeeper: sellerWallet.publicKey,
+      instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
+    };
+    const printListingReceiptInstructionArgs: PrintListingReceiptInstructionArgs = {
+      receiptBump,
+    };
 
-    const printListingReceiptInstruction = createPrintListingReceiptInstruction(
-      printListingReceiptInstructionAccounts,
-      printListingReceiptInstructionArgs
-    );
+    const printListingReceiptInstruction = createPrintListingReceiptInstruction(printListingReceiptInstructionAccounts, printListingReceiptInstructionArgs);
 
     const txt = new Transaction();
     txt.add(sellInstruction).add(printListingReceiptInstruction);
 
-    txt.recentBlockhash = (
-      await this.connection.getLatestBlockhash()
-    ).blockhash;
+    txt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     txt.feePayer = sellerWallet.publicKey;
 
     let signed: Transaction | undefined = undefined;
@@ -355,24 +288,11 @@ export class Mirage {
 
     let signature: string | undefined = undefined;
     signature = await this.connection.sendRawTransaction(signed!.serialize());
-    const result = await this.connection.confirmTransaction(
-      signature,
-      'confirmed'
-    );
+    const result = await this.connection.confirmTransaction(signature, 'confirmed');
 
     console.log('result', result);
-    console.log(
-      'Successfully listed ',
-      mint,
-      ' at ',
-      listingPrice / LAMPORTS_PER_SOL,
-      ' SOL'
-    );
-    const ListingReceipt =
-      await AuctionHouseProgram.accounts.ListingReceipt.fromAccountAddress(
-        this.connection,
-        receipt
-      );
+    console.log('Successfully listed ', mint, ' at ', listingPrice / LAMPORTS_PER_SOL, ' SOL');
+    const ListingReceipt = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountAddress(this.connection, receipt);
     return [result, ListingReceipt] as const;
   }
 
@@ -385,9 +305,7 @@ export class Mirage {
     const buyerPrice = Number(_buyerPrice) * LAMPORTS_PER_SOL;
     const _mint = new PublicKey(mint);
     const _buyerPublicKey = this.wallet.publicKey;
-    const [sellerAddressAsString, _sellerPublicKey] = await this.getNftOwner(
-      mint
-    );
+    const [sellerAddressAsString, _sellerPublicKey] = await this.getNftOwner(mint);
 
     if (this.wallet.publicKey.toBase58() === sellerAddressAsString) {
       throw new Error('You cannot buy your own NFT');
@@ -405,18 +323,11 @@ export class Mirage {
       buyingPrice: buyerPrice,
     });
 
-    const auctionHouseObj = (await this.program!.account.auctionHouse.fetch(
-      this.auctionHouse!
-    )) as any as AuctionHouse;
+    const auctionHouseObj = (await this.program!.account.auctionHouse.fetch(this.auctionHouse!)) as any as AuctionHouse;
 
-    const [escrowPaymentAccount, escrowPaymentBump] =
-      await AuctionHouseProgram.findEscrowPaymentAccountAddress(
-        this.auctionHouse!,
-        buyerWallet.publicKey
-      );
+    const [escrowPaymentAccount, escrowPaymentBump] = await AuctionHouseProgram.findEscrowPaymentAccountAddress(this.auctionHouse!, buyerWallet.publicKey);
 
-    const results =
-      await this.program!.provider.connection.getTokenLargestAccounts(_mint);
+    const results = await this.program!.provider.connection.getTokenLargestAccounts(_mint);
 
     const metadata = await getMetadata(_mint);
     /**
@@ -426,15 +337,14 @@ export class Mirage {
      * */
     const tokenAccount = results.value[0].address;
 
-    const [buyerTradeState, tradeStateBump] =
-      await AuctionHouseProgram.findPublicBidTradeStateAddress(
-        buyerWallet.publicKey,
-        this.auctionHouse!,
-        auctionHouseObj.treasuryMint,
-        _mint,
-        buyerPrice,
-        tokenSize
-      );
+    const [buyerTradeState, tradeStateBump] = await AuctionHouseProgram.findPublicBidTradeStateAddress(
+      buyerWallet.publicKey,
+      this.auctionHouse!,
+      auctionHouseObj.treasuryMint,
+      _mint,
+      buyerPrice,
+      tokenSize
+    );
 
     const publicBuyInstructionAccounts: PublicBuyInstructionAccounts = {
       wallet: buyerWallet.publicKey,
@@ -446,9 +356,7 @@ export class Mirage {
       escrowPaymentAccount,
       authority: new PublicKey(auctionHouseObj.authority),
       auctionHouse: this.auctionHouse!,
-      auctionHouseFeeAccount: new PublicKey(
-        auctionHouseObj.auctionHouseFeeAccount
-      ),
+      auctionHouseFeeAccount: new PublicKey(auctionHouseObj.auctionHouseFeeAccount),
       buyerTradeState,
     };
 
@@ -459,15 +367,9 @@ export class Mirage {
       tradeStateBump,
     };
 
-    const publicBuyInstruction = createPublicBuyInstruction(
-      publicBuyInstructionAccounts,
-      publicBuyInstructionArgs
-    );
+    const publicBuyInstruction = createPublicBuyInstruction(publicBuyInstructionAccounts, publicBuyInstructionArgs);
 
-    const [associatedTokenAccount] = await getAtaForMint(
-      _mint,
-      _sellerPublicKey
-    );
+    const [associatedTokenAccount] = await getAtaForMint(_mint, _sellerPublicKey);
 
     const [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
       _sellerPublicKey,
@@ -479,32 +381,22 @@ export class Mirage {
       1
     );
 
-    const [freeTradeState, freeTradeStateBump] =
-      await AuctionHouseProgram.findTradeStateAddress(
-        _sellerPublicKey,
-        this.auctionHouse!,
-        tokenAccount,
-        auctionHouseObj.treasuryMint,
-        _mint,
-        0,
-        1
-      );
-
-    const [programAsSigner, programAsSignerBump] =
-      await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
-
-    const [buyerReceiptTokenAccount] =
-      await AuctionHouseProgram.findAssociatedTokenAccountAddress(
-        _mint,
-        buyerWallet.publicKey
-      );
-
-    const metadataObj = await this.program!.provider.connection.getAccountInfo(
-      metadata
+    const [freeTradeState, freeTradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
+      _sellerPublicKey,
+      this.auctionHouse!,
+      tokenAccount,
+      auctionHouseObj.treasuryMint,
+      _mint,
+      0,
+      1
     );
-    const metadataDecoded: MetadataSchema = decodeMetadata(
-      Buffer.from(metadataObj!.data)
-    );
+
+    const [programAsSigner, programAsSignerBump] = await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
+
+    const [buyerReceiptTokenAccount] = await AuctionHouseProgram.findAssociatedTokenAccountAddress(_mint, buyerWallet.publicKey);
+
+    const metadataObj = await this.program!.provider.connection.getAccountInfo(metadata);
+    const metadataDecoded: MetadataSchema = decodeMetadata(Buffer.from(metadataObj!.data));
 
     const creatorAccounts = metadataDecoded.data.creators!.map((c) => ({
       pubkey: new PublicKey(c.address),
@@ -521,9 +413,7 @@ export class Mirage {
       auctionHouse: this.auctionHouse!,
       treasuryMint: auctionHouseObj.treasuryMint,
       authority: new PublicKey(auctionHouseObj.authority),
-      auctionHouseFeeAccount: new PublicKey(
-        auctionHouseObj.auctionHouseFeeAccount
-      ),
+      auctionHouseFeeAccount: new PublicKey(auctionHouseObj.auctionHouseFeeAccount),
       auctionHouseTreasury: new PublicKey(auctionHouseObj.auctionHouseTreasury),
       escrowPaymentAccount,
       programAsSigner,
@@ -542,67 +432,42 @@ export class Mirage {
       tokenSize,
     };
 
-    const _executeSaleInstruction = await createExecuteSaleInstruction(
-      executeSaleInstructionAccounts,
-      createExecuteSaleInstructionArgs
-    );
+    const _executeSaleInstruction = await createExecuteSaleInstruction(executeSaleInstructionAccounts, createExecuteSaleInstructionArgs);
 
-    const [bidReceipt, bidReceiptBump] =
-      await AuctionHouseProgram.findBidReceiptAddress(buyerTradeState);
+    const [bidReceipt, bidReceiptBump] = await AuctionHouseProgram.findBidReceiptAddress(buyerTradeState);
 
     // Executing sale:
     console.log('===== EXECUTING SALE =====');
 
-    console.log('[buyerTradeState, bidReceipt]', [
-      buyerTradeState.toBase58(),
-      bidReceipt.toBase58(),
-    ]);
-    const [purchaseReceipt, purchaseReceiptBump] =
-      await AuctionHouseProgram.findPurchaseReceiptAddress(
-        sellerTradeState,
-        buyerTradeState
-      );
-    const [listingReceipt] =
-      await AuctionHouseProgram.findListingReceiptAddress(sellerTradeState);
+    console.log('[buyerTradeState, bidReceipt]', [buyerTradeState.toBase58(), bidReceipt.toBase58()]);
+    const [purchaseReceipt, purchaseReceiptBump] = await AuctionHouseProgram.findPurchaseReceiptAddress(sellerTradeState, buyerTradeState);
+    const [listingReceipt] = await AuctionHouseProgram.findListingReceiptAddress(sellerTradeState);
 
-    console.log('[sellerTradeState, listingReceipt]', [
-      sellerTradeState.toBase58(),
-      listingReceipt.toBase58(),
-    ]);
+    console.log('[sellerTradeState, listingReceipt]', [sellerTradeState.toBase58(), listingReceipt.toBase58()]);
 
-    const printBidReceiptInstructionAccounts: PrintBidReceiptInstructionAccounts =
-      {
-        bookkeeper: buyerWallet.publicKey,
-        receipt: bidReceipt,
-        instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
-      };
+    const printBidReceiptInstructionAccounts: PrintBidReceiptInstructionAccounts = {
+      bookkeeper: buyerWallet.publicKey,
+      receipt: bidReceipt,
+      instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
+    };
     const printBidReceiptInstructionArgs: PrintBidReceiptInstructionArgs = {
       receiptBump: bidReceiptBump,
     };
 
-    const printPurchaseReceiptInstructionAccounts: PrintPurchaseReceiptInstructionAccounts =
-      {
-        bookkeeper: buyerWallet.publicKey,
-        purchaseReceipt,
-        bidReceipt,
-        listingReceipt,
-        instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
-      };
-    const printPurchaseReceiptInstructionArgs: PrintPurchaseReceiptInstructionArgs =
-      {
-        purchaseReceiptBump,
-      };
+    const printPurchaseReceiptInstructionAccounts: PrintPurchaseReceiptInstructionAccounts = {
+      bookkeeper: buyerWallet.publicKey,
+      purchaseReceipt,
+      bidReceipt,
+      listingReceipt,
+      instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
+    };
+    const printPurchaseReceiptInstructionArgs: PrintPurchaseReceiptInstructionArgs = {
+      purchaseReceiptBump,
+    };
 
-    const printBidReceiptInstruction = createPrintBidReceiptInstruction(
-      printBidReceiptInstructionAccounts,
-      printBidReceiptInstructionArgs
-    );
+    const printBidReceiptInstruction = createPrintBidReceiptInstruction(printBidReceiptInstructionAccounts, printBidReceiptInstructionArgs);
 
-    const printPurchaseReceiptInstruction =
-      createPrintPurchaseReceiptInstruction(
-        printPurchaseReceiptInstructionAccounts,
-        printPurchaseReceiptInstructionArgs
-      );
+    const printPurchaseReceiptInstruction = createPrintPurchaseReceiptInstruction(printPurchaseReceiptInstructionAccounts, printPurchaseReceiptInstructionArgs);
 
     const executeSaleInstruction = new TransactionInstruction({
       programId: AuctionHouseProgram.PUBKEY,
@@ -612,15 +477,9 @@ export class Mirage {
     });
 
     const buyTxt = new Transaction();
-    buyTxt
-      .add(publicBuyInstruction)
-      .add(printBidReceiptInstruction)
-      .add(executeSaleInstruction)
-      .add(printPurchaseReceiptInstruction);
+    buyTxt.add(publicBuyInstruction).add(printBidReceiptInstruction).add(executeSaleInstruction).add(printPurchaseReceiptInstruction);
 
-    buyTxt.recentBlockhash = (
-      await this.connection.getLatestBlockhash()
-    ).blockhash;
+    buyTxt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     buyTxt.feePayer = buyerWallet.publicKey;
 
     let signed: Transaction | undefined = undefined;
@@ -635,24 +494,11 @@ export class Mirage {
     let signature: string | undefined = undefined;
     signature = await this.connection.sendRawTransaction(signed!.serialize());
 
-    const result = await this.connection.confirmTransaction(
-      signature,
-      'confirmed'
-    );
+    const result = await this.connection.confirmTransaction(signature, 'confirmed');
 
     console.log('result', result);
-    console.log(
-      'Successfully purchased ',
-      mint,
-      ' at ',
-      buyerPrice / LAMPORTS_PER_SOL,
-      ' SOL'
-    );
-    const PurchaseReceipt =
-      await AuctionHouseProgram.accounts.PurchaseReceipt.fromAccountAddress(
-        this.connection,
-        purchaseReceipt
-      );
+    console.log('Successfully purchased ', mint, ' at ', buyerPrice / LAMPORTS_PER_SOL, ' SOL');
+    const PurchaseReceipt = await AuctionHouseProgram.accounts.PurchaseReceipt.fromAccountAddress(this.connection, purchaseReceipt);
     return [result, PurchaseReceipt] as const;
   }
 
@@ -664,22 +510,15 @@ export class Mirage {
   async cancelListing(mint: string, _buyerPrice: number) {
     const buyerPrice = Number(_buyerPrice) * LAMPORTS_PER_SOL;
     const _mint = new PublicKey(mint);
-    const [sellerAddressAsString, _sellerPublicKey] = await this.getNftOwner(
-      _mint
-    );
+    const [sellerAddressAsString, _sellerPublicKey] = await this.getNftOwner(_mint);
 
     if (this.wallet.publicKey.toBase58() !== sellerAddressAsString) {
       throw new Error('You cannot cancel listing of an NFT you do not own');
     }
 
-    const auctionHouseObj = (await this.program!.account.auctionHouse.fetch(
-      this.auctionHouse!
-    )) as any as AuctionHouse;
+    const auctionHouseObj = (await this.program!.account.auctionHouse.fetch(this.auctionHouse!)) as any as AuctionHouse;
 
-    const [associatedTokenAccount] = await getAtaForMint(
-      _mint,
-      _sellerPublicKey
-    );
+    const [associatedTokenAccount] = await getAtaForMint(_mint, _sellerPublicKey);
 
     const [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
       _sellerPublicKey,
@@ -691,14 +530,11 @@ export class Mirage {
       1
     );
 
-    const [listingReceipt] =
-      await AuctionHouseProgram.findListingReceiptAddress(sellerTradeState);
+    const [listingReceipt] = await AuctionHouseProgram.findListingReceiptAddress(sellerTradeState);
 
     const auctionHouse = this.auctionHouse!;
     const authority = this.auctionHouseAuthority;
-    const auctionHouseFeeAccount = new PublicKey(
-      auctionHouseObj.auctionHouseFeeAccount
-    );
+    const auctionHouseFeeAccount = new PublicKey(auctionHouseObj.auctionHouseFeeAccount);
     const treasuryMint = new PublicKey(auctionHouseObj.treasuryMint);
     const receipt = listingReceipt;
 
@@ -726,26 +562,19 @@ export class Mirage {
       tokenSize: 1,
     };
 
-    const cancelListingReceiptAccounts: CancelListingReceiptInstructionAccounts =
-      {
-        receipt,
-        instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
-      };
+    const cancelListingReceiptAccounts: CancelListingReceiptInstructionAccounts = {
+      receipt,
+      instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
+    };
 
-    const cancelInstruction = await createCancelInstruction(
-      cancelInstructionAccounts,
-      cancelInstructionArgs
-    );
+    const cancelInstruction = await createCancelInstruction(cancelInstructionAccounts, cancelInstructionArgs);
 
-    const cancelListingReceiptInstruction =
-      createCancelListingReceiptInstruction(cancelListingReceiptAccounts);
+    const cancelListingReceiptInstruction = createCancelListingReceiptInstruction(cancelListingReceiptAccounts);
 
     const txt = new Transaction();
     txt.add(cancelInstruction).add(cancelListingReceiptInstruction);
 
-    txt.recentBlockhash = (
-      await this.connection.getLatestBlockhash()
-    ).blockhash;
+    txt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     txt.feePayer = this.wallet.publicKey;
 
     let signed: Transaction | undefined = undefined;
@@ -760,25 +589,12 @@ export class Mirage {
     let signature: string | undefined = undefined;
     console.info('Sending the transaction to Solana.');
     signature = await this.connection.sendRawTransaction(signed!.serialize());
-    const result = await this.connection.confirmTransaction(
-      signature,
-      'confirmed'
-    );
+    const result = await this.connection.confirmTransaction(signature, 'confirmed');
 
     console.log('result', result);
-    console.log(
-      'Successfully cancelled listing for mint ',
-      mint,
-      ' at ',
-      buyerPrice / LAMPORTS_PER_SOL,
-      ' SOL'
-    );
+    console.log('Successfully cancelled listing for mint ', mint, ' at ', buyerPrice / LAMPORTS_PER_SOL, ' SOL');
 
-    const ListingReceipt =
-      await AuctionHouseProgram.accounts.ListingReceipt.fromAccountAddress(
-        this.connection,
-        receipt
-      );
+    const ListingReceipt = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountAddress(this.connection, receipt);
     console.log('listingReceiptObj', JSON.stringify(ListingReceipt, null, 2));
     return [result, ListingReceipt] as const;
   }
@@ -788,10 +604,7 @@ export class Mirage {
    * @param mint NFT mint address to transfer to a new user
    * @param recipient Recipient's publicKey
    */
-  async transferNft(
-    mint: string | PublicKey,
-    recipient: string | PublicKey
-  ): Promise<RpcResponseAndContext<SignatureResult>> {
+  async transferNft(mint: string | PublicKey, recipient: string | PublicKey): Promise<RpcResponseAndContext<SignatureResult>> {
     const _mint = new PublicKey(mint);
     const _recipient = new PublicKey(recipient);
 
@@ -803,19 +616,9 @@ export class Mirage {
       throw new Error('You cannot list an NFT you do not own');
     }
 
-    const senderAta = await Token.getAssociatedTokenAddress(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
-      _mint,
-      sender
-    );
+    const senderAta = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, sender);
 
-    const recipientAta = await Token.getAssociatedTokenAddress(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
-      _mint,
-      _recipient
-    );
+    const recipientAta = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, _recipient);
 
     console.log('recipient  Associated Token Account', recipientAta);
 
@@ -829,36 +632,24 @@ export class Mirage {
       await getAccountInfo(this.connection, recipientAta);
     } catch (error: any) {
       if (error.message === 'TokenAccountNotFoundError') {
-        console.log(
-          'Token Account not previously initialized. Creating Associated Token Account Instruction'
+        console.log('Token Account not previously initialized. Creating Associated Token Account Instruction');
+        const createAtaInstruction = await Token.createAssociatedTokenAccountInstruction(
+          ASSOCIATED_TOKEN_PROGRAM_ID,
+          TOKEN_PROGRAM_ID,
+          _mint,
+          recipientAta,
+          _recipient,
+          this.wallet.publicKey
         );
-        const createAtaInstruction =
-          await Token.createAssociatedTokenAccountInstruction(
-            ASSOCIATED_TOKEN_PROGRAM_ID,
-            TOKEN_PROGRAM_ID,
-            _mint,
-            recipientAta,
-            _recipient,
-            this.wallet.publicKey
-          );
 
         txt.add(createAtaInstruction);
       }
     }
-    const transferNftInstruction = await Token.createTransferInstruction(
-      TOKEN_PROGRAM_ID,
-      senderAta,
-      recipientAta,
-      sender,
-      [],
-      1
-    );
+    const transferNftInstruction = await Token.createTransferInstruction(TOKEN_PROGRAM_ID, senderAta, recipientAta, sender, [], 1);
 
     txt.add(transferNftInstruction);
 
-    txt.recentBlockhash = (
-      await this.connection.getLatestBlockhash()
-    ).blockhash;
+    txt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     txt.feePayer = this.wallet.publicKey;
 
     let signed: Transaction | undefined = undefined;
@@ -872,20 +663,10 @@ export class Mirage {
     let signature: string | undefined = undefined;
     console.info('Sending the transaction to Solana.');
     signature = await this.connection.sendRawTransaction(signed!.serialize());
-    const result = await this.connection.confirmTransaction(
-      signature,
-      'confirmed'
-    );
+    const result = await this.connection.confirmTransaction(signature, 'confirmed');
 
     console.log('result', result);
-    console.log(
-      'Successfully transferred nft ',
-      mint,
-      ' from ',
-      this.wallet.publicKey.toBase58(),
-      ' to ',
-      _recipient.toBase58()
-    );
+    console.log('Successfully transferred nft ', mint, ' from ', this.wallet.publicKey.toBase58(), ' to ', _recipient.toBase58());
     return result;
   }
 
@@ -899,8 +680,7 @@ export class Mirage {
    * @param metadataLink URL for your token metadata. If provided, then upload is ignored.
    */
   async mintNft(metadata: MetadataObject, metadataLink?: string, file?: File) {
-    if (!metadata && !metadataLink)
-      throw new Error('Expected metadata object or metadataURL to mint an NFT');
+    if (!metadata && !metadataLink) throw new Error('Expected metadata object or metadataURL to mint an NFT');
 
     const creators = processCreatorShares(
       [
@@ -932,12 +712,7 @@ export class Mirage {
         seller_fee_basis_points: this.mintConfig!.seller_fee_basis_points,
       });
       // @ts-expect-error
-      const [metadataUrl] = await uploadNFTFileToStorage(
-        null,
-        finalMetadata,
-        undefined,
-        this.NFTStorageAPIKey
-      );
+      const [metadataUrl] = await uploadNFTFileToStorage(null, finalMetadata, undefined, this.NFTStorageAPIKey);
       console.log('Uploaded metadata to:', metadataUrl);
       // const tokenAccount = await getAtaForMint()
       const mintNftResponse = await mintNFT({
@@ -961,16 +736,11 @@ export class Mirage {
 
     /** Wait for one more second before loading new metadata */
 
-    const nftMetadata = await Metadata.findByMint(
-      this.connection,
-      _metadata.mint
-    );
+    const nftMetadata = await Metadata.findByMint(this.connection, _metadata.mint);
     return nftMetadata;
   }
 
-  async getTokenTransactions(
-    mint: string | PublicKey
-  ): Promise<(TransactionReceipt | undefined)[]> {
+  async getTokenTransactions(mint: string | PublicKey): Promise<(TransactionReceipt | undefined)[]> {
     const _mint = new PublicKey(mint);
     const metadata = await Metadata.findByMint(this.connection, _mint);
     /**
@@ -985,53 +755,35 @@ export class Mirage {
     const PrintBidReceiptSize = 269;
     const PrintPurchaseReceiptSize = 193;
 
-    const ReceiptAccountSizes = [
-      PrintListingReceiptSize,
-      PrintBidReceiptSize,
-      PrintPurchaseReceiptSize,
-    ] as const;
+    const ReceiptAccountSizes = [PrintListingReceiptSize, PrintBidReceiptSize, PrintPurchaseReceiptSize] as const;
 
     const ReceiptAccounts = await ReceiptAccountSizes.map(async (size) => {
-      const accounts = await this.connection.getProgramAccounts(
-        AUCTION_HOUSE_PROGRAM_ID,
-        {
-          commitment: 'confirmed',
-          filters: [
-            {
-              dataSize: size,
-            },
-          ],
-        }
-      );
+      const accounts = await this.connection.getProgramAccounts(AUCTION_HOUSE_PROGRAM_ID, {
+        commitment: 'confirmed',
+        filters: [
+          {
+            dataSize: size,
+          },
+        ],
+      });
       const parsedAccounts = await accounts.map(async (account) => {
         switch (size) {
           case PrintListingReceiptSize:
-            const [ListingReceipt] =
-              await AuctionHouseProgram.accounts.ListingReceipt.fromAccountInfo(
-                account.account
-              );
+            const [ListingReceipt] = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountInfo(account.account);
             return {
               ...ListingReceipt,
-              receipt_type: ListingReceipt.canceledAt
-                ? 'cancel_listing_receipt'
-                : 'listing_receipt',
+              receipt_type: ListingReceipt.canceledAt ? 'cancel_listing_receipt' : 'listing_receipt',
             } as TransactionReceipt;
             break;
           case PrintBidReceiptSize:
-            const [BidReceipt] =
-              await AuctionHouseProgram.accounts.BidReceipt.fromAccountInfo(
-                account.account
-              );
+            const [BidReceipt] = await AuctionHouseProgram.accounts.BidReceipt.fromAccountInfo(account.account);
             return {
               ...BidReceipt,
               receipt_type: 'bid_receipt',
             } as TransactionReceipt;
             break;
           case PrintPurchaseReceiptSize:
-            const [PurchaseReceipt] =
-              await AuctionHouseProgram.accounts.PurchaseReceipt.fromAccountInfo(
-                account.account
-              );
+            const [PurchaseReceipt] = await AuctionHouseProgram.accounts.PurchaseReceipt.fromAccountInfo(account.account);
             return {
               ...PurchaseReceipt,
               receipt_type: 'purchase_receipt',
@@ -1048,11 +800,7 @@ export class Mirage {
       await Promise.all(ReceiptAccounts)
     )
       .flat()
-      .filter(
-        (receipt) =>
-          !!receipt &&
-          receipt.metadata.toBase58() === metadata.pubkey.toBase58()
-      )
+      .filter((receipt) => !!receipt && receipt.metadata.toBase58() === metadata.pubkey.toBase58())
       .map((receipt) => ({
         ...receipt!,
         /** @ts-ignore */
@@ -1067,20 +815,11 @@ export class Mirage {
           .toDate()
           .getTime(),
       }))
-      .filter(
-        (receipt) =>
-          receipt.auctionHouse.toBase58() === this.auctionHouse!.toBase58()
-      )
+      .filter((receipt) => receipt.auctionHouse.toBase58() === this.auctionHouse!.toBase58())
       .sort((a, b) => {
-        if (
-          (a.receipt_type === 'bid_receipt',
-          b.receipt_type === 'purchase_receipt')
-        ) {
+        if ((a.receipt_type === 'bid_receipt', b.receipt_type === 'purchase_receipt')) {
           return 1;
-        } else if (
-          (a.receipt_type === 'purchase_receipt',
-          b.receipt_type === 'bid_receipt')
-        ) {
+        } else if ((a.receipt_type === 'purchase_receipt', b.receipt_type === 'bid_receipt')) {
           return -1;
         } else {
           return 0;

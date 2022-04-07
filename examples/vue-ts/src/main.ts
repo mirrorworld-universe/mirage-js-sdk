@@ -10,7 +10,8 @@ import { hydrate } from '@emotion/css';
 
 import * as icons from './utils/icons';
 import theme from './theme/extend';
-import { SolanaNetworks, AxiaSolana } from '@axiajs/solana.vue';
+import { SolanaNetworks } from './components';
+import { AxiaSolana } from './solana.plugin';
 
 const routes = setupLayouts(generatedRoutes);
 

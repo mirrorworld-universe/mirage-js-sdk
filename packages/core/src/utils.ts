@@ -3,47 +3,21 @@ import { Connection, PublicKey, Commitment } from '@solana/web3.js';
 import fetch from 'isomorphic-fetch';
 import percentRound from 'percent-round';
 import { BN } from '@project-serum/anchor';
-import {
-  AUCTION_HOUSE,
-  AUCTION_HOUSE_PROGRAM_ID,
-  NFT_STORAGE_API_KEY,
-  SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID,
-  TOKEN_METADATA_PROGRAM_ID,
-} from './constants';
+import { AUCTION_HOUSE, AUCTION_HOUSE_PROGRAM_ID, NFT_STORAGE_API_KEY, SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID, TOKEN_METADATA_PROGRAM_ID } from './constants';
 import { IMetadata, INFTStorageResponse, MetadataObject } from './types';
 
 /** Get metadatata account for mint */
 export const getMetadata = async (mint: PublicKey): Promise<PublicKey> => {
-  return (
-    await PublicKey.findProgramAddress(
-      [
-        Buffer.from('metadata'),
-        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
-        mint.toBuffer(),
-      ],
-      TOKEN_METADATA_PROGRAM_ID
-    )
-  )[0];
+  return (await PublicKey.findProgramAddress([Buffer.from('metadata'), TOKEN_METADATA_PROGRAM_ID.toBuffer(), mint.toBuffer()], TOKEN_METADATA_PROGRAM_ID))[0];
 };
 
 /** Get associated token for mint */
-export const getAtaForMint = async (
-  mint: PublicKey,
-  address: PublicKey
-): Promise<[PublicKey, number]> => {
-  return await PublicKey.findProgramAddress(
-    [address.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()],
-    SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID
-  );
+export const getAtaForMint = async (mint: PublicKey, address: PublicKey): Promise<[PublicKey, number]> => {
+  return await PublicKey.findProgramAddress([address.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()], SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID);
 };
 
-export const getAuctionHouseProgramAsSigner = async (): Promise<
-  [PublicKey, number]
-> => {
-  return await PublicKey.findProgramAddress(
-    [Buffer.from(AUCTION_HOUSE), Buffer.from('signer')],
-    AUCTION_HOUSE_PROGRAM_ID
-  );
+export const getAuctionHouseProgramAsSigner = async (): Promise<[PublicKey, number]> => {
+  return await PublicKey.findProgramAddress([Buffer.from(AUCTION_HOUSE), Buffer.from('signer')], AUCTION_HOUSE_PROGRAM_ID);
 };
 
 export const getAuctionHouseTradeState = async (
@@ -70,14 +44,8 @@ export const getAuctionHouseTradeState = async (
   );
 };
 
-export const getAuctionHouseBuyerEscrow = async (
-  auctionHouse: PublicKey,
-  wallet: PublicKey
-): Promise<[PublicKey, number]> => {
-  return await PublicKey.findProgramAddress(
-    [Buffer.from(AUCTION_HOUSE), auctionHouse.toBuffer(), wallet.toBuffer()],
-    AUCTION_HOUSE_PROGRAM_ID
-  );
+export const getAuctionHouseBuyerEscrow = async (auctionHouse: PublicKey, wallet: PublicKey): Promise<[PublicKey, number]> => {
+  return await PublicKey.findProgramAddress([Buffer.from(AUCTION_HOUSE), auctionHouse.toBuffer(), wallet.toBuffer()], AUCTION_HOUSE_PROGRAM_ID);
 };
 
 export enum AccountState {
@@ -86,18 +54,11 @@ export enum AccountState {
   Frozen = 2,
 }
 
-export async function getAccountInfo(
-  connection: Connection,
-  address: PublicKey,
-  commitment?: Commitment,
-  programId = TOKEN_PROGRAM_ID
-) {
+export async function getAccountInfo(connection: Connection, address: PublicKey, commitment?: Commitment, programId = TOKEN_PROGRAM_ID) {
   const info = await connection.getAccountInfo(address, commitment);
   if (!info) throw new Error('TokenAccountNotFoundError');
-  if (!info.owner.equals(programId))
-    throw new Error('TokenInvalidAccountOwnerError');
-  if (info.data.length != AccountLayout.span)
-    throw new Error('TokenInvalidAccountSizeError');
+  if (!info.owner.equals(programId)) throw new Error('TokenInvalidAccountOwnerError');
+  if (info.data.length != AccountLayout.span) throw new Error('TokenInvalidAccountSizeError');
 
   const rawAccount = AccountLayout.decode(Buffer.from(info.data));
 
@@ -112,9 +73,7 @@ export async function getAccountInfo(
     isFrozen: rawAccount.state === AccountState.Frozen,
     isNative: !!rawAccount.isNativeOption,
     rentExemptReserve: rawAccount.isNativeOption ? rawAccount.isNative : null,
-    closeAuthority: rawAccount.closeAuthorityOption
-      ? rawAccount.closeAuthority
-      : null,
+    closeAuthority: rawAccount.closeAuthorityOption ? rawAccount.closeAuthority : null,
   };
 }
 
@@ -162,10 +121,7 @@ export async function uploadNFTFileToStorage(
   };
 
   if (image && metadataJson) {
-    const [imageUrl, metadataUrl] = await Promise.all([
-      uploadImage(image),
-      uploadMetadata(metadataJson),
-    ]);
+    const [imageUrl, metadataUrl] = await Promise.all([uploadImage(image), uploadMetadata(metadataJson)]);
 
     // Todo: find a way to flag to consumer that the uploaded media is a video/animation
     return [imageUrl, metadataUrl] as const;
@@ -220,11 +176,7 @@ export async function uploadNFTFileToStorage(
     ]
     ```
  */
-export function processCreatorShares(
-  creators: { address: string; share: number }[],
-  authorityAddress: PublicKey,
-  authorityRoyaltyPercentage = 4.25
-) {
+export function processCreatorShares(creators: { address: string; share: number }[], authorityAddress: PublicKey, authorityRoyaltyPercentage = 4.25) {
   if (authorityRoyaltyPercentage > 99) {
     throw new Error('royalty percentage cannot exceed 99%!');
   }

@@ -9,7 +9,7 @@
 
 <script lang="ts" setup>
 import { RouterView } from 'vue-router';
-import { WalletProvider, SolanaNetworks, ConnectionProvider } from '@axiajs/solana.vue'
+import { WalletProvider, SolanaNetworks, ConnectionProvider } from './components'
 
 
 console.log("AXIA Variables", {

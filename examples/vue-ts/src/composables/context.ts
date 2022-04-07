@@ -16,11 +16,7 @@ export interface CreateContextOptions {
   name?: string;
 }
 
-type CreateContextReturn<T> = [
-  provider: (opts: T) => void,
-  consumer: (fallback?: T) => T,
-  contextSymbol: InjectionKey<T>
-];
+type CreateContextReturn<T> = [provider: (opts: T) => void, consumer: (fallback?: T) => T, contextSymbol: InjectionKey<T>];
 
 /**
  * Creates a named context, provider, and hook.
@@ -28,11 +24,7 @@ type CreateContextReturn<T> = [
  * @param options create context options
  */
 export function createContext<ContextType>(options: CreateContextOptions = {}) {
-  const {
-    strict = true,
-    errorMessage = 'useContext: `context` is undefined. Seems you forgot to wrap component within the Provider',
-    name,
-  } = options;
+  const { strict = true, errorMessage = 'useContext: `context` is undefined. Seems you forgot to wrap component within the Provider', name } = options;
 
   let contextSymbol = Symbol(`${name}Symbol`) as InjectionKey<ContextType>;
 
@@ -50,9 +42,5 @@ export function createContext<ContextType>(options: CreateContextOptions = {}) {
     return context;
   }
 
-  return [
-    Provider,
-    useContext,
-    contextSymbol,
-  ] as CreateContextReturn<ContextType>;
+  return [Provider, useContext, contextSymbol] as CreateContextReturn<ContextType>;
 }

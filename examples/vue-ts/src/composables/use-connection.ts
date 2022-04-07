@@ -8,22 +8,27 @@ export enum SolanaNetworks {
   testnet = 'testnet',
 }
 
-export type ConnectionContext = ComputedRef<Connection>;
+export interface ConnectionContext {
+  connection: ComputedRef<Connection>;
+}
 
-const [ConnectionContextProvider, useConnection, ConnectionInjectionKey] =
-  createContext<ComputedRef<Connection>>({
-    name: 'ConnectionContext',
-    strict: true,
-    errorMessage: 'useConnection requires you to provide the connection hook',
-  });
+const [ConnectionContextProvider, useConnection, ConnectionInjectionKey] = createContext<ConnectionContext>({
+  name: 'ConnectionContext',
+  strict: true,
+  errorMessage: 'useConnection requires you to provide the connection hook',
+});
 
 export function initializeConnection(network: SolanaNetworks) {
   try {
     const _connection = new Connection(clusterApiUrl(network), 'confirmed');
 
-    const connection = computed(() => _connection);
-    ConnectionContextProvider(connection);
-    return connection;
+    const connection = computed(() => ({
+      connection: _connection,
+    }));
+    ConnectionContextProvider({
+      connection: connection,
+    });
+    return { connection, endpoint: clusterApiUrl(network) };
   } catch (error) {
     console.error('There was a problem initializing connection', error);
   }

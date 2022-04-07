@@ -11,12 +11,7 @@ export const __CHAKRA_SSG_INJECTION_KEY__ = Symbol('$emotionSSRIds');
  */
 const injectCritical = (html: string, ids: string[], css: string) =>
   html
-    .replace(
-      '</title>\n',
-      `</title>\n<script>window.$emotionSSRIds=${JSON.stringify(
-        ids
-      )}</script>\n`
-    )
+    .replace('</title>\n', `</title>\n<script>window.$emotionSSRIds=${JSON.stringify(ids)}</script>\n`)
     .replace('</head>\n', `<style>${css}</style>\n</head>\n`);
 
 /**

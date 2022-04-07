@@ -18,11 +18,7 @@ export class Creator {
   verified: number;
   share: number;
 
-  constructor(args: {
-    address: StringPublicKey;
-    verified: number;
-    share: number;
-  }) {
+  constructor(args: { address: StringPublicKey; verified: number; share: number }) {
     this.address = args.address;
     this.verified = args.verified;
     this.share = args.share;
@@ -35,13 +31,7 @@ export class Data {
   uri: string;
   sellerFeeBasisPoints: number;
   creators: Creator[] | null;
-  constructor(args: {
-    name: string;
-    symbol: string;
-    uri: string;
-    sellerFeeBasisPoints: number;
-    creators: Creator[] | null;
-  }) {
+  constructor(args: { name: string; symbol: string; uri: string; sellerFeeBasisPoints: number; creators: Creator[] | null }) {
     this.name = args.name;
     this.symbol = args.symbol;
     this.uri = args.uri;
@@ -67,11 +57,7 @@ export class UpdateMetadataArgs {
   // Not used by this app, just required for instruction
   updateAuthority: StringPublicKey | null;
   primarySaleHappened: boolean | null;
-  constructor(args: {
-    data?: Data;
-    updateAuthority?: string;
-    primarySaleHappened: boolean | null;
-  }) {
+  constructor(args: { data?: Data; updateAuthority?: string; primarySaleHappened: boolean | null }) {
     this.data = args.data ? args.data : null;
     this.updateAuthority = args.updateAuthority ? args.updateAuthority : null;
     this.primarySaleHappened = args.primarySaleHappened;
@@ -196,11 +182,7 @@ export const METADATA_SCHEMA = new Map<any, any>([
 const METADATA_REPLACE = new RegExp('\u0000', 'g');
 
 export const decodeMetadata = (buffer: Buffer): Metadata => {
-  const metadata = deserializeUnchecked(
-    METADATA_SCHEMA,
-    Metadata,
-    buffer
-  ) as Metadata;
+  const metadata = deserializeUnchecked(METADATA_SCHEMA, Metadata, buffer) as Metadata;
   metadata.data.name = metadata.data.name.replace(METADATA_REPLACE, '');
   metadata.data.uri = metadata.data.uri.replace(METADATA_REPLACE, '');
   metadata.data.symbol = metadata.data.symbol.replace(METADATA_REPLACE, '');
@@ -225,9 +207,7 @@ export const extendBorsh = () => {
     return base58.encode(array) as StringPublicKey;
   };
 
-  (BinaryWriter.prototype as any).writePubkeyAsString = function (
-    value: StringPublicKey
-  ) {
+  (BinaryWriter.prototype as any).writePubkeyAsString = function (value: StringPublicKey) {
     const writer = this as unknown as BinaryWriter;
     writer.writeFixedArray(base58.decode(value));
   };
