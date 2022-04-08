@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.utils
 
+## 1.0.2
+
+### Patch Changes
+
+- c81fd1b: Change publicity config
+
 ## 1.0.1
 
 ### Patch Changes
