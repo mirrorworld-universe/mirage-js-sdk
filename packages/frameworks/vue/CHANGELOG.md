@@ -1,5 +1,13 @@
 # @mirrorworld/mirage.vue
 
+## 0.0.5
+
+### Patch Changes
+
+- Removed all related publish config,. PAckages should be provately accessed in the private namespace
+- Updated dependencies
+  - @mirrorworld/mirage.core@1.0.3
+
 ## 0.0.4
 
 ### Patch Changes

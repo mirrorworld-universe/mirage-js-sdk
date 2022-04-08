@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.vanilla
 
+## 0.0.4
+
+### Patch Changes
+
+- Removed all related publish config,. PAckages should be provately accessed in the private namespace
+
 ## 0.0.3
 
 ### Patch Changes
