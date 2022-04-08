@@ -1,6 +1,6 @@
 {
   "name": "@mirrorworld/mirage.core",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Mirage SDK Core",
   "keywords": [
     "mirage",
@@ -12,6 +12,12 @@
   "license": "MIT",
   "main": "dist/mirrorworld-mirage.core.cjs.js",
   "module": "dist/mirrorworld-mirage.core.esm.js",
+  "exports": {
+    ".": {
+      "require": "./dist/mirrorworld-mirage.core.cjs.js",
+      "export": "./dist/mirrorworld-mirage.core.esm.js"
+    }
+  },
   "repository": "https://github.com/mirrorworld-universe/mirage-js-sdk/tree/main/packages/core",
   "sideEffects": false,
   "files": [

@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 1.0.4
+
+### Patch Changes
+
+- Updates exports
+
 ## 1.0.3
 
 ### Patch Changes
