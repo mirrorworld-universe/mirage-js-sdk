@@ -22,7 +22,12 @@ const router = createRouter({
   history: createWebHistory(),
 });
 const app = createApp(App);
-
+app.use(Chakra, {
+  extendTheme: theme,
+  icons: {
+    library: icons,
+  },
+});
 app.use(router);
 app.use(head);
 

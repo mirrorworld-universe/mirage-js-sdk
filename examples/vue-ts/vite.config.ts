@@ -13,20 +13,12 @@ export default defineConfig({
     'process.env.NODE_DEBUG': JSON.stringify(''),
   },
   optimizeDeps: {
-    include: [
-      'buffer',
-      '@solana/web3.js',
-      '@solana/web3.js > bn.js',
-      '@solana/web3.js > borsh',
-      '@solana/web3.js > buffer',
-      'borsh',
-      '@chakra-ui/vue-theme-tools > tinycolor2',
-      'buffer-layout',
-    ],
+    include: ['buffer', '@solana/web3.js', '@solana/web3.js > bn.js', '@solana/web3.js > borsh', '@solana/web3.js > buffer', 'borsh', 'buffer-layout'],
+    exclude: ['tinycolor2'],
   },
   build: {
     commonjsOptions: {
-      include: ['borsh', 'tinycolor2', '@solana/web3.js', 'buffer-layout'],
+      include: ['borsh', '@solana/web3.js', 'buffer-layout'],
     },
   },
   plugins: [

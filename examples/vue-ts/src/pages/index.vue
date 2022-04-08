@@ -4,7 +4,7 @@
       <c-v-stack spacing="8" align-items="flex-start">
         <c-h-stack align-items="center" justify-content="space-between" w="full">
           <c-h-stack align-items="center">
-            <c-heading size="4xl" color="white">
+            <c-heading size="3xl" color="white">
               Mirage JS SDK Demo
             </c-heading>
             <c-code font-size="3xl">
