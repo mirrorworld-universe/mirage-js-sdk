@@ -1,7 +1,6 @@
 {
   "name": "@mirrorworld/mirage.core",
   "version": "1.0.2",
-  "private": true,
   "description": "Mirage SDK Core",
   "keywords": [
     "mirage",
@@ -41,9 +40,6 @@
     "isomorphic-fetch": "^3.0.0",
     "lodash.merge": "^4.6.2",
     "percent-round": "^2.2.1"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "bugs": {
     "url": "https://github.com/mirrorworld-universe/mirage-js-sdk/issues"
