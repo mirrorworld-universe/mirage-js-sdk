@@ -1,5 +1,13 @@
 # vue-dapp
 
+## 0.0.6
+
+### Patch Changes
+
+- Fixes exports field
+- Updated dependencies
+  - @mirrorworld/mirage.core@1.0.5
+
 ## 0.0.5
 
 ### Patch Changes

@@ -5,7 +5,6 @@ import Pages from 'vite-plugin-pages';
 import Layouts from 'vite-plugin-vue-layouts';
 import { componentResolver } from '@chakra-ui/vue-auto-import';
 import inject from '@rollup/plugin-inject';
-import { resolve } from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -13,14 +12,26 @@ export default defineConfig({
     'process.env.NODE_DEBUG': JSON.stringify(''),
   },
   optimizeDeps: {
-    include: ['buffer', '@solana/web3.js', '@solana/web3.js > bn.js', '@solana/web3.js > borsh', '@solana/web3.js > buffer', 'borsh', 'buffer-layout'],
-    exclude: ['tinycolor2'],
+    include: [
+      'buffer',
+      'buffer-layout',
+      'tinycolor2',
+      '@mirrorworld/mirage.core',
+      '@solana/web3.js > bn.js',
+      '@solana/web3.js > borsh',
+      '@solana/web3.js > buffer',
+    ],
+    exclude: ['@solana/web3.js'],
   },
   build: {
     commonjsOptions: {
-      include: ['borsh', '@solana/web3.js', 'buffer-layout'],
+      include: [],
+      exclude: ['tinycolor2', '@mirrorworld/mirage.core'],
     },
   },
+  // esbuild: {
+  //   t,
+  // },
   plugins: [
     vue(),
     // @ts-ignore
