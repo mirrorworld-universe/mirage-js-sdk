@@ -1,5 +1,13 @@
 # @mirrorworld/mirage.vue
 
+## 0.0.8
+
+### Patch Changes
+
+- Increase timeout for reading uploaded items form IPFS
+- Updated dependencies
+  - @mirrorworld/mirage.core@1.0.6
+
 ## 0.0.7
 
 ### Patch Changes

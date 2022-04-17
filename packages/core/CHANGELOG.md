@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 1.0.6
+
+### Patch Changes
+
+- Increase timeout for reading uploaded items form IPFS
+
 ## 1.0.5
 
 ### Patch Changes
