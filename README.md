@@ -6,7 +6,7 @@ This repository contains the client side JDK for the MirrorWorld marketplace rep
 
 ## Installation
 > 🚨 Please make sure to add this NPM token in your `.npmrc` file:
-> `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`
+> `npm_XXXXXXXX` (Please contact `jonas@mirrorworld.fun` for an authToken.
 
 ```bash
 yarn add @mirrorworld/mirage.core
