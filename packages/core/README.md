@@ -20,9 +20,9 @@ These transactions require you to sign the transaction using your wallet. That m
 ```ts
 import {
   Mirage,
-  // Required
+  // Required. You can replace wit your own
   NFT_STORAGE_API_KEY,
-  // Required
+  // Required. You can replace wit your own
   MIRAGE_AUCTION_HOUSE_AUTHORITY
 } from "@mirrorworld/mirage.core"
 
@@ -41,7 +41,7 @@ const mirage = new Mirage({
 ```
 
 ## Live Demo
-You can see example project in this repo [here](https://mirage-demo.vercel.app/):
+You can see example project in this live demo [here](https://mirage-demo.vercel.app/):
 
 ## NFT Actions
 
