@@ -288,7 +288,7 @@ export class Mirage {
 
     let signature: string | undefined = undefined;
     signature = await this.connection.sendRawTransaction(signed!.serialize());
-    const result = await this.connection.confirmTransaction(signature, 'confirmed');
+    const result = await this.connection.confirmTransaction(signature, 'finalized');
 
     console.log('result', result);
     console.log('Successfully listed ', mint, ' at ', listingPrice / LAMPORTS_PER_SOL, ' SOL');

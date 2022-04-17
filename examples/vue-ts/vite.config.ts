@@ -5,6 +5,10 @@ import Pages from 'vite-plugin-pages';
 import Layouts from 'vite-plugin-vue-layouts';
 import { componentResolver } from '@chakra-ui/vue-auto-import';
 import inject from '@rollup/plugin-inject';
+import commonjs from '@rollup/plugin-commonjs';
+import { esbuildCommonjs } from '@originjs/vite-plugin-commonjs';
+import requireTransform from 'vite-plugin-require-transform';
+import NodeGlobalsPolyfillPlugin from '@esbuild-plugins/node-globals-polyfill';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -12,41 +16,41 @@ export default defineConfig({
     'process.env.NODE_DEBUG': JSON.stringify(''),
   },
   optimizeDeps: {
-    include: [
-      'buffer',
-      'buffer-layout',
-      'tinycolor2',
-      '@mirrorworld/mirage.core',
-      '@solana/web3.js > bn.js',
-      '@solana/web3.js > borsh',
-      '@solana/web3.js > buffer',
-    ],
-    exclude: ['@solana/web3.js'],
-  },
-  build: {
-    commonjsOptions: {
-      include: [],
-      exclude: ['tinycolor2', '@mirrorworld/mirage.core'],
+    esbuildOptions: {
+      // Node.js global to browser globalThis
+      define: {
+        global: 'globalThis',
+      },
+      // Enable esbuild polyfill plugins
+      plugins: [
+        // esbuildCommonjs(),
+        NodeGlobalsPolyfillPlugin({
+          buffer: true,
+        }),
+      ],
     },
   },
-  // esbuild: {
-  //   t,
-  // },
+  build: {
+    // rollupOptions: {
+    //   plugins: [
+    //     // commonjs({
+    //     //   requireReturnsDefault: true,
+    //     // }),
+    //   ],
+    // },
+  },
   plugins: [
     vue(),
-    // @ts-ignore
-    inject({
-      Buffer: ['buffer', 'Buffer'],
-    }),
+    requireTransform({}),
     Components({
       customComponentResolvers: [componentResolver],
     }),
     Pages({
-      pagesDir: ['./src/pages'],
+      pagesDir: ['src/pages'],
     }),
     Layouts({
       // @ts-ignore
-      layoutsDir: './src/layouts',
+      layoutsDir: 'src/layouts',
     }),
   ],
 });

@@ -5,6 +5,9 @@
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mirage JS SDK</title>
+    <script>
+      window.global = {}
+    </script>
     <link
       rel="preload"
       href="/fonts/SpaceGrotesk-Light.woff2"
@@ -58,9 +61,6 @@
   </head>
   <body>
     <div id="app"></div>
-    <script>
-      window.global = {}
-    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
