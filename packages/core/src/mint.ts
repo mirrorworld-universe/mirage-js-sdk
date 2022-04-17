@@ -4,6 +4,7 @@ import { BN, Wallet } from '@project-serum/anchor';
 import fetch from 'isomorphic-fetch';
 import { actions, MetadataJson, programs } from '@metaplex/js';
 import { Transaction } from '@metaplex-foundation/mpl-core';
+import { sleep } from './transactions';
 
 const { prepareTokenAccountAndMintTxs } = actions;
 const {
@@ -39,9 +40,12 @@ export interface MintNFTResponse {
 export const mintNFT = async ({ connection, wallet, uri, maxSupply, updateAuthority }: MintNFTParams): Promise<MintNFTResponse> => {
   const { mint, createMintTx, createAssociatedTokenAccountTx, mintToTx } = await prepareTokenAccountAndMintTxs(connection, wallet.publicKey);
 
-  const _retryLookupFunction = retryUntil(20000);
+  // Sometimes reading new assets from nft.storage slow
+  const _retryLookupFunction = retryUntil(40000);
   const metadataPDA = await Metadata.getPDA(mint.publicKey);
   const editionPDA = await MasterEdition.getPDA(mint.publicKey);
+
+  await sleep(3000);
   const lookupResult = (await _retryLookupFunction(lookup(uri))) as any as MetadataJson;
 
   const {
