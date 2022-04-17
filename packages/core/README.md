@@ -40,10 +40,8 @@ const mirage = new Mirage({
 });
 ```
 
-## Demo
-Example: 
-You can see example project in this repo [here](https://github.dev/mirrorworld-universe/mirage-js-sdk/blob/main/examples/vue-ts/src/pages/nft/%5Baddress%5D.vue):
-
+## Live Demo
+You can see example project in this repo [here](https://mirage-demo.vercel.app/):
 
 ## NFT Actions
 
