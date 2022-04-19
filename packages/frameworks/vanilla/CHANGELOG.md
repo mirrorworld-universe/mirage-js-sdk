@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.vanilla
 
+## 0.1.1
+
+### Patch Changes
+
+- Cancel listing by tradestate account
+
 ## 0.1.0
 
 ### Minor Changes
