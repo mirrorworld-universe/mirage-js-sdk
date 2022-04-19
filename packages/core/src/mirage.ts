@@ -512,8 +512,8 @@ export class Mirage {
     const _mint = new PublicKey(mint);
     const [sellerAddressAsString, _sellerPublicKey] = await this.getNftOwner(_mint);
 
-    if (this.wallet.publicKey.toBase58() !== sellerAddressAsString) {
-      throw new Error('You cannot cancel listing of an NFT you do not own');
+    if (this.wallet.publicKey.toBase58() !== sellerAddressAsString && this.wallet.publicKey.toBase58() !== this.auctionHouseAuthority.toBase58()) {
+      throw new Error('You cannot cancel listing of an NFT you do not own.');
     }
 
     const auctionHouseObj = (await this.program!.account.auctionHouse.fetch(this.auctionHouse!)) as any as AuctionHouse;
