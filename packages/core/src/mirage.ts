@@ -505,9 +505,10 @@ export class Mirage {
   /**
    * Cancels a listing for sell or buy instructions for an NFT
    * @param mint NFT mint address whose listing is to be cancelled
-   * @param buyerPrice price at which NFT was lsited
+   * @param _buyerPrice price at which NFT was listed
+   * @param tradeState optional: trade state address to cancel
    */
-  async cancelListing(mint: string, _buyerPrice: number) {
+  async cancelListing(mint: string, _buyerPrice: number, tradeState?: string) {
     const buyerPrice = Number(_buyerPrice) * LAMPORTS_PER_SOL;
     const _mint = new PublicKey(mint);
     const [sellerAddressAsString, _sellerPublicKey] = await this.getNftOwner(_mint);
@@ -520,33 +521,27 @@ export class Mirage {
 
     const [associatedTokenAccount] = await getAtaForMint(_mint, _sellerPublicKey);
 
-    const [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
-      _sellerPublicKey,
-      this.auctionHouse!,
-      associatedTokenAccount,
-      auctionHouseObj.treasuryMint,
-      _mint,
-      buyerPrice,
-      1
-    );
+    let sellerTradeState;
+    if (tradeState) {
+      sellerTradeState = new PublicKey(tradeState);
+    } else {
+      [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
+        _sellerPublicKey,
+        this.auctionHouse!,
+        associatedTokenAccount,
+        auctionHouseObj.treasuryMint,
+        _mint,
+        buyerPrice,
+        1
+      );
+    }
 
     const [listingReceipt] = await AuctionHouseProgram.findListingReceiptAddress(sellerTradeState);
 
     const auctionHouse = this.auctionHouse!;
     const authority = this.auctionHouseAuthority;
     const auctionHouseFeeAccount = new PublicKey(auctionHouseObj.auctionHouseFeeAccount);
-    const treasuryMint = new PublicKey(auctionHouseObj.treasuryMint);
     const receipt = listingReceipt;
-
-    const [tradeState] = await AuctionHouseProgram.findTradeStateAddress(
-      this.wallet.publicKey,
-      auctionHouse,
-      associatedTokenAccount,
-      treasuryMint,
-      _mint,
-      buyerPrice,
-      1
-    );
 
     const cancelInstructionAccounts: CancelInstructionAccounts = {
       wallet: this.wallet.publicKey,
@@ -555,7 +550,7 @@ export class Mirage {
       authority,
       auctionHouse,
       auctionHouseFeeAccount,
-      tradeState,
+      tradeState: sellerTradeState,
     };
     const cancelInstructionArgs: CancelInstructionArgs = {
       buyerPrice,
