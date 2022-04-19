@@ -1,5 +1,16 @@
 # @mirrorworld/mirage.vue
 
+## 0.1.0
+
+### Minor Changes
+
+- Allow auctionhouse authorities to cancel listings
+
+### Patch Changes
+
+- Updated dependencies
+  - @mirrorworld/mirage.core@1.1.0
+
 ## 0.0.9
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@mirrorworld/mirage.vanilla",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "Vanilla library for Mirage SDK",
   "keywords": [
     "mirage",

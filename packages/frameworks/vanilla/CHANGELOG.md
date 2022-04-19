@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.vanilla
 
+## 0.1.0
+
+### Minor Changes
+
+- Allow auctionhouse authorities to cancel listings
+
 ## 0.0.6
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 1.1.0
+
+### Minor Changes
+
+- Allow auctionhouse authorities to cancel listings
+
 ## 1.0.7
 
 ### Patch Changes
