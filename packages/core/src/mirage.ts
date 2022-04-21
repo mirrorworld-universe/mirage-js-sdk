@@ -279,7 +279,11 @@ export class Mirage {
 
     let signed: Transaction | undefined = undefined;
 
-    signed = await sellerWallet.signTransaction(txt);
+    try {
+      signed = await sellerWallet.signTransaction(txt);
+    } catch (e: any) {
+      console.error('Seller cancelled transaction', e);
+    }
 
     let signature: string | undefined = undefined;
     signature = await this.connection.sendRawTransaction(signed!.serialize());
@@ -479,7 +483,12 @@ export class Mirage {
 
     let signed: Transaction | undefined = undefined;
 
-    signed = await buyerWallet.signTransaction(buyTxt);
+    try {
+      signed = await buyerWallet.signTransaction(buyTxt);
+    } catch (e: any) {
+      console.error(e.message);
+      return;
+    }
 
     let signature: string | undefined = undefined;
     signature = await this.connection.sendRawTransaction(signed!.serialize());
@@ -564,7 +573,12 @@ export class Mirage {
 
     let signed: Transaction | undefined = undefined;
 
-    signed = await this.wallet.signTransaction(txt);
+    try {
+      signed = await this.wallet.signTransaction(txt);
+    } catch (e: any) {
+      console.error(e.message);
+      return;
+    }
 
     let signature: string | undefined = undefined;
     console.info('Sending the transaction to Solana.');
@@ -634,7 +648,11 @@ export class Mirage {
 
     let signed: Transaction | undefined = undefined;
 
-    signed = await this.wallet.signTransaction(txt);
+    try {
+      signed = await this.wallet.signTransaction(txt);
+    } catch (e: any) {
+      console.error(e.message);
+    }
 
     let signature: string | undefined = undefined;
     console.info('Sending the transaction to Solana.');
