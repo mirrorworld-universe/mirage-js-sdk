@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.vanilla
 
+## 0.1.2
+
+### Patch Changes
+
+- Raise all esceptions
+
 ## 0.1.1
 
 ### Patch Changes

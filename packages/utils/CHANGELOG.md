@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.utils
 
+## 1.1.2
+
+### Patch Changes
+
+- Raise all esceptions
+
 ## 1.1.1
 
 ### Patch Changes
