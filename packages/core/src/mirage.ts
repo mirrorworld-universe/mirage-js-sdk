@@ -486,8 +486,7 @@ export class Mirage {
     try {
       signed = await buyerWallet.signTransaction(buyTxt);
     } catch (e: any) {
-      console.error(e.message);
-      return;
+      console.error('Buyer cancelled transaction', e.message);
     }
 
     let signature: string | undefined = undefined;
@@ -576,8 +575,7 @@ export class Mirage {
     try {
       signed = await this.wallet.signTransaction(txt);
     } catch (e: any) {
-      console.error(e.message);
-      return;
+      console.error('Seller cancelled transaction', e.message);
     }
 
     let signature: string | undefined = undefined;
@@ -651,7 +649,7 @@ export class Mirage {
     try {
       signed = await this.wallet.signTransaction(txt);
     } catch (e: any) {
-      console.error(e.message);
+      console.error('sender cancelled transaction', e.message);
     }
 
     let signature: string | undefined = undefined;
