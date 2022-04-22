@@ -654,25 +654,26 @@ export class Mirage {
     }
 
     const auctionHouseObj = (await this.program!.account.auctionHouse.fetch(this.auctionHouse!)) as any as AuctionHouse;
-    const [associatedTokenAccount] = await getAtaForMint(_mint, _sellerPublicKey);
 
     let sellerTradeState;
+    let associatedTokenAccount;
     if (__DANGEROUSLY_INSET_SELLER__) {
       // Only for manual cancellations of listings by the
       // auctionhouse authority
       // !!! DANGEROUS !!! This action should only be performed by the auctionhouse authority
       const DANGEROUS_SELLER = new PublicKey(__DANGEROUSLY_INSET_SELLER__);
-      const [dangerousAssociatedTokenAccount] = await getAtaForMint(_mint, DANGEROUS_SELLER);
+      [associatedTokenAccount] = await getAtaForMint(_mint, DANGEROUS_SELLER);
       [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
         DANGEROUS_SELLER,
         this.auctionHouse!,
-        dangerousAssociatedTokenAccount,
+        associatedTokenAccount,
         auctionHouseObj.treasuryMint,
         _mint,
         buyerPrice,
         1
       );
     } else {
+      [associatedTokenAccount] = await getAtaForMint(_mint, _sellerPublicKey);
       [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
         _sellerPublicKey,
         this.auctionHouse!,
