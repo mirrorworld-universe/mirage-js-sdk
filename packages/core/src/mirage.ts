@@ -658,6 +658,7 @@ export class Mirage {
     let sellerTradeState;
     let associatedTokenAccount;
     if (__DANGEROUSLY_INSET_SELLER__) {
+      console.warn('DANGEROUSLY INSETTING SELLER', __DANGEROUSLY_INSET_SELLER__);
       // Only for manual cancellations of listings by the
       // auctionhouse authority
       // !!! DANGEROUS !!! This action should only be performed by the auctionhouse authority
@@ -673,6 +674,7 @@ export class Mirage {
         1
       );
     } else {
+      console.log('Processing cancel listing');
       [associatedTokenAccount] = await getAtaForMint(_mint, _sellerPublicKey);
       [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
         _sellerPublicKey,
@@ -693,7 +695,7 @@ export class Mirage {
     const receipt = listingReceipt;
 
     const cancelInstructionAccounts: CancelInstructionAccounts = {
-      wallet: this.wallet.publicKey,
+      wallet: __DANGEROUSLY_INSET_SELLER__ ? new PublicKey(__DANGEROUSLY_INSET_SELLER__) : this.wallet.publicKey,
       tokenAccount: associatedTokenAccount,
       tokenMint: _mint,
       authority,
