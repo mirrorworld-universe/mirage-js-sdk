@@ -1,5 +1,13 @@
 # @mirrorworld/mirage.vue
 
+## 0.2.1
+
+### Patch Changes
+
+- Dangerously insert seller for acutionhouse authority when cancelling listing
+- Updated dependencies
+  - @mirrorworld/mirage.core@1.3.1
+
 ## 0.2.0
 
 ### Minor Changes

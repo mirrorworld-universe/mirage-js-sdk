@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.utils
 
+## 1.1.4
+
+### Patch Changes
+
+- Dangerously insert seller for acutionhouse authority when cancelling listing
+
 ## 1.1.3
 
 ### Patch Changes
