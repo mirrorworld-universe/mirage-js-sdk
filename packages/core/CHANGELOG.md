@@ -1,5 +1,17 @@
 # @mirrorworld/mirage.core
 
+## 1.3.0
+
+### Minor Changes
+
+- Cancel listings before transferring NFT to another user
+
+## 1.2.0
+
+### Minor Changes
+
+- Create `updateListing` function \
+
 ## 1.1.3
 
 ### Patch Changes

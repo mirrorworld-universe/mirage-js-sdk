@@ -1,5 +1,23 @@
 # @mirrorworld/mirage.vue
 
+## 0.2.0
+
+### Minor Changes
+
+- Cancel listings before transferring NFT to another user
+
+### Patch Changes
+
+- Updated dependencies
+  - @mirrorworld/mirage.core@1.3.0
+
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies
+  - @mirrorworld/mirage.core@1.2.0
+
 ## 0.1.3
 
 ### Patch Changes

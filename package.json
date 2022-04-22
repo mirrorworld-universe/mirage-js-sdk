@@ -89,5 +89,8 @@
       "packages/*",
       "packages/frameworks/*"
     ]
+  },
+  "devDependencies": {
+    "@project-serum/borsh": "^0.2.5"
   }
 }
