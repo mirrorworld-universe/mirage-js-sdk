@@ -644,7 +644,7 @@ export class Mirage {
    * @param _buyerPrice price at which NFT was listed
    * @param tradeState optional: trade state address to cancel
    */
-  async cancelListing(mint: string, _buyerPrice: number, tradeState?: string) {
+  async cancelListing(mint: string, _buyerPrice: number, __DANGEROUSLY_INSET_SELLER__?: string) {
     const buyerPrice = Number(_buyerPrice) * LAMPORTS_PER_SOL;
     const _mint = new PublicKey(mint);
     const [sellerAddressAsString, _sellerPublicKey] = await this.getNftOwner(_mint);
@@ -657,8 +657,21 @@ export class Mirage {
     const [associatedTokenAccount] = await getAtaForMint(_mint, _sellerPublicKey);
 
     let sellerTradeState;
-    if (tradeState) {
-      sellerTradeState = new PublicKey(tradeState);
+    if (__DANGEROUSLY_INSET_SELLER__) {
+      // Only for manual cancellations of listings by the
+      // auctionhouse authority
+      // !!! DANGEROUS !!! This action should only be performed by the auctionhouse authority
+      const DANGEROUS_SELLER = new PublicKey(__DANGEROUSLY_INSET_SELLER__);
+      const [dangerousAssociatedTokenAccount] = await getAtaForMint(_mint, DANGEROUS_SELLER);
+      [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
+        DANGEROUS_SELLER,
+        this.auctionHouse!,
+        dangerousAssociatedTokenAccount,
+        auctionHouseObj.treasuryMint,
+        _mint,
+        buyerPrice,
+        1
+      );
     } else {
       [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
         _sellerPublicKey,
