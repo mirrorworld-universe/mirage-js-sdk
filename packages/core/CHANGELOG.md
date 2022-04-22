@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 1.3.3
+
+### Patch Changes
+
+- Sign cancelListingInstruction with the auctionhouse authority when canceling listings on behalf of the user
+
 ## 1.3.2
 
 ### Patch Changes

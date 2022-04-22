@@ -1,5 +1,13 @@
 # @mirrorworld/mirage.vue
 
+## 0.2.3
+
+### Patch Changes
+
+- Sign cancelListingInstruction with the auctionhouse authority when canceling listings on behalf of the user
+- Updated dependencies
+  - @mirrorworld/mirage.core@1.3.3
+
 ## 0.2.2
 
 ### Patch Changes
