@@ -5,7 +5,6 @@ import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import {
   Commitment,
   Connection,
-  Keypair,
   PublicKey,
   SYSVAR_INSTRUCTIONS_PUBKEY,
   Transaction,
@@ -21,8 +20,7 @@ import { decodeMetadata, Metadata as MetadataSchema } from './schema';
 import { getAccountInfo, getAtaForMint, getMetadata, processCreatorShares, uploadNFTFileToStorage } from './utils';
 import dayjs from 'dayjs';
 import { SolanaNetwork, MetadataObject, AuctionHouse } from './types';
-import { writeFileSync } from 'fs';
-import { resolve } from 'path';
+import { AuctionHouseIDL, AuctionHouseProgramIDL } from './idl';
 
 const {
   metadata: { Metadata },
@@ -89,7 +87,7 @@ export class Mirage {
   auctionHouseAuthority: PublicKey;
   auctionHouse?: PublicKey;
   _provider?: Provider;
-  program?: Program;
+  program?: Program<AuctionHouseProgramIDL>;
   connection: Connection;
   wallet: Wallet;
   NFTStorageAPIKey: string;
@@ -178,8 +176,7 @@ export class Mirage {
     const provider = new Provider(this.connection!, this.wallet!, {
       preflightCommitment: 'recent',
     });
-    const idl = await Program.fetchIdl(AUCTION_HOUSE_PROGRAM_ID, provider);
-    return new Program(idl!, AUCTION_HOUSE_PROGRAM_ID, provider);
+    return new Program(AuctionHouseIDL, AUCTION_HOUSE_PROGRAM_ID, provider);
   }
 
   /**
@@ -500,6 +497,147 @@ export class Mirage {
     return [result, PurchaseReceipt] as const;
   }
 
+  async updateListing(mint: string, currentListingPrice: number, newListingPrice: number) {
+    const _currentListingPrice = Number(currentListingPrice) * LAMPORTS_PER_SOL;
+    const _newListingPrice = Number(newListingPrice) * LAMPORTS_PER_SOL;
+    const _mint = new PublicKey(mint);
+    const [sellerAddressAsString, _sellerPublicKey] = await this.getNftOwner(_mint);
+
+    if (this.wallet.publicKey.toBase58() !== sellerAddressAsString && this.wallet.publicKey.toBase58() !== this.auctionHouseAuthority.toBase58()) {
+      throw new Error('You cannot cancel listing of an NFT you do not own.');
+    }
+
+    const auctionHouseObj = (await this.program!.account.auctionHouse.fetch(this.auctionHouse!)) as any as AuctionHouse;
+    const [programAsSigner, programAsSignerBump] = await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
+    const [associatedTokenAccount] = await getAtaForMint(_mint, _sellerPublicKey);
+    const [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
+      _sellerPublicKey,
+      this.auctionHouse!,
+      associatedTokenAccount,
+      auctionHouseObj.treasuryMint,
+      _mint,
+      _currentListingPrice,
+      1
+    );
+
+    const [listingReceipt] = await AuctionHouseProgram.findListingReceiptAddress(sellerTradeState);
+
+    const auctionHouse = this.auctionHouse!;
+    const authority = this.auctionHouseAuthority;
+    const auctionHouseFeeAccount = new PublicKey(auctionHouseObj.auctionHouseFeeAccount);
+    const receipt = listingReceipt;
+
+    // Cancel listing transactions
+    const cancelInstructionAccounts: CancelInstructionAccounts = {
+      wallet: this.wallet.publicKey,
+      tokenAccount: associatedTokenAccount,
+      tokenMint: _mint,
+      authority,
+      auctionHouse,
+      auctionHouseFeeAccount,
+      tradeState: sellerTradeState,
+    };
+    const cancelInstructionArgs: CancelInstructionArgs = {
+      buyerPrice: _currentListingPrice,
+      tokenSize: 1,
+    };
+
+    const cancelListingReceiptAccounts: CancelListingReceiptInstructionAccounts = {
+      receipt,
+      instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
+    };
+
+    // Create new listing transactions
+    const listingPrice = _newListingPrice;
+    const nftMetadataAccount = await getMetadata(_mint);
+    const [newSellerTradeState, newTradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
+      this.wallet.publicKey,
+      this.auctionHouse!,
+      associatedTokenAccount,
+      auctionHouseObj.treasuryMint,
+      _mint,
+      listingPrice,
+      1
+    );
+
+    const [newFreeTradeState, newFreeTradeBump] = await AuctionHouseProgram.findTradeStateAddress(
+      this.wallet.publicKey,
+      this.auctionHouse!,
+      associatedTokenAccount,
+      auctionHouseObj.treasuryMint,
+      _mint,
+      0,
+      1
+    );
+    const [newListingReceipt, newListingReceiptBump] = await AuctionHouseProgram.findListingReceiptAddress(newSellerTradeState);
+    console.log('[newSellerTradeState, newListingReceipt]', [newSellerTradeState.toBase58(), newListingReceipt.toBase58()]);
+
+    // Create sell instruction accounts
+    const sellInstructionAccounts: SellInstructionAccounts = {
+      auctionHouse: this.auctionHouse!,
+      auctionHouseFeeAccount: new PublicKey(auctionHouseObj.auctionHouseFeeAccount),
+      authority: new PublicKey(auctionHouseObj.authority),
+      wallet: this.wallet.publicKey,
+      metadata: nftMetadataAccount,
+      tokenAccount: associatedTokenAccount,
+      freeSellerTradeState: newFreeTradeState,
+      sellerTradeState: newSellerTradeState,
+      programAsSigner,
+    };
+    const sellInstructionArgs: SellInstructionArgs = {
+      buyerPrice: listingPrice,
+      freeTradeStateBump: newFreeTradeBump,
+      tradeStateBump: newTradeStateBump,
+      programAsSignerBump,
+      tokenSize: 1,
+    };
+    // Create listing receipt accounts
+    const printListingReceiptInstructionAccounts: PrintListingReceiptInstructionAccounts = {
+      receipt: newListingReceipt,
+      bookkeeper: this.wallet.publicKey,
+      instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
+    };
+    const printListingReceiptInstructionArgs: PrintListingReceiptInstructionArgs = {
+      receiptBump: newListingReceiptBump,
+    };
+
+    const cancelInstruction = await createCancelInstruction(cancelInstructionAccounts, cancelInstructionArgs);
+    const cancelListingReceiptInstruction = createCancelListingReceiptInstruction(cancelListingReceiptAccounts);
+    const sellInstruction = await createSellInstruction(sellInstructionAccounts, sellInstructionArgs);
+    const printListingReceiptInstruction = createPrintListingReceiptInstruction(printListingReceiptInstructionAccounts, printListingReceiptInstructionArgs);
+
+    const txt = new Transaction();
+    txt.add(cancelInstruction).add(cancelListingReceiptInstruction).add(sellInstruction).add(printListingReceiptInstruction);
+
+    txt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
+    txt.feePayer = this.wallet.publicKey;
+    let signed: Transaction | undefined = undefined;
+
+    try {
+      signed = await this.wallet.signTransaction(txt);
+    } catch (e) {
+      console.error('Seller cancelled transaction', e);
+    }
+
+    let signature: string | undefined = undefined;
+    signature = await this.connection.sendRawTransaction(signed!.serialize());
+    const result = await this.connection.confirmTransaction(signature, 'confirmed');
+
+    console.log('result', result);
+    console.log(
+      'Successfully changed listing price for ',
+      mint,
+      ' from ',
+      _currentListingPrice / LAMPORTS_PER_SOL,
+      ' SOL ',
+      ' to ',
+      _newListingPrice / LAMPORTS_PER_SOL
+    );
+    // Get new listing
+    const ListingReceipt = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountAddress(this.connection, newListingReceipt);
+    return [result, ListingReceipt] as const;
+  }
+
   /**
    * Cancels a listing for sell or buy instructions for an NFT
    * @param mint NFT mint address whose listing is to be cancelled
@@ -516,7 +654,6 @@ export class Mirage {
     }
 
     const auctionHouseObj = (await this.program!.account.auctionHouse.fetch(this.auctionHouse!)) as any as AuctionHouse;
-
     const [associatedTokenAccount] = await getAtaForMint(_mint, _sellerPublicKey);
 
     let sellerTradeState;
@@ -607,9 +744,8 @@ export class Mirage {
     if (this.wallet.publicKey.toBase58() !== senderAddress) {
       throw new Error('You cannot list an NFT you do not own');
     }
-
+    const auctionHouseObj = (await this.program!.account.auctionHouse.fetch(this.auctionHouse!)) as any as AuctionHouse;
     const senderAta = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, sender);
-
     const recipientAta = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, _recipient);
 
     console.log('recipient  Associated Token Account', recipientAta);
@@ -637,6 +773,60 @@ export class Mirage {
         txt.add(createAtaInstruction);
       }
     }
+
+    // check to see if token is on sale in our auctionhouse. If it is
+    // we then cancel the listings
+    const tokenTransactions = await this.getTokenTransactions(_mint);
+    const isTokenOnSale = tokenTransactions.filter((receipt) => receipt?.receipt_type === 'listing_receipt' && !receipt.purchaseReceipt);
+    if (isTokenOnSale.length) {
+      console.info('Found pre-existing listings for >>> ', mint.toString(), 'Cancelling these listings before transfer');
+      // For each token we shall create a cancelListing transaction and then parse them and append to the chain
+      const cancelListingTransactionsPromises = isTokenOnSale.map(async (_receipt) => {
+        const _buyerPrice = _receipt!.price * LAMPORTS_PER_SOL;
+        const [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
+          this.wallet.publicKey,
+          this.auctionHouse!,
+          senderAta,
+          auctionHouseObj.treasuryMint,
+          _mint,
+          _buyerPrice,
+          1
+        );
+
+        const [listingReceipt] = await AuctionHouseProgram.findListingReceiptAddress(sellerTradeState);
+
+        const auctionHouse = this.auctionHouse!;
+        const authority = this.auctionHouseAuthority;
+        const auctionHouseFeeAccount = new PublicKey(auctionHouseObj.auctionHouseFeeAccount);
+        const receipt = listingReceipt;
+
+        const cancelInstructionAccounts: CancelInstructionAccounts = {
+          wallet: this.wallet.publicKey,
+          tokenAccount: senderAta,
+          tokenMint: _mint,
+          authority,
+          auctionHouse,
+          auctionHouseFeeAccount,
+          tradeState: sellerTradeState,
+        };
+        const cancelInstructionArgs: CancelInstructionArgs = {
+          buyerPrice: _buyerPrice,
+          tokenSize: 1,
+        };
+
+        const cancelListingReceiptAccounts: CancelListingReceiptInstructionAccounts = {
+          receipt,
+          instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
+        };
+
+        const cancelInstruction = await createCancelInstruction(cancelInstructionAccounts, cancelInstructionArgs);
+        const cancelListingReceiptInstruction = createCancelListingReceiptInstruction(cancelListingReceiptAccounts);
+        return [cancelInstruction, cancelListingReceiptInstruction];
+      });
+      const cancelListingTransactions = (await Promise.all(cancelListingTransactionsPromises)).flat();
+      cancelListingTransactions.forEach((instruction) => txt.add(instruction));
+    }
+
     const transferNftInstruction = await Token.createTransferInstruction(TOKEN_PROGRAM_ID, senderAta, recipientAta, sender, [], 1);
 
     txt.add(transferNftInstruction);

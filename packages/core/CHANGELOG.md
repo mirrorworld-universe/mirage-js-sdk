@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 1.2.0
+
+### Minor Changes
+
+- Create `updateListing` function \
+
 ## 1.1.3
 
 ### Patch Changes

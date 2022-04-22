@@ -108,6 +108,22 @@ const listingPrice = 0.5
 await mirage.listToken(mintAddress, listingPrice)
 ```
 
+### Update listings
+You can also update the listing of an NFT with the `Mirage.updateListing` method. See [docs](https://mirage-js-sdk.vercel.app/classes/core_src.Mirage.html#updateListing) for details.
+
+Note: This fails if there is no active listing, or if the values provided are incorrect. In case updating of a listing fails, please check the console to find out why the listing has failed.
+```ts
+const mintAddress = "AQYAGzygMZQid99up64zFG75zwRX7DE1i2v9W4teq2xm"
+const listingPrice = 0.5
+const newListingPrice = 0.9
+
+// NOTE
+// It's important that the listing price of the token
+// matches the exact price for which it was listed.
+await mirage.listToken(mintAddress, listingPrice) // sets price to 0.5 SOL
+await mirage.updateListing(mintAddress, listingPrice, newListingPrice) // changes price from 0.5 SOL to 0.9 SOL
+```
+
 ### Cancelling listings
 You can also cancel the listing of an NFT with the `Mirage.cancelListing` method. See [docs](https://mirage-js-sdk.vercel.app/classes/core_src.Mirage.html#cancelListing) for details.
 ```ts
