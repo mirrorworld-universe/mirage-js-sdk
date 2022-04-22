@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 1.3.2
+
+### Patch Changes
+
+- Fixes account derivation for cancel listings for auctionhouse authority
+
 ## 1.3.1
 
 ### Patch Changes

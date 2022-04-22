@@ -1,5 +1,13 @@
 # @mirrorworld/mirage.vue
 
+## 0.2.2
+
+### Patch Changes
+
+- Fixes account derivation for cancel listings for auctionhouse authority
+- Updated dependencies
+  - @mirrorworld/mirage.core@1.3.2
+
 ## 0.2.1
 
 ### Patch Changes
