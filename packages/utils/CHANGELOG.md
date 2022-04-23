@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.utils
 
+## 1.2.0
+
+### Minor Changes
+
+- Update error messgae handlers
+
 ## 1.1.6
 
 ### Patch Changes

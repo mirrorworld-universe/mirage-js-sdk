@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 1.4.0
+
+### Minor Changes
+
+- Update error messgae handlers
+
 ## 1.3.3
 
 ### Patch Changes
