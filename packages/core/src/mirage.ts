@@ -50,6 +50,7 @@ import {
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { BidReceipt, ListingReceipt, PurchaseReceipt } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/accounts';
 import { mintNFT, MintNFTResponse } from './mint';
+import { InsufficientBalanceError } from './errors';
 
 export interface IMirageOptions {
   auctionHouseAuthority: PublicKey;
@@ -274,6 +275,16 @@ export class Mirage {
     txt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     txt.feePayer = sellerWallet.publicKey;
 
+    const estimatedCost = (await txt.getEstimatedFee(this.connection)) / LAMPORTS_PER_SOL;
+    const { value: _balance } = await this.connection.getBalanceAndContext(this.wallet.publicKey);
+    const balance = _balance / LAMPORTS_PER_SOL;
+    console.info('Estimated cost of transaction: ', estimatedCost);
+    console.info('Wallet Balance', balance, '');
+
+    if (balance < estimatedCost) {
+      throw new InsufficientBalanceError('Account balance is not enough to complete this sell transaction');
+    }
+
     let signed: Transaction | undefined = undefined;
 
     try {
@@ -478,6 +489,16 @@ export class Mirage {
     buyTxt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     buyTxt.feePayer = buyerWallet.publicKey;
 
+    const estimatedCost = (await buyTxt.getEstimatedFee(this.connection)) / LAMPORTS_PER_SOL + Number(_buyerPrice);
+    const { value: _balance } = await this.connection.getBalanceAndContext(this.wallet.publicKey);
+    const balance = _balance / LAMPORTS_PER_SOL;
+    console.info('Estimated cost of transaction: ', estimatedCost);
+    console.info('Wallet Balance', balance);
+
+    if (balance < estimatedCost) {
+      throw new InsufficientBalanceError('Account balance is not enough to complete this purchase transaction');
+    }
+
     let signed: Transaction | undefined = undefined;
 
     try {
@@ -611,6 +632,17 @@ export class Mirage {
 
     txt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     txt.feePayer = this.wallet.publicKey;
+
+    const estimatedCost = (await txt.getEstimatedFee(this.connection)) / LAMPORTS_PER_SOL;
+    const { value: _balance } = await this.connection.getBalanceAndContext(this.wallet.publicKey);
+    const balance = _balance / LAMPORTS_PER_SOL;
+    console.info('Estimated cost of transaction: ', estimatedCost);
+    console.info('Wallet Balance', balance, '');
+
+    if (balance < estimatedCost) {
+      throw new InsufficientBalanceError('Account balance is not enough to complete this update listing transaction');
+    }
+
     let signed: Transaction | undefined = undefined;
 
     try {
@@ -722,6 +754,16 @@ export class Mirage {
 
     txt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     txt.feePayer = this.wallet.publicKey;
+
+    const estimatedCost = (await txt.getEstimatedFee(this.connection)) / LAMPORTS_PER_SOL;
+    const { value: _balance } = await this.connection.getBalanceAndContext(this.wallet.publicKey);
+    const balance = _balance / LAMPORTS_PER_SOL;
+    console.info('Estimated cost of transaction: ', estimatedCost);
+    console.info('Wallet Balance', balance, '');
+
+    if (balance < estimatedCost) {
+      throw new InsufficientBalanceError('Account balance is not enough to complete this cancel listing transaction');
+    }
 
     let signed: Transaction | undefined = undefined;
 
@@ -849,6 +891,16 @@ export class Mirage {
 
     txt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     txt.feePayer = this.wallet.publicKey;
+
+    const estimatedCost = (await txt.getEstimatedFee(this.connection)) / LAMPORTS_PER_SOL;
+    const { value: _balance } = await this.connection.getBalanceAndContext(this.wallet.publicKey);
+    const balance = _balance / LAMPORTS_PER_SOL;
+    console.info('Estimated cost of transaction: ', estimatedCost);
+    console.info('Wallet Balance', balance, '');
+
+    if (balance < estimatedCost) {
+      throw new InsufficientBalanceError('Account balance is not enough to complete this transfer NFT transaction');
+    }
 
     let signed: Transaction | undefined = undefined;
 

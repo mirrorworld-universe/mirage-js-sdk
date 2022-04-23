@@ -1,10 +1,11 @@
-import { Connection, PublicKey, RpcResponseAndContext, SignatureResult } from '@solana/web3.js';
+import { Connection, LAMPORTS_PER_SOL, PublicKey, RpcResponseAndContext, SignatureResult } from '@solana/web3.js';
 import { Keypair, SendOptions } from '@solana/web3.js';
 import { BN, Wallet } from '@project-serum/anchor';
 import fetch from 'isomorphic-fetch';
 import { actions, MetadataJson, programs } from '@metaplex/js';
 import { Transaction } from '@metaplex-foundation/mpl-core';
 import { sleep } from './transactions';
+import { InsufficientBalanceError } from './errors';
 
 const { prepareTokenAccountAndMintTxs } = actions;
 const {
@@ -119,6 +120,16 @@ export const mintNFT = async ({ connection, wallet, uri, maxSupply, updateAuthor
 
   txt.recentBlockhash = (await connection.getRecentBlockhash()).blockhash;
   txt.feePayer = wallet.publicKey;
+
+  const estimatedCost = (await txt.getEstimatedFee(connection)) / LAMPORTS_PER_SOL;
+  const { value: _balance } = await connection.getBalanceAndContext(wallet.publicKey);
+  const balance = _balance / LAMPORTS_PER_SOL;
+  console.log('Estimated cost of transaction: ', estimatedCost);
+  console.log('Wallet Balance', balance, '');
+
+  if (balance < estimatedCost) {
+    throw new InsufficientBalanceError('Account balance is not enough to complete transaction');
+  }
 
   let signed: Transaction | undefined = undefined;
 
