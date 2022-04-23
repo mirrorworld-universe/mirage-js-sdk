@@ -50,7 +50,7 @@ import {
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { BidReceipt, ListingReceipt, PurchaseReceipt } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/accounts';
 import { mintNFT, MintNFTResponse } from './mint';
-import { InsufficientBalanceError } from './errors';
+import { InsufficientBalanceError, programErrorHandler } from './errors';
 
 export interface IMirageOptions {
   auctionHouseAuthority: PublicKey;
@@ -294,13 +294,18 @@ export class Mirage {
     }
 
     let signature: string | undefined = undefined;
-    signature = await this.connection.sendRawTransaction(signed!.serialize());
-    const result = await this.connection.confirmTransaction(signature, 'confirmed');
+    let result: RpcResponseAndContext<SignatureResult>;
+    try {
+      signature = await this.connection.sendRawTransaction(signed!.serialize());
+      result = await this.connection.confirmTransaction(signature, 'confirmed');
+    } catch (error) {
+      programErrorHandler(error);
+    }
 
-    console.log('result', result);
+    console.log('result', result!);
     console.log('Successfully listed ', mint, ' at ', listingPrice / LAMPORTS_PER_SOL, ' SOL');
     const ListingReceipt = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountAddress(this.connection, receipt);
-    return [result, ListingReceipt] as const;
+    return [result!, ListingReceipt] as const;
   }
 
   /**
@@ -508,14 +513,18 @@ export class Mirage {
     }
 
     let signature: string | undefined = undefined;
-    signature = await this.connection.sendRawTransaction(signed!.serialize());
+    let result: RpcResponseAndContext<SignatureResult>;
+    try {
+      signature = await this.connection.sendRawTransaction(signed!.serialize());
+      result = await this.connection.confirmTransaction(signature, 'confirmed');
+    } catch (error) {
+      programErrorHandler(error);
+    }
 
-    const result = await this.connection.confirmTransaction(signature, 'confirmed');
-
-    console.log('result', result);
+    console.log('result', result!);
     console.log('Successfully purchased ', mint, ' at ', buyerPrice / LAMPORTS_PER_SOL, ' SOL');
     const PurchaseReceipt = await AuctionHouseProgram.accounts.PurchaseReceipt.fromAccountAddress(this.connection, purchaseReceipt);
-    return [result, PurchaseReceipt] as const;
+    return [result!, PurchaseReceipt] as const;
   }
 
   async updateListing(mint: string, currentListingPrice: number, newListingPrice: number) {
@@ -652,10 +661,15 @@ export class Mirage {
     }
 
     let signature: string | undefined = undefined;
-    signature = await this.connection.sendRawTransaction(signed!.serialize());
-    const result = await this.connection.confirmTransaction(signature, 'confirmed');
+    let result: RpcResponseAndContext<SignatureResult>;
+    try {
+      signature = await this.connection.sendRawTransaction(signed!.serialize());
+      result = await this.connection.confirmTransaction(signature, 'confirmed');
+    } catch (error) {
+      programErrorHandler(error);
+    }
 
-    console.log('result', result);
+    console.log('result', result!);
     console.log(
       'Successfully changed listing price for ',
       mint,
@@ -667,7 +681,7 @@ export class Mirage {
     );
     // Get new listing
     const ListingReceipt = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountAddress(this.connection, newListingReceipt);
-    return [result, ListingReceipt] as const;
+    return [result!, ListingReceipt] as const;
   }
 
   /**
@@ -773,17 +787,22 @@ export class Mirage {
       console.error('Seller cancelled transaction', e.message);
     }
 
-    let signature: string | undefined = undefined;
     console.info('Sending the transaction to Solana.');
-    signature = await this.connection.sendRawTransaction(signed!.serialize());
-    const result = await this.connection.confirmTransaction(signature, 'confirmed');
 
-    console.log('result', result);
+    let signature: string | undefined = undefined;
+    let result: RpcResponseAndContext<SignatureResult>;
+    try {
+      signature = await this.connection.sendRawTransaction(signed!.serialize());
+      result = await this.connection.confirmTransaction(signature, 'confirmed');
+    } catch (error) {
+      programErrorHandler(error);
+    }
+    console.log('result', result!);
     console.log('Successfully cancelled listing for mint ', mint, ' at ', buyerPrice / LAMPORTS_PER_SOL, ' SOL');
 
     const ListingReceipt = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountAddress(this.connection, receipt);
     console.log('listingReceiptObj', JSON.stringify(ListingReceipt, null, 2));
-    return [result, ListingReceipt] as const;
+    return [result!, ListingReceipt] as const;
   }
 
   /**
@@ -910,14 +929,19 @@ export class Mirage {
       console.error('sender cancelled transaction', e.message);
     }
 
-    let signature: string | undefined = undefined;
     console.info('Sending the transaction to Solana.');
-    signature = await this.connection.sendRawTransaction(signed!.serialize());
-    const result = await this.connection.confirmTransaction(signature, 'confirmed');
+    let signature: string | undefined = undefined;
+    let result: RpcResponseAndContext<SignatureResult>;
+    try {
+      signature = await this.connection.sendRawTransaction(signed!.serialize());
+      result = await this.connection.confirmTransaction(signature, 'confirmed');
+    } catch (error) {
+      programErrorHandler(error);
+    }
 
-    console.log('result', result);
+    console.log('result', result!);
     console.log('Successfully transferred nft ', mint, ' from ', this.wallet.publicKey.toBase58(), ' to ', _recipient.toBase58());
-    return result;
+    return result!;
   }
 
   /**
