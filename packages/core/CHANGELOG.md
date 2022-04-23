@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 1.4.1
+
+### Patch Changes
+
+- throw fails
+
 ## 1.4.0
 
 ### Minor Changes

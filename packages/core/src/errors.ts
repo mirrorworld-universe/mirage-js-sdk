@@ -7,7 +7,7 @@ export class InsufficientBalanceError extends Error {
   }
 }
 
-export function programErrorHandler(error: any) {
+export function programErrorHandler(error: any, action: 'buy' | 'sell' | 'update' | 'cancel' | '' = '') {
   // Is on-chain error
   const errorLogs = error.logs as string[];
   if (errorLogs) {
@@ -16,7 +16,11 @@ export function programErrorHandler(error: any) {
     const anchorErrorMessage = errorLogsCopy.splice(0, anchorErrorMessageIndex + 1).find((log: string) => log.includes('Instruction:'));
     console.log({ anchorErrorMessage });
     if (anchorErrorMessage) {
-      const _error = new Error(anchorErrorMessage + ' ' + errorLogs[anchorErrorMessageIndex]);
+      const errorMessage = errorLogs[anchorErrorMessageIndex];
+      const message = errorMessage.includes('DerivedKeyInvalid')
+        ? `Invalid parameters passed into transaction. Please make sure you passed the correct ${action} parameters. More information: ${errorMessage}.`
+        : errorMessage;
+      const _error = new Error(anchorErrorMessage + ' ' + message);
       throw _error;
     } else {
       throw new Error(error.msg);

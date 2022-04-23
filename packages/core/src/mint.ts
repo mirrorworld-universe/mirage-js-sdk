@@ -138,6 +138,7 @@ export const mintNFT = async ({ connection, wallet, uri, maxSupply, updateAuthor
     signed = await wallet.signTransaction(txt);
   } catch (e: any) {
     console.error(e.message);
+    throw e;
   }
 
   let signature: string | undefined = undefined;
