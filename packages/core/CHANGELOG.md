@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 1.5.0
+
+### Minor Changes
+
+- Prevents updated listings at the same price
+
 ## 1.4.1
 
 ### Patch Changes

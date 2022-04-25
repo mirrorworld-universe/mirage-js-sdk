@@ -50,7 +50,7 @@ import {
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { BidReceipt, ListingReceipt, PurchaseReceipt } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/accounts';
 import { mintNFT, MintNFTResponse } from './mint';
-import { InsufficientBalanceError, programErrorHandler } from './errors';
+import { InsufficientBalanceError, ListingAlreadyExistsError, programErrorHandler } from './errors';
 
 export interface IMirageOptions {
   auctionHouseAuthority: PublicKey;
@@ -591,6 +591,15 @@ export class Mirage {
       listingPrice,
       1
     );
+
+    // There is an edge case in which the user
+    // tries to update the listing to a value of the same
+    // previous price. If this occurs, we prevent the user
+    // from updating a listing to the same price as the previous one
+    console.log('newSellerTradeState.toBase58() === sellerTradeState.toBase58()', newSellerTradeState.toBase58() === sellerTradeState.toBase58());
+    if (newSellerTradeState.toBase58() === sellerTradeState.toBase58()) {
+      throw new ListingAlreadyExistsError();
+    }
 
     const [newFreeTradeState, newFreeTradeBump] = await AuctionHouseProgram.findTradeStateAddress(
       this.wallet.publicKey,

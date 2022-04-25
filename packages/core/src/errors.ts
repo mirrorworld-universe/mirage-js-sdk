@@ -7,6 +7,15 @@ export class InsufficientBalanceError extends Error {
   }
 }
 
+export class ListingAlreadyExistsError extends Error {
+  message: string;
+  constructor(message?: string) {
+    super(message);
+    this.message = "You cannot update a token's listing to the same price. Please update listing to a different price";
+    this.name = 'ListingAlreadyExistsError';
+  }
+}
+
 export function programErrorHandler(error: any, action: 'buy' | 'sell' | 'update' | 'cancel' | '' = '') {
   // Is on-chain error
   const errorLogs = error.logs as string[];
