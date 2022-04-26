@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 1.5.1
+
+### Patch Changes
+
+- Lock solanaweb3 version versio
+
 ## 1.5.0
 
 ### Minor Changes

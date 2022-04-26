@@ -1,5 +1,13 @@
 # @mirrorworld/mirage.vue
 
+## 0.3.3
+
+### Patch Changes
+
+- Lock solanaweb3 version versio
+- Updated dependencies
+  - @mirrorworld/mirage.core@1.5.1
+
 ## 0.3.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.vanilla
 
+## 0.2.1
+
+### Patch Changes
+
+- Lock solanaweb3 version versio
+
 ## 0.2.0
 
 ### Minor Changes
