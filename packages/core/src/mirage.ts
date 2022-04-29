@@ -76,6 +76,8 @@ export interface TransactionReceipt
   tokenSize: number;
 }
 
+export type TransactionSignature = string | undefined;
+
 const {
   createPrintBidReceiptInstruction,
   createPrintListingReceiptInstruction,
@@ -185,7 +187,7 @@ export class Mirage {
    * @param mint NFT mint address to be sold
    * @param listingPrice price at which NFT will be sold
    */
-  async listToken(mint: string, _listingPrice: number) {
+  async listToken(mint: string, _listingPrice: number): Promise<readonly [RpcResponseAndContext<any>, ListingReceipt, TransactionSignature]> {
     const listingPrice = Number(_listingPrice) * LAMPORTS_PER_SOL;
     const sellerWallet = this.wallet;
     const _sellerPublicKey = sellerWallet.publicKey;
@@ -294,7 +296,7 @@ export class Mirage {
       throw e;
     }
 
-    let signature: string | undefined = undefined;
+    let signature = undefined;
     let result: RpcResponseAndContext<SignatureResult>;
     try {
       signature = await this.connection.sendRawTransaction(signed!.serialize());
@@ -306,7 +308,7 @@ export class Mirage {
     console.log('result', result!);
     console.log('Successfully listed ', mint, ' at ', listingPrice / LAMPORTS_PER_SOL, ' SOL');
     const ListingReceipt = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountAddress(this.connection, receipt);
-    return [result!, ListingReceipt] as const;
+    return [result!, ListingReceipt, signature] as const;
   }
 
   /**
@@ -314,7 +316,7 @@ export class Mirage {
    * @param mint NFT mint address to be bought
    * @param buyerPrice price at chich NFT will be bought. This MUST match the selling price of the NFT
    */
-  async buyToken(mint: string, _buyerPrice: number) {
+  async buyToken(mint: string, _buyerPrice: number): Promise<readonly [RpcResponseAndContext<any>, PurchaseReceipt, TransactionSignature]> {
     const buyerPrice = Number(_buyerPrice) * LAMPORTS_PER_SOL;
     const _mint = new PublicKey(mint);
     const _buyerPublicKey = this.wallet.publicKey;
@@ -514,7 +516,7 @@ export class Mirage {
       throw e;
     }
 
-    let signature: string | undefined = undefined;
+    let signature = undefined;
     let result: RpcResponseAndContext<SignatureResult>;
     try {
       signature = await this.connection.sendRawTransaction(signed!.serialize());
@@ -526,7 +528,7 @@ export class Mirage {
     console.log('result', result!);
     console.log('Successfully purchased ', mint, ' at ', buyerPrice / LAMPORTS_PER_SOL, ' SOL');
     const PurchaseReceipt = await AuctionHouseProgram.accounts.PurchaseReceipt.fromAccountAddress(this.connection, purchaseReceipt);
-    return [result!, PurchaseReceipt] as const;
+    return [result!, PurchaseReceipt, signature] as const;
   }
 
   async updateListing(mint: string, currentListingPrice: number, newListingPrice: number) {
@@ -672,7 +674,7 @@ export class Mirage {
       throw e;
     }
 
-    let signature: string | undefined = undefined;
+    let signature = undefined;
     let result: RpcResponseAndContext<SignatureResult>;
     try {
       signature = await this.connection.sendRawTransaction(signed!.serialize());
@@ -702,7 +704,11 @@ export class Mirage {
    * @param _buyerPrice price at which NFT was listed
    * @param tradeState optional: trade state address to cancel
    */
-  async cancelListing(mint: string, _buyerPrice: number, __DANGEROUSLY_INSET_SELLER__?: string) {
+  async cancelListing(
+    mint: string,
+    _buyerPrice: number,
+    __DANGEROUSLY_INSET_SELLER__?: string
+  ): Promise<readonly [RpcResponseAndContext<any>, ListingReceipt, TransactionSignature]> {
     const buyerPrice = Number(_buyerPrice) * LAMPORTS_PER_SOL;
     const _mint = new PublicKey(mint);
     const [sellerAddressAsString, _sellerPublicKey] = await this.getNftOwner(_mint);
@@ -802,7 +808,7 @@ export class Mirage {
 
     console.info('Sending the transaction to Solana.');
 
-    let signature: string | undefined = undefined;
+    let signature = undefined;
     let result: RpcResponseAndContext<SignatureResult>;
     try {
       signature = await this.connection.sendRawTransaction(signed!.serialize());
@@ -815,7 +821,7 @@ export class Mirage {
 
     const ListingReceipt = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountAddress(this.connection, receipt);
     console.log('listingReceiptObj', JSON.stringify(ListingReceipt, null, 2));
-    return [result!, ListingReceipt] as const;
+    return [result!, ListingReceipt, signature] as const;
   }
 
   /**
@@ -823,7 +829,7 @@ export class Mirage {
    * @param mint NFT mint address to transfer to a new user
    * @param recipient Recipient's publicKey
    */
-  async transferNft(mint: string | PublicKey, recipient: string | PublicKey): Promise<RpcResponseAndContext<SignatureResult>> {
+  async transferNft(mint: string | PublicKey, recipient: string | PublicKey): Promise<[RpcResponseAndContext<SignatureResult>, TransactionSignature]> {
     const _mint = new PublicKey(mint);
     const _recipient = new PublicKey(recipient);
 
@@ -944,7 +950,7 @@ export class Mirage {
     }
 
     console.info('Sending the transaction to Solana.');
-    let signature: string | undefined = undefined;
+    let signature = undefined;
     let result: RpcResponseAndContext<SignatureResult>;
     try {
       signature = await this.connection.sendRawTransaction(signed!.serialize());
@@ -955,7 +961,7 @@ export class Mirage {
 
     console.log('result', result!);
     console.log('Successfully transferred nft ', mint, ' from ', this.wallet.publicKey.toBase58(), ' to ', _recipient.toBase58());
-    return result!;
+    return [result!, signature];
   }
 
   /**
