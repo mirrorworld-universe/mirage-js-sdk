@@ -531,7 +531,11 @@ export class Mirage {
     return [result!, PurchaseReceipt, signature] as const;
   }
 
-  async updateListing(mint: string, currentListingPrice: number, newListingPrice: number) {
+  async updateListing(
+    mint: string,
+    currentListingPrice: number,
+    newListingPrice: number
+  ): Promise<readonly [RpcResponseAndContext<any>, ListingReceipt, TransactionSignature]> {
     const _currentListingPrice = Number(currentListingPrice) * LAMPORTS_PER_SOL;
     const _newListingPrice = Number(newListingPrice) * LAMPORTS_PER_SOL;
     const _mint = new PublicKey(mint);
@@ -695,7 +699,7 @@ export class Mirage {
     );
     // Get new listing
     const ListingReceipt = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountAddress(this.connection, newListingReceipt);
-    return [result!, ListingReceipt] as const;
+    return [result!, ListingReceipt, signature] as const;
   }
 
   /**
