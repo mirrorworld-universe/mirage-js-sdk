@@ -445,8 +445,8 @@ export class Mirage {
       programAsSignerBump,
       buyerPrice,
       tokenSize,
-      partialOrderSize: tokenSize,
-      partialOrderPrice: buyerPrice,
+      partialOrderSize: null,
+      partialOrderPrice: null,
     };
 
     const _executeSaleInstruction = await createExecuteSaleInstruction(executeSaleInstructionAccounts, createExecuteSaleInstructionArgs);
