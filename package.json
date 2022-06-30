@@ -92,5 +92,8 @@
   },
   "devDependencies": {
     "@project-serum/borsh": "^0.2.5"
+  },
+  "resolutions": {
+    "@metaplex-foundation/mpl-auction-house": "1.1.1"
   }
 }
