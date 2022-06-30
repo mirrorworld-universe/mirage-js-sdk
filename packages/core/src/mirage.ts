@@ -314,7 +314,7 @@ export class Mirage {
   /**
    * Purchases an NFT that has been listed on sale
    * @param mint NFT mint address to be bought
-   * @param buyerPrice price at chich NFT will be bought. This MUST match the selling price of the NFT
+   * @param _buyerPrice price at chich NFT will be bought. This MUST match the selling price of the NFT
    */
   async buyToken(mint: string, _buyerPrice: number): Promise<readonly [RpcResponseAndContext<any>, PurchaseReceipt, TransactionSignature]> {
     const buyerPrice = Number(_buyerPrice) * LAMPORTS_PER_SOL;
@@ -445,6 +445,8 @@ export class Mirage {
       programAsSignerBump,
       buyerPrice,
       tokenSize,
+      partialOrderSize: tokenSize,
+      partialOrderPrice: buyerPrice,
     };
 
     const _executeSaleInstruction = await createExecuteSaleInstruction(executeSaleInstructionAccounts, createExecuteSaleInstructionArgs);
