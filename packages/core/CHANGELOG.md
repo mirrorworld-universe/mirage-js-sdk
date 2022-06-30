@@ -1,10 +1,10 @@
 # @mirrorworld/mirage.core
 
-## 1.6.1
+## 1.6.2
 
 ### Minor Changes
 
-- Add solana transaction signature information to executed transactions
+- update auction program
 
 ## 1.5.1
 
