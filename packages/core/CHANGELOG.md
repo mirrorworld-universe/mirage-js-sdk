@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 1.6.3
+
+### Minor Changes
+
+- auction house buy instructions
+
 ## 1.6.2
 
 ### Minor Changes
