@@ -19,7 +19,7 @@ import merge from 'lodash.merge';
 import { decodeMetadata, Metadata as MetadataSchema } from './schema';
 import { getAccountInfo, getAtaForMint, getMetadata, processCreatorShares, uploadNFTFileToStorage } from './utils';
 import dayjs from 'dayjs';
-import { SolanaNetwork, MetadataObject, AuctionHouse } from './types';
+import { MetadataObject, AuctionHouse } from './types';
 import { AuctionHouseIDL, AuctionHouseProgramIDL } from './idl';
 
 const {
@@ -64,6 +64,7 @@ export interface IMirageOptions {
 }
 
 export type ReceiptType = 'purchase_receipt' | 'listing_receipt' | 'cancel_receipt' | 'cancel_listing_receipt' | 'bid_receipt' | 'cancel_bid_receipt';
+export type ReceiptAddress = PublicKey;
 
 export interface TransactionReceipt
   extends Omit<ListingReceipt, 'serialize' | 'pretty'>,
@@ -187,7 +188,7 @@ export class Mirage {
    * @param mint NFT mint address to be sold
    * @param listingPrice price at which NFT will be sold
    */
-  async listToken(mint: string, _listingPrice: number): Promise<readonly [RpcResponseAndContext<any>, ListingReceipt, TransactionSignature]> {
+  async listToken(mint: string, _listingPrice: number): Promise<readonly [RpcResponseAndContext<any>, ReceiptAddress, TransactionSignature]> {
     const listingPrice = Number(_listingPrice) * LAMPORTS_PER_SOL;
     const sellerWallet = this.wallet;
     const _sellerPublicKey = sellerWallet.publicKey;
@@ -307,8 +308,7 @@ export class Mirage {
 
     console.log('result', result!);
     console.log('Successfully listed ', mint, ' at ', listingPrice / LAMPORTS_PER_SOL, ' SOL');
-    const ListingReceipt = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountAddress(this.connection, receipt);
-    return [result!, ListingReceipt, signature] as const;
+    return [result!, receipt, signature] as const;
   }
 
   /**
@@ -316,7 +316,7 @@ export class Mirage {
    * @param mint NFT mint address to be bought
    * @param _buyerPrice price at chich NFT will be bought. This MUST match the selling price of the NFT
    */
-  async buyToken(mint: string, _buyerPrice: number): Promise<readonly [RpcResponseAndContext<any>, PurchaseReceipt, TransactionSignature]> {
+  async buyToken(mint: string, _buyerPrice: number): Promise<readonly [RpcResponseAndContext<any>, ReceiptAddress, TransactionSignature]> {
     const buyerPrice = Number(_buyerPrice) * LAMPORTS_PER_SOL;
     const _mint = new PublicKey(mint);
     const _buyerPublicKey = this.wallet.publicKey;
@@ -445,8 +445,6 @@ export class Mirage {
       programAsSignerBump,
       buyerPrice,
       tokenSize,
-      partialOrderSize: null,
-      partialOrderPrice: null,
     };
 
     const _executeSaleInstruction = await createExecuteSaleInstruction(executeSaleInstructionAccounts, createExecuteSaleInstructionArgs);
@@ -529,15 +527,14 @@ export class Mirage {
 
     console.log('result', result!);
     console.log('Successfully purchased ', mint, ' at ', buyerPrice / LAMPORTS_PER_SOL, ' SOL');
-    const PurchaseReceipt = await AuctionHouseProgram.accounts.PurchaseReceipt.fromAccountAddress(this.connection, purchaseReceipt);
-    return [result!, PurchaseReceipt, signature] as const;
+    return [result!, purchaseReceipt, signature] as const;
   }
 
   async updateListing(
     mint: string,
     currentListingPrice: number,
     newListingPrice: number
-  ): Promise<readonly [RpcResponseAndContext<any>, ListingReceipt, TransactionSignature]> {
+  ): Promise<readonly [RpcResponseAndContext<any>, ReceiptAddress, TransactionSignature]> {
     const _currentListingPrice = Number(currentListingPrice) * LAMPORTS_PER_SOL;
     const _newListingPrice = Number(newListingPrice) * LAMPORTS_PER_SOL;
     const _mint = new PublicKey(mint);
@@ -699,9 +696,8 @@ export class Mirage {
       ' to ',
       _newListingPrice / LAMPORTS_PER_SOL
     );
-    // Get new listing
-    const ListingReceipt = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountAddress(this.connection, newListingReceipt);
-    return [result!, ListingReceipt, signature] as const;
+
+    return [result!, newListingReceipt, signature] as const;
   }
 
   /**
@@ -714,7 +710,7 @@ export class Mirage {
     mint: string,
     _buyerPrice: number,
     __DANGEROUSLY_INSET_SELLER__?: string
-  ): Promise<readonly [RpcResponseAndContext<any>, ListingReceipt, TransactionSignature]> {
+  ): Promise<readonly [RpcResponseAndContext<any>, ReceiptAddress, TransactionSignature]> {
     const buyerPrice = Number(_buyerPrice) * LAMPORTS_PER_SOL;
     const _mint = new PublicKey(mint);
     const [sellerAddressAsString, _sellerPublicKey] = await this.getNftOwner(_mint);
@@ -824,10 +820,7 @@ export class Mirage {
     }
     console.log('result', result!);
     console.log('Successfully cancelled listing for mint ', mint, ' at ', buyerPrice / LAMPORTS_PER_SOL, ' SOL');
-
-    const ListingReceipt = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountAddress(this.connection, receipt);
-    console.log('listingReceiptObj', JSON.stringify(ListingReceipt, null, 2));
-    return [result!, ListingReceipt, signature] as const;
+    return [result!, receipt, signature] as const;
   }
 
   /**

@@ -5,7 +5,7 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @mirrorworld/mirage.core@1.6.4
+  - @mirrorworld/mirage.core@1.6.5
 
 ## 0.3.3
 
