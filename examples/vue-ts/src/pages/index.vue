@@ -93,11 +93,11 @@
                 </c-aspect-ratio>
                 <c-stack px="4" py="3">
                   <c-text font-weight="normal" color="whiteAlpha.600">
-                    {{ newNFT?.data?.data.symbol }}
+                    {{ newNFT?.symbol }}
                   </c-text>
                   <c-h-stack justify="space-between" align="center">
-                    <c-heading as="h3" size="md">{{ newNFT?.data?.data.name }}</c-heading>
-                    <c-icon-button variant="ghost" size="sm" icon="link-2" aria-label="View in explorer" as="a" target="_blank" :href="`https://explorer.solana.com/address/${newNFT.data.mint}?cluster=${'devnet'}`" rounded="full" />
+                    <c-heading as="h3" size="md">{{ newNFT?.name }}</c-heading>
+                    <c-icon-button variant="ghost" size="sm" icon="link-2" aria-label="View in explorer" as="a" target="_blank" :href="`https://explorer.solana.com/address/${newNFT.mint.toString()}?cluster=${'devnet'}`" rounded="full" />
                   </c-h-stack>
                 </c-stack>
               </span>
@@ -118,10 +118,10 @@
         </c-modal-body>
         <c-modal-footer>
           <c-h-stack v-if="newNFT" justify-content="flex-end">
-            <c-button as="a" size="lg" :href="`https://explorer.solana.com/address/${newNFT?.data.mint}?cluster=${'devnet'}`"> View in explorer </c-button>
+            <c-button as="a" size="lg" :href="`https://explorer.solana.com/address/${newNFT?.mint.toString()}?cluster=${'devnet'}`"> View in explorer </c-button>
             <c-button @click="() => {
               isMintingModal = false
-              router.push(`/nft/${newNFT?.data.mint}`)
+              router.push(`/nft/${newNFT?.mint.toString()}`)
             }" size="lg" color-scheme="yellow"> Go to trade </c-button>
           </c-h-stack>
         </c-modal-footer>
@@ -131,18 +131,15 @@
 </template>
 
 <script lang="ts" setup>
-import { chakra } from '@chakra-ui/vue-next'
 import { useWallet } from '@axiajs/solana.vue'
 import { useMirage } from '../composables/use-mirage';
 import { computed, ref } from 'vue';
-import { version } from '../../../../packages/core/package.json'
 import { generateRandomNFTMetadata } from '../utils/generators';
-import { sleep, toPublicKey } from '@axiajs/solana.utils';
+import { sleep } from '@axiajs/solana.utils';
 import { MetadataJson } from '@metaplex/js';
 import { useRouter } from 'vue-router';
 
 const { wallet } = useWallet()
-// const pk = ref()
 const mirage = useMirage()
 
 const isMintingModal = ref(false)
@@ -166,10 +163,10 @@ const mintNewNFT = async () => {
     const mint = await mirage.value.mintNft(metadata)
     /** Here we're waiting a little because the NFT metadata may not have been loaded to IPFS as yet */
     await sleep(3000)
-    newNFT.value = await mirage.value.getNft(toPublicKey(mint.data.mint)).then(async (nft) => {
+    newNFT.value = await mirage.value.getNft(mint.mint).then(async (nft) => {
         return {
           ...nft,
-          metadata: await fetch(nft.data.data.uri).then(res => res.json()) as MetadataJson
+          metadata: await fetch(nft.uri).then(res => res.json()) as MetadataJson
         }
       })!
     isMinting.value = false
