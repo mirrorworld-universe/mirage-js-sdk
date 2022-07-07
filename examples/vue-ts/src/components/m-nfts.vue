@@ -22,10 +22,10 @@
             </c-aspect-ratio>
             <c-stack px="4" py="3">
               <c-text font-weight="normal" color="whiteAlpha.600">
-                {{ nft.data.symbol }}
+                {{ nft.symbol }}
               </c-text>
               <c-h-stack justify="space-between" align="center">
-                <c-heading as="h3" size="md">{{ nft.data.name }}</c-heading>
+                <c-heading as="h3" size="md">{{ nft.name }}</c-heading>
                 <c-icon-button variant="ghost" size="sm" icon="link-2" aria-label="View in explorer" as="a" target="_blank" :href="`https://explorer.solana.com/address/${nft.mint}?cluster=${'devnet'}`" rounded="full" />
               </c-h-stack>
             </c-stack>
@@ -40,15 +40,14 @@
 </template>
 
 <script lang="ts" setup>
-import { chakra } from "@chakra-ui/vue-next"
 import { RouterLink, useRoute } from 'vue-router'
 import { onMounted } from 'vue';
 import { ref } from 'vue';
 import { MetadataJson } from '@metaplex/js';
 import { useMirage } from '../composables/use-mirage';
-import { PublicKey } from '@solana/web3.js';
 import { computed } from 'vue';
 import { watch } from 'vue';
+import { PublicKey } from '@solana/web3.js';
 
 const props = defineProps<{
   publicKey: string
@@ -70,7 +69,7 @@ async function fetchNfts(_address: string) {
      */
     isLoadingNfts.value = true
     nfts.value = await Promise.all((await mirage.value!.getUserNfts(new PublicKey(_address))).map(async (token) => {
-      const metadata = await fetch(token.data.uri).then(res => res.json()) as MetadataJson
+      const metadata = await fetch(token.uri).then(res => res.json()) as MetadataJson
       return {
         ...token,
         metadata

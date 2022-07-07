@@ -1,5 +1,5 @@
-import { AUCTION_HOUSE_PROGRAM_ID, MINT_CONFIG, NFT_STORAGE_API_KEY } from './constants';
-import { programs } from '@metaplex/js';
+import { AUCTION_HOUSE_PROGRAM_ID, MINT_CONFIG } from './constants';
+import { Metaplex, Nft } from '@metaplex-foundation/js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token } from '@solana/spl-token';
 import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import {
@@ -21,10 +21,6 @@ import { getAccountInfo, getAtaForMint, getMetadata, processCreatorShares, uploa
 import dayjs from 'dayjs';
 import { MetadataObject, AuctionHouse } from './types';
 import { AuctionHouseIDL, AuctionHouseProgramIDL } from './idl';
-
-const {
-  metadata: { Metadata },
-} = programs;
 
 import {
   CancelInstructionAccounts,
@@ -96,12 +92,14 @@ export class Mirage {
   wallet: Wallet;
   NFTStorageAPIKey: string;
   mintConfig: IMirageOptions['mintConfig'];
+  metaplex: Metaplex;
   constructor({ auctionHouseAuthority, connection, wallet, NFTStorageAPIKey, mintConfig: userMintConfig = MINT_CONFIG }: IMirageOptions) {
     this.auctionHouseAuthority = auctionHouseAuthority;
     this.connection = connection;
     this.wallet = wallet;
     this.mintConfig = merge(MINT_CONFIG, userMintConfig);
     this.NFTStorageAPIKey = NFTStorageAPIKey;
+    this.metaplex = new Metaplex(connection);
     this.setup();
   }
 
@@ -131,21 +129,17 @@ export class Mirage {
   }
 
   /** Get user's NFTs */
-  async getUserNfts(publicKey: PublicKey) {
-    const nftsmetadata = await Metadata.findDataByOwner(this.connection, publicKey);
-    return nftsmetadata;
+  async getUserNfts(publicKey: PublicKey): Promise<Nft[]> {
+    return this.metaplex.nfts().findAllByOwner(publicKey);
   }
 
   /** Get single NFT by mint */
-  async getNft(mintKey: PublicKey) {
-    // const nftsmetadata = await Metadata.findByMint(this.connection, mintKey);
-    const metadataPDA = await Metadata.getPDA(mintKey);
-    const tokenMetadata = await Metadata.load(this.connection, metadataPDA);
-    return tokenMetadata;
+  async getNft(mintKey: PublicKey): Promise<Nft> {
+    return this.metaplex.nfts().findByMint(mintKey);
   }
 
   /** Gets the owner of an NFT */
-  async getNftOwner(mint: string | PublicKey) {
+  async getNftOwner(mint: string | PublicKey): Promise<readonly [string, PublicKey, any]> {
     const largestAccounts = await this.connection.getTokenLargestAccounts(new PublicKey(mint));
     const largestAccountInfo = await this.connection.getParsedAccountInfo(largestAccounts.value[0].address);
     /** @ts-expect-error "ParsedAccountInfo | Buffer" not typed correctly */
@@ -155,28 +149,26 @@ export class Mirage {
   }
 
   /** Determines whether the client is the owner of the auctionhouse */
-  get clientIsOwner() {
+  get clientIsOwner(): boolean {
     return this.auctionHouseAuthority.toBase58() === this.wallet.publicKey.toBase58();
   }
 
   /** Get the auction house addresses by the owner */
-  async getAuctionHouseAddress() {
+  async getAuctionHouseAddress(): Promise<[PublicKey, number]> {
     if (!this.auctionHouseAuthority) throw new Error('auctionHouseAuthority not provided');
-    const result = await AuctionHouseProgram.findAuctionHouseAddress(this.auctionHouseAuthority, new PublicKey('So11111111111111111111111111111111111111112'));
-    return result;
+    return AuctionHouseProgram.findAuctionHouseAddress(this.auctionHouseAuthority, new PublicKey('So11111111111111111111111111111111111111112'));
   }
 
   /** Loads provider instance */
-  async getProvider(commitment: Commitment = 'processed') {
+  async getProvider(commitment: Commitment = 'processed'): Promise<Provider> {
     const wallet = this.wallet;
-    const provider = new Provider(this.connection, wallet, {
+    return new Provider(this.connection, wallet, {
       preflightCommitment: commitment,
     });
-    return provider;
   }
 
   /** Loads auctionhouse program */
-  async loadAuctionHouseProgram() {
+  async loadAuctionHouseProgram(): Promise<Program<AuctionHouseProgramIDL>> {
     const provider = new Provider(this.connection!, this.wallet!, {
       preflightCommitment: 'recent',
     });
@@ -186,7 +178,7 @@ export class Mirage {
   /**
    * Lists an NFT for sale.
    * @param mint NFT mint address to be sold
-   * @param listingPrice price at which NFT will be sold
+   * @param _listingPrice price at which NFT will be sold
    */
   async listToken(mint: string, _listingPrice: number): Promise<readonly [RpcResponseAndContext<any>, ReceiptAddress, TransactionSignature]> {
     const listingPrice = Number(_listingPrice) * LAMPORTS_PER_SOL;
@@ -971,8 +963,9 @@ export class Mirage {
    *    to a decentralized storage service before minting.
    * @param metadata Object for metadata according to Metaplex NFT standard. @see https://docs.metaplex.com/token-metadata/specification#full-metadata-struct
    * @param metadataLink URL for your token metadata. If provided, then upload is ignored.
+   * @param file
    */
-  async mintNft(metadata: MetadataObject, metadataLink?: string, file?: File) {
+  async mintNft(metadata: MetadataObject, metadataLink?: string, file?: File): Promise<Nft> {
     if (!metadata && !metadataLink) throw new Error('Expected metadata object or metadataURL to mint an NFT');
 
     const creators = processCreatorShares(
@@ -1008,34 +1001,31 @@ export class Mirage {
       const [metadataUrl] = await uploadNFTFileToStorage(null, finalMetadata, undefined, this.NFTStorageAPIKey);
       console.log('Uploaded metadata to:', metadataUrl);
       // const tokenAccount = await getAtaForMint()
-      const mintNftResponse = await mintNFT({
+      _metadata = await mintNFT({
         connection: this.connection,
         wallet: this.wallet,
         uri: metadataUrl,
         maxSupply: 1,
         updateAuthority: this.auctionHouseAuthority!,
       });
-      _metadata = mintNftResponse;
     } else {
-      const mintNftResponse = await mintNFT({
+      _metadata = await mintNFT({
         connection: this.connection,
         wallet: this.wallet,
         uri: metadataLink,
         maxSupply: 1,
         updateAuthority: this.auctionHouseAuthority!,
       });
-      _metadata = mintNftResponse;
     }
 
     /** Wait for one more second before loading new metadata */
 
-    const nftMetadata = await Metadata.findByMint(this.connection, _metadata.mint);
-    return nftMetadata;
+    return this.getNft(_metadata.mint);
   }
 
   async getTokenTransactions(mint: string | PublicKey): Promise<(TransactionReceipt | undefined)[]> {
     const _mint = new PublicKey(mint);
-    const metadata = await Metadata.findByMint(this.connection, _mint);
+    const metadata = await this.getNft(_mint);
     /**
      * Allocated data size on auction_house program per PDA type
      * CreateAuctionHouse: 459
@@ -1050,50 +1040,46 @@ export class Mirage {
 
     const ReceiptAccountSizes = [PrintListingReceiptSize, PrintBidReceiptSize, PrintPurchaseReceiptSize] as const;
 
-    const ReceiptAccounts = await ReceiptAccountSizes.map(async (size) => {
-      const accounts = await this.connection.getProgramAccounts(AUCTION_HOUSE_PROGRAM_ID, {
-        commitment: 'confirmed',
-        filters: [
-          {
-            dataSize: size,
-          },
-        ],
-      });
-      const parsedAccounts = await accounts.map(async (account) => {
-        switch (size) {
-          case PrintListingReceiptSize:
-            const [ListingReceipt] = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountInfo(account.account);
-            return {
-              ...ListingReceipt,
-              receipt_type: ListingReceipt.canceledAt ? 'cancel_listing_receipt' : 'listing_receipt',
-            } as TransactionReceipt;
-            break;
-          case PrintBidReceiptSize:
-            const [BidReceipt] = await AuctionHouseProgram.accounts.BidReceipt.fromAccountInfo(account.account);
-            return {
-              ...BidReceipt,
-              receipt_type: 'bid_receipt',
-            } as TransactionReceipt;
-            break;
-          case PrintPurchaseReceiptSize:
-            const [PurchaseReceipt] = await AuctionHouseProgram.accounts.PurchaseReceipt.fromAccountInfo(account.account);
-            return {
-              ...PurchaseReceipt,
-              receipt_type: 'purchase_receipt',
-            } as TransactionReceipt;
-          default:
-            return undefined;
-            break;
-        }
-      });
-      return await Promise.all(parsedAccounts);
-    });
+    const ReceiptAccounts = await Promise.all(
+      ReceiptAccountSizes.map(async (size) => {
+        const accounts = await this.connection.getProgramAccounts(AUCTION_HOUSE_PROGRAM_ID, {
+          commitment: 'confirmed',
+          filters: [
+            {
+              dataSize: size,
+            },
+          ],
+        });
+        const parsedAccounts = accounts.map(async (account) => {
+          switch (size) {
+            case PrintListingReceiptSize:
+              const [ListingReceipt] = AuctionHouseProgram.accounts.ListingReceipt.fromAccountInfo(account.account);
+              return {
+                ...ListingReceipt,
+                receipt_type: ListingReceipt.canceledAt ? 'cancel_listing_receipt' : 'listing_receipt',
+              } as TransactionReceipt;
+            case PrintBidReceiptSize:
+              const [BidReceipt] = AuctionHouseProgram.accounts.BidReceipt.fromAccountInfo(account.account);
+              return {
+                ...BidReceipt,
+                receipt_type: 'bid_receipt',
+              } as TransactionReceipt;
+            case PrintPurchaseReceiptSize:
+              const [PurchaseReceipt] = AuctionHouseProgram.accounts.PurchaseReceipt.fromAccountInfo(account.account);
+              return {
+                ...PurchaseReceipt,
+                receipt_type: 'purchase_receipt',
+              } as TransactionReceipt;
+            default:
+              return undefined;
+          }
+        });
+        return await Promise.all(parsedAccounts);
+      })
+    );
 
-    const result = await (
-      await Promise.all(ReceiptAccounts)
-    )
-      .flat()
-      .filter((receipt) => !!receipt && receipt.metadata.toBase58() === metadata.pubkey.toBase58())
+    const result = ReceiptAccounts.flat()
+      .filter((receipt) => !!receipt && receipt.metadata.toBase58() === metadata.mint.toBase58())
       .map((receipt) => ({
         ...receipt!,
         /** @ts-ignore */

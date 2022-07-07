@@ -131,17 +131,14 @@ const mirage = useMirage()
 const nftOwner = ref<string>()
 const nft = ref<{
     metadata: MetadataJson;
+    creators: Creator[];
     pubkey: PublicKey;
     info: AccountInfo;
-    data: {
-      data: MetadataJson
-      creators: Creator[]
-    };
 }>()
 let isLoaded = false
 
 useHead({
-  title: computed(() => nft.value?.data.data.name || `Mirror ${truncateMiddle(profileAddress.value, 3, 3, '...')}`)
+  title: computed(() => nft.value?.metadata.name || `Mirror ${truncateMiddle(profileAddress.value, 3, 3, '...')}`)
 })
 
 
@@ -149,7 +146,7 @@ const { wallet } = useWallet()
 const transactions = ref<TransactionReceipt[]>()
 
 const userIsOwner = computed(() => nftOwner.value === wallet.value.publicKey?.toBase58())
-const creators = computed(() => nft.value?.data.data.creators.map(c => ({ ...c, address: c.address.toString() })))
+const creators = computed(() => nft.value?.creators.map(c => ({ ...c, address: c.address.toString() })))
 
 const tokenIsOnSale = computed(() => transactions.value?.find(receipt => receipt.receipt_type === 'listing_receipt' && !receipt.purchaseReceipt))
 
@@ -250,7 +247,7 @@ async function loadPageData() {
     nft.value = await mirage.value.getNft((account as any).parsed.info.mint).then(async (nft) => {
       return {
         ...nft,
-        metadata: await fetch(nft.data.data.uri).then(res => res.json()) as MetadataJson
+        metadata: await fetch(nft.uri).then(res => res.json()) as MetadataJson
       }
     })!
     transactions.value = await mirage.value.getTokenTransactions(profileAddress.value) as any as TransactionReceipt[]

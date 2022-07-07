@@ -14,7 +14,7 @@
               border-style="solid"
               border-color="whiteAlpha.500" h="full" bg-size="cover"
             >
-              <chakra.img :src="nft.metadata?.image" :alt="nft.data.data.name" w="100%"></chakra.img>
+              <chakra.img :src="nft.metadata?.image" :alt="nft.name" w="100%"></chakra.img>
             </c-aspect-ratio>
             <c-stack>
               <c-h-stack align-items="center">
@@ -48,7 +48,7 @@
           </c-stack>
           <c-stack spacing="8">
             <c-heading>
-              {{ nft.data.data.name }}
+              {{ nft.name }}
             </c-heading>
             <c-text>
               Owned by <c-link as="router-link" text-decor="underline" color="purple.100" :to="`/profile/${nftOwner}`">{{ nftOwner === wallet.publicKey?.toBase58() ? "You" : truncateMiddle(nftOwner, 4, 4, '...') }}</c-link>
@@ -265,7 +265,7 @@ const nft = ref<{
 let isLoaded = false
 
 useHead({
-  title: computed(() => nft.value?.data.data.name || `Mirror ${truncateMiddle(tokenAddress.value, 3, 3, '...')}`)
+  title: computed(() => nft.value?.name || `Mirror ${truncateMiddle(tokenAddress.value, 3, 3, '...')}`)
 })
 
 
@@ -273,7 +273,7 @@ const { wallet } = useWallet()
 const transactions = ref<TransactionReceipt[]>()
 
 const userIsOwner = computed(() => nftOwner.value === wallet.value.publicKey?.toBase58())
-const creators = computed(() => nft.value?.data.data.creators.map(c => ({ ...c, address: c.address.toString() })))
+const creators = computed(() => nft.value?.creators.map(c => ({ ...c, address: c.address.toString() })))
 
 const tokenIsOnSale = computed(() => transactions.value?.find(receipt => receipt.receipt_type === 'listing_receipt' && !receipt.purchaseReceipt))
 
@@ -374,7 +374,7 @@ async function loadPageData() {
     nft.value = await mirage.value.getNft((account as any).parsed.info.mint).then(async (nft) => {
       return {
         ...nft,
-        metadata: await fetch(nft.data.data.uri).then(res => res.json()) as MetadataJson
+        metadata: await fetch(nft.uri).then(res => res.json()) as MetadataJson
       }
     })!
     transactions.value = await mirage.value.getTokenTransactions(tokenAddress.value) as any as TransactionReceipt[]
