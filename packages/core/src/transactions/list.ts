@@ -22,7 +22,7 @@ const { createPrintListingReceiptInstruction, createSellInstruction } = AuctionH
  * @param auctionHouse
  * @param program
  */
-export async function createListTransaction(
+export async function createListingTransaction(
   mint: PublicKey,
   listingPrice: number,
   sellerPublicKey: PublicKey,

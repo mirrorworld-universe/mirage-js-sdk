@@ -1,10 +1,18 @@
 import { TOKEN_PROGRAM_ID, AccountLayout } from '@solana/spl-token';
-import { Connection, PublicKey, Commitment } from '@solana/web3.js';
+import { Connection, PublicKey, Commitment, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import fetch from 'isomorphic-fetch';
 import percentRound from 'percent-round';
 import { BN } from '@project-serum/anchor';
 import { AUCTION_HOUSE, AUCTION_HOUSE_PROGRAM_ID, NFT_STORAGE_API_KEY, SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID, TOKEN_METADATA_PROGRAM_ID } from './constants';
 import { IMetadata, INFTStorageResponse, MetadataObject } from './types';
+import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
+import dayjs from 'dayjs';
+import { TransactionReceipt } from './mirage';
+import { programs } from '@metaplex/js';
+
+const {
+  metadata: { Metadata },
+} = programs;
 
 /** Get metadatata account for mint */
 export const getMetadata = async (mint: PublicKey): Promise<PublicKey> => {
@@ -205,4 +213,104 @@ export async function getNftOwner(mint: string | PublicKey, connection: Connecti
   const owner = largestAccountInfo.value.data.parsed.info.owner as string;
   console.log(`Owner of token ${mint.toString()} is ${owner}`);
   return [owner, new PublicKey(owner), largestAccountInfo.value!.data] as const;
+}
+
+/**
+ * Get Token Transactions
+ * @param mint
+ * @param auctionHouse
+ * @param connection
+ */
+export async function getTokenTransactions(
+  mint: string | PublicKey,
+  auctionHouse: PublicKey,
+  connection: Connection
+): Promise<(TransactionReceipt | undefined)[]> {
+  const _mint = new PublicKey(mint);
+  const metadata = await Metadata.findByMint(connection, _mint);
+  /**
+   * Allocated data size on auction_house program per PDA type
+   * CreateAuctionHouse: 459
+   * PrintListingReceipt: 236
+   * PrintBidReceipt: 269
+   * PrintPurchaseReceipt: 193
+   */
+
+  const PrintListingReceiptSize = 236;
+  const PrintBidReceiptSize = 269;
+  const PrintPurchaseReceiptSize = 193;
+
+  const ReceiptAccountSizes = [PrintListingReceiptSize, PrintBidReceiptSize, PrintPurchaseReceiptSize] as const;
+
+  const ReceiptAccounts = await ReceiptAccountSizes.map(async (size) => {
+    const accounts = await connection.getProgramAccounts(AUCTION_HOUSE_PROGRAM_ID, {
+      commitment: 'confirmed',
+      filters: [
+        {
+          dataSize: size,
+        },
+      ],
+    });
+    const parsedAccounts = await accounts.map(async (account) => {
+      switch (size) {
+        case PrintListingReceiptSize:
+          const [ListingReceipt] = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountInfo(account.account);
+          return {
+            ...ListingReceipt,
+            receipt_type: ListingReceipt.canceledAt ? 'cancel_listing_receipt' : 'listing_receipt',
+          } as TransactionReceipt;
+          break;
+        case PrintBidReceiptSize:
+          const [BidReceipt] = await AuctionHouseProgram.accounts.BidReceipt.fromAccountInfo(account.account);
+          return {
+            ...BidReceipt,
+            receipt_type: 'bid_receipt',
+          } as TransactionReceipt;
+          break;
+        case PrintPurchaseReceiptSize:
+          const [PurchaseReceipt] = await AuctionHouseProgram.accounts.PurchaseReceipt.fromAccountInfo(account.account);
+          return {
+            ...PurchaseReceipt,
+            receipt_type: 'purchase_receipt',
+          } as TransactionReceipt;
+        default:
+          return undefined;
+          break;
+      }
+    });
+    return await Promise.all(parsedAccounts);
+  });
+
+  const result = await (
+    await Promise.all(ReceiptAccounts)
+  )
+    .flat()
+    .filter((receipt) => !!receipt && receipt.metadata.toBase58() === metadata.pubkey.toBase58())
+    .map((receipt) => ({
+      ...receipt!,
+      /** @ts-ignore */
+      tokenSize: receipt.tokenSize.toNumber(),
+      /** @ts-ignore */
+      price: receipt.price.toNumber() / LAMPORTS_PER_SOL,
+      /** @ts-ignore */
+      createdAt: dayjs.unix(receipt.createdAt.toNumber()).toDate().getTime(),
+      cancelledAt: dayjs
+        /** @ts-ignore */
+        .unix(receipt.canceledAt?.toNumber?.())
+        .toDate()
+        .getTime(),
+    }))
+    .filter((receipt) => receipt.auctionHouse.toBase58() === auctionHouse!.toBase58())
+    .sort((a, b) => {
+      if ((a.receipt_type === 'bid_receipt', b.receipt_type === 'purchase_receipt')) {
+        return 1;
+      } else if ((a.receipt_type === 'purchase_receipt', b.receipt_type === 'bid_receipt')) {
+        return -1;
+      } else {
+        return 0;
+      }
+    })
+    .sort((a, b) => b.createdAt - a.createdAt);
+  console.log('result', result);
+  return result;
 }
