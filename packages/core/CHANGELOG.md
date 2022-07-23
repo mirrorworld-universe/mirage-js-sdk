@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.0.0-alpha.0
+
+### Major Changes
+
+- 8586b1c: New major release. Exports all transactions
+
 ## 1.6.6
 
 ### Minor Changes

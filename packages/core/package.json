@@ -1,6 +1,6 @@
 {
   "name": "@mirrorworld/mirage.core",
-  "version": "1.6.6",
+  "version": "2.0.0-alpha.0",
   "description": "Mirage SDK Core",
   "keywords": [
     "mirage",
