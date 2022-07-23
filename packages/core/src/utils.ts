@@ -196,3 +196,13 @@ export function processCreatorShares(creators: { address: string; share: number 
   }));
   return finalCreatorsWithShares;
 }
+
+/* Get NFT Owner */
+export async function getNftOwner(mint: string | PublicKey, connection: Connection) {
+  const largestAccounts = await connection.getTokenLargestAccounts(new PublicKey(mint));
+  const largestAccountInfo = await connection.getParsedAccountInfo(largestAccounts.value[0].address);
+  /** @ts-expect-error "ParsedAccountInfo | Buffer" not typed correctly */
+  const owner = largestAccountInfo.value.data.parsed.info.owner as string;
+  console.log(`Owner of token ${mint.toString()} is ${owner}`);
+  return [owner, new PublicKey(owner), largestAccountInfo.value!.data] as const;
+}
