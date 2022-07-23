@@ -7,7 +7,5 @@
     "@mirrorworld/mirage.vue": "0.3.4",
     "@mirrorworld/mirage.utils": "1.2.1"
   },
-  "changesets": [
-    "funny-parrots-check"
-  ]
+  "changesets": ["funny-parrots-check"]
 }
