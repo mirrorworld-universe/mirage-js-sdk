@@ -137,6 +137,12 @@ export class Mirage {
     return new Program(AuctionHouseIDL, AUCTION_HOUSE_PROGRAM_ID, provider);
   }
 
+  /**
+   * Create listing transaction
+   * @param mint
+   * @param listingPrice
+   * @param sellerPublicKey
+   */
   async createListTransaction(mint: PublicKey, listingPrice: number, sellerPublicKey: PublicKey) {
     if (!this.wallet) {
       throwError('WALLET_NOT_INITIALIZED');

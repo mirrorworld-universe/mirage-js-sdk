@@ -119,6 +119,25 @@ const listingPrice = 0.5;
 await mirage.listToken(mintAddress, listingPrice);
 ```
 
+#### Create List NFT Transaction Object
+You can construct the listing transaction object as well to opt for a lower-level utility.
+
+```ts
+import { PublicKey } from '@solana/web3.js';
+import { useWallet } from './use-wallet';
+
+const mintAddress = new PublicKey('AQYAGzygMZQid99up64zFG75zwRX7DE1i2v9W4teq2xm');
+const listingPrice = 0.5;
+
+const sellerWallet = useWallet(); // This can also be an Wallet from @project-serum/anchor
+
+const listingTransaction = await mirage.createListingTransactionObject(
+  mintAddress,
+  listingPrice,
+  sellerWallet.publicKey
+);
+```
+
 ### Update listings
 
 You can also update the listing of an NFT with the `Mirage.updateListing` method. See [docs](https://mirage-js-sdk.vercel.app/classes/core_src.Mirage.html#updateListing) for details.
@@ -137,6 +156,30 @@ await mirage.listToken(mintAddress, listingPrice); // sets price to 0.5 SOL
 await mirage.updateListing(mintAddress, listingPrice, newListingPrice); // changes price from 0.5 SOL to 0.9 SOL
 ```
 
+#### Create Update Listing Transaction Object
+You can construct the update listing transaction object as a lower-level utility.
+
+```ts
+import { PublicKey } from '@solana/web3.js';
+import { useWallet } from './use-wallet';
+
+const mintAddress = new PublicKey('AQYAGzygMZQid99up64zFG75zwRX7DE1i2v9W4teq2xm');
+const currentListingPrice = 0.5;
+const newListingPrice = 0.9;
+
+const sellerWallet = useWallet(); // This can also be an Wallet from @project-serum/anchor
+
+// NOTE
+// It's important that the listing price of the token
+// matches the exact price for which it was listed.
+const updateListingTransaction = await mirage.createUpdateListingTransaction(
+  mintAddress,
+  listingPrice,
+  newListingPrice,
+  sellerWallet.publicKey
+);
+```
+
 ### Cancelling listings
 
 You can also cancel the listing of an NFT with the `Mirage.cancelListing` method. See [docs](https://mirage-js-sdk.vercel.app/classes/core_src.Mirage.html#cancelListing) for details.
@@ -151,6 +194,27 @@ const listingPrice = 0.5;
 // Otherwise the transaction will fail.
 // In other words, you cannot buy a token without a corresponfing listing receipt.
 await mirage.cancelListing(mintAddress, listingPrice);
+```
+#### Create Cancel Listing Transaction Object
+You can construct the cancel listing transaction object as a lower-level utility.
+
+```ts
+import { PublicKey } from '@solana/web3.js';
+import { useWallet } from './use-wallet';
+
+const mintAddress = new PublicKey('AQYAGzygMZQid99up64zFG75zwRX7DE1i2v9W4teq2xm');
+const currentListingPrice = 0.5;
+
+const sellerWallet = useWallet(); // This can also be an Wallet from @project-serum/anchor
+
+// NOTE
+// It's important that the listing price of the token
+// matches the exact price for which it was listed.
+const cancelListingTransaction = await mirage.createCancelListingTransaction(
+  mintAddress,
+  currentListingPrice,
+  sellerWallet.publicKey
+);
 ```
 
 ### Buy an NFT
@@ -169,6 +233,28 @@ const listingPrice = 0.5;
 await mirage.buyToken(mintAddress, listingPrice);
 ```
 
+#### Create Buy Transaction Object
+You can construct the buy transaction object as a lower-level utility.
+
+```ts
+import { PublicKey } from '@solana/web3.js';
+import { useWallet } from './use-wallet';
+
+const mintAddress = new PublicKey('AQYAGzygMZQid99up64zFG75zwRX7DE1i2v9W4teq2xm');
+const listingPrice = 0.5;
+
+const buyerWallet = useWallet(); // This can also be an Wallet from @project-serum/anchor
+
+// NOTE
+// It's important that the buying price provided
+// matches the exact price for which it was listed.
+const buyTransaction = await mirage.createBuyTransaction(
+  mintAddress,
+  listingPrice,
+  buyerWallet.publicKey
+);
+```
+
 ### Gift an NFT
 
 Gifting an NFT is done with the `Mirage.transferNft` method. See [docs](https://mirage-js-sdk.vercel.app/classes/core_src.Mirage.html#transferNft) for details.
@@ -178,6 +264,25 @@ const mintAddress = 'AQYAGzygMZQid99up64zFG75zwRX7DE1i2v9W4teq2xm';
 const receipientAddress = 'D5puQCwAbP29T4gRRfEuZ4Uai7UoFBcXgfutCJTBPAkL';
 
 await mirage.transferNft(mintAddress, receipientAddress);
+```
+
+#### Create Transfer NFT Transaction Object
+You can construct the transfer NFT transaction object as a lower-level utility.
+
+```ts
+import { PublicKey } from '@solana/web3.js';
+import { useWallet } from './use-wallet';
+
+const mintAddress = new PublicKey('AQYAGzygMZQid99up64zFG75zwRX7DE1i2v9W4teq2xm');
+const receipientAddress = new PublicKey('D5puQCwAbP29T4gRRfEuZ4Uai7UoFBcXgfutCJTBPAkL');
+
+const holderWallet = useWallet(); // This can also be an Wallet from @project-serum/anchor
+
+const buyTransaction = await mirage.createTransferTransaction(
+  mintAddress,
+  receipientAddress,
+  holderWallet.publicKey
+);
 ```
 
 ## Querying NFT Transaction History
