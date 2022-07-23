@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.0.0-alpha.2
+
+### Patch Changes
+
+- Fix listing methods
+
 ## 2.0.0-alpha.1
 
 ### Patch Changes
