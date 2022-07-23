@@ -97,6 +97,6 @@
     "lint-staged": "^13.0.3"
   },
   "resolutions": {
-    "@metaplex-foundation/mpl-auction-house": "1.1.1"
+    "@metaplex-foundation/mpl-auction-house": "1.2.0"
   }
 }

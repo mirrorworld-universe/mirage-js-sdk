@@ -1,5 +1,5 @@
 import { AUCTION_HOUSE_PROGRAM_ID, MINT_CONFIG } from './constants';
-import { programs } from '@metaplex/js';
+import { Metaplex, Nft } from '@metaplex-foundation/js';
 import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import { Commitment, Connection, PublicKey, Transaction, RpcResponseAndContext, SignatureResult, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { Program, Provider } from '@project-serum/anchor';
@@ -8,10 +8,6 @@ import merge from 'lodash.merge';
 import { getTokenTransactions, processCreatorShares, uploadNFTFileToStorage } from './utils';
 import { MetadataObject } from './types';
 import { AuctionHouseIDL, AuctionHouseProgramIDL } from './idl';
-
-const {
-  metadata: { Metadata },
-} = programs;
 
 import { BidReceipt, ListingReceipt, PurchaseReceipt } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/accounts';
 import { mintNFT, MintNFTResponse } from './mint';
@@ -26,7 +22,6 @@ import {
 
 import { throwError } from './errors/errors.interface';
 import { getNftOwner } from './utils';
-import { WalletSigner } from './transactions';
 
 export interface IMirageOptions {
   auctionHouseAuthority: PublicKey;
@@ -40,6 +35,7 @@ export interface IMirageOptions {
 }
 
 export type ReceiptType = 'purchase_receipt' | 'listing_receipt' | 'cancel_receipt' | 'cancel_listing_receipt' | 'bid_receipt' | 'cancel_bid_receipt';
+export type ReceiptAddress = PublicKey;
 
 export interface TransactionReceipt
   extends Omit<ListingReceipt, 'serialize' | 'pretty'>,
@@ -63,12 +59,14 @@ export class Mirage {
   wallet: Wallet;
   NFTStorageAPIKey: string;
   mintConfig: IMirageOptions['mintConfig'];
+  metaplex: Metaplex;
   constructor({ auctionHouseAuthority, connection, wallet, NFTStorageAPIKey, mintConfig: userMintConfig = MINT_CONFIG }: IMirageOptions) {
     this.auctionHouseAuthority = auctionHouseAuthority;
     this.connection = connection;
     this.wallet = wallet;
     this.mintConfig = merge(MINT_CONFIG, userMintConfig);
     this.NFTStorageAPIKey = NFTStorageAPIKey;
+    this.metaplex = new Metaplex(connection);
     this.setup();
   }
 
@@ -98,46 +96,41 @@ export class Mirage {
   }
 
   /** Get user's NFTs */
-  async getUserNfts(publicKey: PublicKey) {
-    const nftsmetadata = await Metadata.findDataByOwner(this.connection, publicKey);
-    return nftsmetadata;
+  async getUserNfts(publicKey: PublicKey): Promise<Nft[]> {
+    return this.metaplex.nfts().findAllByOwner(publicKey);
   }
 
   /** Get single NFT by mint */
-  async getNft(mintKey: PublicKey) {
-    // const nftsmetadata = await Metadata.findByMint(this.connection, mintKey);
-    const metadataPDA = await Metadata.getPDA(mintKey);
-    const tokenMetadata = await Metadata.load(this.connection, metadataPDA);
-    return tokenMetadata;
+  async getNft(mintKey: PublicKey): Promise<Nft> {
+    return this.metaplex.nfts().findByMint(mintKey);
   }
 
   /** Gets the owner of an NFT */
   async getNftOwner(mint: string | PublicKey) {
     return getNftOwner(mint, this.connection);
   }
+
   /** Determines whether the client is the owner of the auctionhouse */
-  get clientIsOwner() {
+  get clientIsOwner(): boolean {
     return this.auctionHouseAuthority.toBase58() === this.wallet.publicKey.toBase58();
   }
 
   /** Get the auction house addresses by the owner */
-  async getAuctionHouseAddress() {
+  async getAuctionHouseAddress(): Promise<[PublicKey, number]> {
     if (!this.auctionHouseAuthority) throw new Error('auctionHouseAuthority not provided');
-    const result = await AuctionHouseProgram.findAuctionHouseAddress(this.auctionHouseAuthority, new PublicKey('So11111111111111111111111111111111111111112'));
-    return result;
+    return AuctionHouseProgram.findAuctionHouseAddress(this.auctionHouseAuthority, new PublicKey('So11111111111111111111111111111111111111112'));
   }
 
   /** Loads provider instance */
-  async getProvider(commitment: Commitment = 'processed') {
+  async getProvider(commitment: Commitment = 'processed'): Promise<Provider> {
     const wallet = this.wallet;
-    const provider = new Provider(this.connection, wallet, {
+    return new Provider(this.connection, wallet, {
       preflightCommitment: commitment,
     });
-    return provider;
   }
 
   /** Loads auctionhouse program */
-  async loadAuctionHouseProgram() {
+  async loadAuctionHouseProgram(): Promise<Program<AuctionHouseProgramIDL>> {
     const provider = new Provider(this.connection!, this.wallet!, {
       preflightCommitment: 'recent',
     });
@@ -168,7 +161,7 @@ export class Mirage {
    * @param mint NFT mint address to be sold
    * @param _listingPrice price at which NFT will be sold
    */
-  async listToken(mint: string, _listingPrice: number): Promise<readonly [RpcResponseAndContext<any>, ListingReceipt, TransactionSignature]> {
+  async listToken(mint: string, _listingPrice: number): Promise<readonly [RpcResponseAndContext<any>, ReceiptAddress, TransactionSignature]> {
     const sellerWallet = this.wallet;
     const [txt, receipt] = await this.createListTransaction(new PublicKey(mint), _listingPrice, sellerWallet.publicKey);
 
@@ -205,8 +198,7 @@ export class Mirage {
 
     console.debug('result:', result!);
     console.debug('Successfully listed ', mint, ' at ', _listingPrice, ' SOL');
-    const ListingReceipt = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountAddress(this.connection, receipt);
-    return [result!, ListingReceipt, signature] as const;
+    return [result!, receipt, signature] as const;
   }
 
   /**
@@ -284,7 +276,7 @@ export class Mirage {
    * @param mint NFT mint address to be bought
    * @param _buyerPrice price at which NFT will be bought. This MUST match the selling price of the NFT
    */
-  async buyToken(mint: string, _buyerPrice: number): Promise<readonly [RpcResponseAndContext<any>, PurchaseReceipt, TransactionSignature]> {
+  async buyToken(mint: string, _buyerPrice: number): Promise<readonly [RpcResponseAndContext<any>, ReceiptAddress, TransactionSignature]> {
     const buyerWallet = this.wallet;
     const [buyTxt, purchaseReceipt] = await this.createBuyTransaction(new PublicKey(mint), _buyerPrice, buyerWallet.publicKey);
 
@@ -294,8 +286,8 @@ export class Mirage {
     const estimatedCost = (await buyTxt.getEstimatedFee(this.connection)) / LAMPORTS_PER_SOL + Number(_buyerPrice);
     const { value: _balance } = await this.connection.getBalanceAndContext(this.wallet.publicKey);
     const balance = _balance / LAMPORTS_PER_SOL;
-    console.debug('Estimated cost of transaction: ', estimatedCost);
-    console.debug('Wallet Balance', balance);
+    console.info('Estimated cost of transaction: ', estimatedCost);
+    console.info('Wallet Balance', balance);
 
     if (balance < estimatedCost) {
       throw new InsufficientBalanceError('Account balance is not enough to complete this purchase transaction');
@@ -321,8 +313,7 @@ export class Mirage {
 
     console.debug('result', result!);
     console.debug('Successfully purchased ', mint, ' at ', _buyerPrice, ' SOL');
-    const PurchaseReceipt = await AuctionHouseProgram.accounts.PurchaseReceipt.fromAccountAddress(this.connection, purchaseReceipt);
-    return [result!, PurchaseReceipt, signature] as const;
+    return [result!, purchaseReceipt, signature] as const;
   }
 
   /**
@@ -335,7 +326,7 @@ export class Mirage {
     mint: string,
     currentListingPrice: number,
     newListingPrice: number
-  ): Promise<readonly [RpcResponseAndContext<any>, ListingReceipt, TransactionSignature]> {
+  ): Promise<readonly [RpcResponseAndContext<any>, ReceiptAddress, TransactionSignature]> {
     const sellerPublicKey = this.wallet.publicKey;
 
     const [txt, newListingReceipt] = await this.createUpdateListingTransaction(new PublicKey(mint), currentListingPrice, newListingPrice, sellerPublicKey);
@@ -374,8 +365,7 @@ export class Mirage {
     console.log('result', result!);
     console.log('Successfully changed listing price for ', mint, ' from ', currentListingPrice, ' SOL ', ' to ', newListingPrice);
     // Get new listing
-    const ListingReceipt = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountAddress(this.connection, newListingReceipt);
-    return [result!, ListingReceipt, signature] as const;
+    return [result!, newListingReceipt, signature] as const;
   }
 
   /**
@@ -431,7 +421,7 @@ export class Mirage {
     mint: string,
     currentListingPrice: number,
     __DANGEROUSLY_INSET_SELLER__?: string
-  ): Promise<readonly [RpcResponseAndContext<any>, ListingReceipt, TransactionSignature]> {
+  ): Promise<readonly [RpcResponseAndContext<any>, ReceiptAddress, TransactionSignature]> {
     const sellerPublicKey = this.wallet.publicKey;
 
     const [txt, receipt] = await this.createCancelListingTransaction(
@@ -480,7 +470,7 @@ export class Mirage {
 
     const ListingReceipt = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountAddress(this.connection, receipt);
     console.debug('listingReceiptObj', JSON.stringify(ListingReceipt, null, 2));
-    return [result!, ListingReceipt, signature] as const;
+    return [result!, receipt, signature] as const;
   }
 
   /**
@@ -575,8 +565,9 @@ export class Mirage {
    *    to a decentralized storage service before minting.
    * @param metadata Object for metadata according to Metaplex NFT standard. @see https://docs.metaplex.com/token-metadata/specification#full-metadata-struct
    * @param metadataLink URL for your token metadata. If provided, then upload is ignored.
+   * @param file
    */
-  async mintNft(metadata: MetadataObject, metadataLink?: string, file?: File) {
+  async mintNft(metadata: MetadataObject, metadataLink?: string, file?: File): Promise<Nft> {
     if (!metadata && !metadataLink) throw new Error('Expected metadata object or metadataURL to mint an NFT');
 
     const creators = processCreatorShares(
@@ -612,29 +603,26 @@ export class Mirage {
       const [metadataUrl] = await uploadNFTFileToStorage(null, finalMetadata, undefined, this.NFTStorageAPIKey);
       console.log('Uploaded metadata to:', metadataUrl);
       // const tokenAccount = await getAtaForMint()
-      const mintNftResponse = await mintNFT({
+      _metadata = await mintNFT({
         connection: this.connection,
         wallet: this.wallet,
         uri: metadataUrl,
         maxSupply: 1,
         updateAuthority: this.auctionHouseAuthority!,
       });
-      _metadata = mintNftResponse;
     } else {
-      const mintNftResponse = await mintNFT({
+      _metadata = await mintNFT({
         connection: this.connection,
         wallet: this.wallet,
         uri: metadataLink,
         maxSupply: 1,
         updateAuthority: this.auctionHouseAuthority!,
       });
-      _metadata = mintNftResponse;
     }
 
     /** Wait for one more second before loading new metadata */
 
-    const nftMetadata = await Metadata.findByMint(this.connection, _metadata.mint);
-    return nftMetadata;
+    return this.getNft(_metadata.mint);
   }
 
   /**
