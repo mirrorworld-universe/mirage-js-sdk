@@ -120,6 +120,7 @@ await mirage.listToken(mintAddress, listingPrice);
 ```
 
 #### Create List NFT Transaction Object
+
 You can construct the listing transaction object as well to opt for a lower-level utility.
 
 ```ts
@@ -131,11 +132,7 @@ const listingPrice = 0.5;
 
 const sellerWallet = useWallet(); // This can also be an Wallet from @project-serum/anchor
 
-const listingTransaction = await mirage.createListingTransactionObject(
-  mintAddress,
-  listingPrice,
-  sellerWallet.publicKey
-);
+const listingTransaction = await mirage.createListingTransactionObject(mintAddress, listingPrice, sellerWallet.publicKey);
 ```
 
 ### Update listings
@@ -157,6 +154,7 @@ await mirage.updateListing(mintAddress, listingPrice, newListingPrice); // chang
 ```
 
 #### Create Update Listing Transaction Object
+
 You can construct the update listing transaction object as a lower-level utility.
 
 ```ts
@@ -172,12 +170,7 @@ const sellerWallet = useWallet(); // This can also be an Wallet from @project-se
 // NOTE
 // It's important that the listing price of the token
 // matches the exact price for which it was listed.
-const updateListingTransaction = await mirage.createUpdateListingTransaction(
-  mintAddress,
-  listingPrice,
-  newListingPrice,
-  sellerWallet.publicKey
-);
+const updateListingTransaction = await mirage.createUpdateListingTransaction(mintAddress, listingPrice, newListingPrice, sellerWallet.publicKey);
 ```
 
 ### Cancelling listings
@@ -195,7 +188,9 @@ const listingPrice = 0.5;
 // In other words, you cannot buy a token without a corresponfing listing receipt.
 await mirage.cancelListing(mintAddress, listingPrice);
 ```
+
 #### Create Cancel Listing Transaction Object
+
 You can construct the cancel listing transaction object as a lower-level utility.
 
 ```ts
@@ -210,11 +205,7 @@ const sellerWallet = useWallet(); // This can also be an Wallet from @project-se
 // NOTE
 // It's important that the listing price of the token
 // matches the exact price for which it was listed.
-const cancelListingTransaction = await mirage.createCancelListingTransaction(
-  mintAddress,
-  currentListingPrice,
-  sellerWallet.publicKey
-);
+const cancelListingTransaction = await mirage.createCancelListingTransaction(mintAddress, currentListingPrice, sellerWallet.publicKey);
 ```
 
 ### Buy an NFT
@@ -234,6 +225,7 @@ await mirage.buyToken(mintAddress, listingPrice);
 ```
 
 #### Create Buy Transaction Object
+
 You can construct the buy transaction object as a lower-level utility.
 
 ```ts
@@ -248,11 +240,7 @@ const buyerWallet = useWallet(); // This can also be an Wallet from @project-ser
 // NOTE
 // It's important that the buying price provided
 // matches the exact price for which it was listed.
-const buyTransaction = await mirage.createBuyTransaction(
-  mintAddress,
-  listingPrice,
-  buyerWallet.publicKey
-);
+const buyTransaction = await mirage.createBuyTransaction(mintAddress, listingPrice, buyerWallet.publicKey);
 ```
 
 ### Gift an NFT
@@ -267,6 +255,7 @@ await mirage.transferNft(mintAddress, receipientAddress);
 ```
 
 #### Create Transfer NFT Transaction Object
+
 You can construct the transfer NFT transaction object as a lower-level utility.
 
 ```ts
@@ -278,11 +267,7 @@ const receipientAddress = new PublicKey('D5puQCwAbP29T4gRRfEuZ4Uai7UoFBcXgfutCJT
 
 const holderWallet = useWallet(); // This can also be an Wallet from @project-serum/anchor
 
-const buyTransaction = await mirage.createTransferTransaction(
-  mintAddress,
-  receipientAddress,
-  holderWallet.publicKey
-);
+const buyTransaction = await mirage.createTransferTransaction(mintAddress, receipientAddress, holderWallet.publicKey);
 ```
 
 ## Querying NFT Transaction History
