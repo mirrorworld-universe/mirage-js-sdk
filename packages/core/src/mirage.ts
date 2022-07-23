@@ -1,53 +1,32 @@
 import { AUCTION_HOUSE_PROGRAM_ID, MINT_CONFIG } from './constants';
 import { programs } from '@metaplex/js';
-import { ASSOCIATED_TOKEN_PROGRAM_ID, Token } from '@solana/spl-token';
 import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
-import {
-  Commitment,
-  Connection,
-  PublicKey,
-  SYSVAR_INSTRUCTIONS_PUBKEY,
-  Transaction,
-  TransactionInstruction,
-  RpcResponseAndContext,
-  SignatureResult,
-  LAMPORTS_PER_SOL,
-} from '@solana/web3.js';
+import { Commitment, Connection, PublicKey, Transaction, RpcResponseAndContext, SignatureResult, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { Program, Provider } from '@project-serum/anchor';
 import type { Wallet } from '@project-serum/anchor';
 import merge from 'lodash.merge';
-import { getAccountInfo, getAtaForMint, getMetadata, getTokenTransactions, processCreatorShares, uploadNFTFileToStorage } from './utils';
-import dayjs from 'dayjs';
-import { MetadataObject, AuctionHouse } from './types';
+import { getTokenTransactions, processCreatorShares, uploadNFTFileToStorage } from './utils';
+import { MetadataObject } from './types';
 import { AuctionHouseIDL, AuctionHouseProgramIDL } from './idl';
 
 const {
   metadata: { Metadata },
 } = programs;
 
-import {
-  CancelInstructionAccounts,
-  CancelInstructionArgs,
-  CancelListingReceiptInstructionAccounts,
-  createCancelInstruction,
-  createCancelListingReceiptInstruction,
-  PrintListingReceiptInstructionAccounts,
-  PrintListingReceiptInstructionArgs,
-  SellInstructionAccounts,
-  SellInstructionArgs,
-} from '@metaplex-foundation/mpl-auction-house/dist/src/generated/instructions';
-
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { BidReceipt, ListingReceipt, PurchaseReceipt } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/accounts';
 import { mintNFT, MintNFTResponse } from './mint';
-import { InsufficientBalanceError, ListingAlreadyExistsError, programErrorHandler } from './errors';
-import { createListingTransaction } from './transactions/list';
+import { InsufficientBalanceError, programErrorHandler } from './errors';
+import {
+  createListingTransaction,
+  createBuyTransaction,
+  createCancelListingTransaction,
+  createUpdateListingTransaction,
+  createTransferInstruction,
+} from './mirage-transactions';
+
 import { throwError } from './errors/errors.interface';
 import { getNftOwner } from './utils';
-import { createBuyTransaction } from './transactions/buy';
-import { createCancelListingTransaction } from './transactions/cancel';
-import { createUpdateListingTransaction } from './transactions/update';
-import { createTransferInstruction } from './transactions/transfer';
+import { WalletSigner } from './transactions';
 
 export interface IMirageOptions {
   auctionHouseAuthority: PublicKey;
@@ -74,14 +53,6 @@ export interface TransactionReceipt
 }
 
 export type TransactionSignature = string | undefined;
-
-const {
-  createPrintBidReceiptInstruction,
-  createPrintListingReceiptInstruction,
-  createPrintPurchaseReceiptInstruction,
-  createSellInstruction,
-  createPublicBuyInstruction,
-} = AuctionHouseProgram.instructions;
 
 export class Mirage {
   auctionHouseAuthority: PublicKey;
@@ -672,5 +643,15 @@ export class Mirage {
    */
   async getTokenTransactions(mint: string | PublicKey): Promise<(TransactionReceipt | undefined)[]> {
     return getTokenTransactions(new PublicKey(mint), this.auctionHouse!, this.connection);
+  }
+
+  /**
+   * Signs a transaction object
+   * @param txt
+   * @param wallet
+   */
+  async signTransaction(txt: Transaction, wallet: Wallet) {
+    const signedTransaction = await wallet.signTransaction(txt);
+    return signedTransaction.serialize();
   }
 }
