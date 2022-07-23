@@ -75,7 +75,7 @@ export async function createListingTransaction(
   };
 
   const sellInstructionArgs: SellInstructionArgs = {
-    buyerPrice: listingPrice,
+    buyerPrice: _listingPrice,
     freeTradeStateBump: freeTradeBump,
     tradeStateBump,
     programAsSignerBump,
