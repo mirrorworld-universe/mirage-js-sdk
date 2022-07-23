@@ -2,14 +2,38 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="08039cfe-cf0f-4e8b-bb51-e428610c6c19" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/packages/core/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/core/src/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/core/src/mirage.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/core/src/mirage.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/core/src/transactions/buy.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/core/src/mirage-transactions/buy.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/core/src/transactions/cancel.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/core/src/mirage-transactions/cancel.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/core/src/transactions/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/core/src/mirage-transactions/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/core/src/transactions/list.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/core/src/mirage-transactions/list.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/core/src/transactions/transfer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/core/src/mirage-transactions/transfer.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/core/src/transactions/update.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/core/src/mirage-transactions/update.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lint-staged.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/main.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/main.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.prettierrc.js" beforeDir="false" afterPath="$PROJECT_DIR$/.prettierrc.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/extensions.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/extensions.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/collections-keypair.json" beforeDir="false" afterPath="$PROJECT_DIR$/collections-keypair.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/.vscode/settings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/src/App.vue" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/src/App.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/src/components/c-app-link.vue" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/src/components/c-app-link.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/src/components/c-mobile-nav.vue" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/src/components/c-mobile-nav.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/src/components/c-side-nav.vue" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/src/components/c-side-nav.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/src/components/connection-provider.ts" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/src/components/connection-provider.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/src/components/m-empty-list.vue" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/src/components/m-empty-list.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/src/components/m-identicon.vue" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/src/components/m-identicon.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/src/components/m-mirage-provider.vue" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/src/components/m-mirage-provider.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/src/components/m-nfts.vue" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/src/components/m-nfts.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/src/layouts/404.vue" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/src/layouts/404.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/src/layouts/dashboard.vue" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/src/layouts/dashboard.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/src/layouts/default.vue" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/src/layouts/default.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/src/pages/[...all].vue" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/src/pages/[...all].vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/src/pages/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/src/pages/index.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/src/pages/nft/[address].vue" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/src/pages/nft/[address].vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/src/pages/profile/[address].vue" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/src/pages/profile/[address].vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/vue-ts/vercel.json" beforeDir="false" afterPath="$PROJECT_DIR$/examples/vue-ts/vercel.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/core/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/packages/core/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tsconfig.eslint.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.eslint.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,7 +81,7 @@
       <workItem from="1658572868954" duration="3265000" />
       <workItem from="1658576894729" duration="107000" />
       <workItem from="1658577007855" duration="662000" />
-      <workItem from="1658577724253" duration="6717000" />
+      <workItem from="1658577724253" duration="7172000" />
     </task>
     <servers />
   </component>
