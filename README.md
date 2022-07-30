@@ -95,7 +95,7 @@ const metadataObject: MetadataObject = {
       ],
     },
     animation_url: undefined,
-  };
+  }
 };
 
 // Mint your new NFT

@@ -62,58 +62,6 @@ export async function createTransferInstruction(
     }
   }
 
-  // check to see if token is on sale in our auctionhouse. If it is
-  // we then cancel the listings
-  const tokenTransactions = await getTokenTransactions(_mint, auctionHouse, connection);
-  const isTokenOnSale = tokenTransactions.filter((receipt) => receipt?.receipt_type === 'listing_receipt' && !receipt.purchaseReceipt);
-  if (isTokenOnSale.length) {
-    console.info('Found pre-existing listings for >>> ', mint.toString(), 'Cancelling these listings before transfer');
-    // For each token we shall create a cancelListing transaction and then parse them and append to the chain
-    const cancelListingTransactionsPromises = isTokenOnSale.map(async (_receipt) => {
-      const _buyerPrice = _receipt!.price * LAMPORTS_PER_SOL;
-      const [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
-        holderPublicKey,
-        auctionHouse!,
-        senderAta,
-        auctionHouseObj.treasuryMint,
-        _mint,
-        _buyerPrice,
-        1
-      );
-
-      const [listingReceipt] = await AuctionHouseProgram.findListingReceiptAddress(sellerTradeState);
-
-      const authority = auctionHouseAuthority;
-      const auctionHouseFeeAccount = new PublicKey(auctionHouseObj.auctionHouseFeeAccount);
-      const receipt = listingReceipt;
-
-      const cancelInstructionAccounts: CancelInstructionAccounts = {
-        wallet: holderPublicKey,
-        tokenAccount: senderAta,
-        tokenMint: _mint,
-        authority,
-        auctionHouse,
-        auctionHouseFeeAccount,
-        tradeState: sellerTradeState,
-      };
-      const cancelInstructionArgs: CancelInstructionArgs = {
-        buyerPrice: _buyerPrice,
-        tokenSize: 1,
-      };
-
-      const cancelListingReceiptAccounts: CancelListingReceiptInstructionAccounts = {
-        receipt,
-        instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
-      };
-
-      const cancelInstruction = await createCancelInstruction(cancelInstructionAccounts, cancelInstructionArgs);
-      const cancelListingReceiptInstruction = createCancelListingReceiptInstruction(cancelListingReceiptAccounts);
-      return [cancelInstruction, cancelListingReceiptInstruction];
-    });
-    const cancelListingTransactions = (await Promise.all(cancelListingTransactionsPromises)).flat();
-    cancelListingTransactions.forEach((instruction) => txt.add(instruction));
-  }
-
   const transferNftInstruction = await Token.createTransferInstruction(TOKEN_PROGRAM_ID, senderAta, recipientAta, sender, [], 1);
 
   txt.add(transferNftInstruction);
