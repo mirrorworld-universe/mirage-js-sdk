@@ -32,7 +32,6 @@ export async function createTransferInstruction(
   if (holderPublicKey.toBase58() !== senderAddress) {
     throw new Error('You cannot list an NFT you do not own');
   }
-  const auctionHouseObj = (await program.account.auctionHouse.fetch(auctionHouse)) as any as AuctionHouse;
   const senderAta = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, sender);
   const recipientAta = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, _recipient);
 
