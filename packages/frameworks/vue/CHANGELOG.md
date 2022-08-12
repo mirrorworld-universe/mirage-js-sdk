@@ -1,5 +1,13 @@
 # @mirrorworld/mirage.vue
 
+## 0.3.5-alpha.4
+
+### Patch Changes
+
+- Fixes buyerPrice parameter for the execute sale function
+- Updated dependencies
+  - @mirrorworld/mirage.core@2.0.0-alpha.4
+
 ## 0.3.5-alpha.3
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@mirrorworld/mirage.vue",
-  "version": "0.3.5-alpha.3",
+  "version": "0.3.5-alpha.4",
   "description": "Vue composables for Mirage SDK",
   "keywords": [
     "mirage",
@@ -26,7 +26,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@mirrorworld/mirage.core": "2.0.0-alpha.3"
+    "@mirrorworld/mirage.core": "2.0.0-alpha.4"
   },
   "devDependencies": {
     "vue": "^3.2.6"

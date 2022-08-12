@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.0.0-alpha.4
+
+### Patch Changes
+
+- Fixes buyerPrice parameter for the execute sale function
+
 ## 2.0.0-alpha.3
 
 ### Patch Changes
