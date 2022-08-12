@@ -163,7 +163,7 @@ export async function createBuyTransaction(
     escrowPaymentBump,
     freeTradeStateBump,
     programAsSignerBump,
-    buyerPrice,
+    buyerPrice: _buyerPrice,
     tokenSize,
     // @ts-ignore
     partialOrderSize: null,
