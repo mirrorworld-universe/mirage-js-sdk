@@ -1,6 +1,6 @@
 import { Connection, LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, Transaction } from '@solana/web3.js';
 import { AuctionHouse } from '../types';
-import { getAtaForMint } from '../utils';
+import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import {
   CancelInstructionAccounts,
@@ -54,7 +54,7 @@ export async function createCancelListingTransaction(
     // auctionhouse authority
     // !!! DANGEROUS !!! This action should only be performed by the auctionhouse authority
     const DANGEROUS_SELLER = new PublicKey(__DANGEROUSLY_INSET_SELLER__);
-    [associatedTokenAccount] = await getAtaForMint(_mint, DANGEROUS_SELLER);
+    associatedTokenAccount = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, DANGEROUS_SELLER);
     [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
       DANGEROUS_SELLER,
       auctionHouse,
@@ -66,7 +66,7 @@ export async function createCancelListingTransaction(
     );
   } else {
     console.log('Processing cancel listing');
-    [associatedTokenAccount] = await getAtaForMint(_mint, _sellerPublicKey);
+    associatedTokenAccount = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, _sellerPublicKey);
     [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
       _sellerPublicKey,
       auctionHouse!,

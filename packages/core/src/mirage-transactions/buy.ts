@@ -1,6 +1,7 @@
 import { Connection, LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, Transaction, TransactionInstruction } from '@solana/web3.js';
 import { AuctionHouse } from '../types';
-import { getAtaForMint, getMetadata } from '../utils';
+import { getMetadata } from '../utils';
+import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import {
   ExecuteSaleInstructionAccounts,
@@ -104,7 +105,7 @@ export async function createBuyTransaction(
 
   const publicBuyInstruction = createPublicBuyInstruction(publicBuyInstructionAccounts, publicBuyInstructionArgs);
 
-  const [associatedTokenAccount] = await getAtaForMint(_mint, _sellerPublicKey);
+  const associatedTokenAccount = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, _sellerPublicKey);
 
   const [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
     _sellerPublicKey,
