@@ -452,7 +452,7 @@ export class Mirage {
    * Cancels a listing for sell or buy instructions for an NFT
    * @param mint NFT mint address whose listing is to be cancelled
    * @param currentListingPrice price at which NFT was listed
-   * @param tradeState optional: trade state address to cancel
+   * @param __DANGEROUSLY_INSET_SELLER__
    */
   async cancelListing(
     mint: string,
