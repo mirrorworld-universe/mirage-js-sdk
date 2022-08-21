@@ -24,9 +24,7 @@ Import the `Mirage` instance into your client. It expects a `connection` and `wa
 These transactions require you to sign the transaction using your wallet. That means you need to have SOL. You can request SOL from the [SolFaucet](https://solfaucet.com/)
 
 ```ts
-import {
-  Mirage
-} from '@mirrorworld/mirage.core';
+import { Mirage } from '@mirrorworld/mirage.core';
 import { PublicKey } from '@solana/web3.js';
 
 const connection = useConnection();
@@ -37,15 +35,15 @@ const connection = useConnection();
 const wallet = useWallet();
 
 /* This key is the owner of the marketplace and represents the owner of this marketplace */
-const MARKETPLACE_AUTHORITY = new PublicKey("xxxxxxx_marketplace_owner_public_key")
+const MARKETPLACE_AUTHORITY = new PublicKey('xxxxxxx_marketplace_owner_public_key');
 
 /**
  * This is the currency used for trading in your marketplace.
  * It is an optional value. if provided, it defaults to SOL.
- * 
+ *
  * But it can be any SPL token you want.
  */
-const TRADING_MINT = new PublicKey("So11111111111111111111111111111111111111112")
+const TRADING_MINT = new PublicKey('So11111111111111111111111111111111111111112');
 
 /** mirage instance */
 const mirage = new Mirage({
@@ -54,7 +52,7 @@ const mirage = new Mirage({
   marketplace: {
     authority: MARKETPLACE_AUTHORITY,
     treasuryMint: TRADING_MINT,
-  }
+  },
 });
 ```
 
@@ -63,21 +61,23 @@ const mirage = new Mirage({
 You can see example project in this live demo [here](https://mirage-demo.vercel.app/):
 
 ## Marketplace Actions
+
 These are top-level actions that can be initialized by a user.
 They involve management-level actions that modify the marketplace instance.
 
 ### Create Marketplace
+
 This action creates a new marketplace. This is dome using the `Mirage.createMarketplace` method. The full options can be found in the [`CreateMarketplaceActionOptions` type]()
 
 ```ts
-import { Mirage } from "@mirrorworld/mirage.core"
+import { Mirage } from '@mirrorworld/mirage.core';
 import { Keypair, Connection, PublicKey } from '@solana/web3.js';
 import { clusterApiUrl } from '@solana/web3.js/src/utils/cluster';
 
 const wallet = new Wallet(keypair);
-const connection = new Connection(clusterApiUrl("devnet"));
-const newMarketplaceAuthority = wallet.publicKey
-const newMarketplaceTradingToken = new PublicKey("So11111111111111111111111111111111111111112")
+const connection = new Connection(clusterApiUrl('devnet'));
+const newMarketplaceAuthority = wallet.publicKey;
+const newMarketplaceTradingToken = new PublicKey('So11111111111111111111111111111111111111112');
 
 const mirage = new Mirage({
   wallet,
@@ -89,10 +89,10 @@ const mirage = new Mirage({
 });
 
 const result = await mirage.createMarketplace({
-  sellerFeeBasisPoints: 300
-})
+  sellerFeeBasisPoints: 300,
+});
 
-console.log("result", result)
+console.log('result', result);
 // Logs the following:
 // result [
 // { context: { slot: 156478445 }, value: { err: null } },
@@ -101,35 +101,34 @@ console.log("result", result)
 ```
 
 ### Create `createCreateMarketplaceTransaction`
+
 You can also just create the transaction object without sending it to the chain. The full type interface can be found [here]()
 
 ```ts
 import { createCreateMarketplaceTransaction } from '@mirrorworld/mirage.core';
 import { PublicKey, Transaction } from '@solana/web3.js';
 
-const marketplaceAuthority = new PublicKey("xxx-xxx-xxx")
-const sellerFeeBasisPoints = 400 // 4% transaction fee
+const marketplaceAuthority = new PublicKey('xxx-xxx-xxx');
+const sellerFeeBasisPoints = 400; // 4% transaction fee
 
-const transaction: Transaction = await createCreateMarketplaceTransaction(
-  marketplaceAuthority,
-  sellerFeeBasisPoints
-)
+const transaction: Transaction = await createCreateMarketplaceTransaction(marketplaceAuthority, sellerFeeBasisPoints);
 ```
 
-
 ### Update Marketplace
+
 This action updates an existing marketplace. This is done using the `Mirage.updateMarketplace` method. The full options can be found in the [`UpdateMarketplaceOptions` type]()
 
 The example below changes a given marketplace authority's marketplace from the 400 to 300. (4% -> 3% transaction fee)
+
 ```ts
-import { Mirage } from "@mirrorworld/mirage.core"
+import { Mirage } from '@mirrorworld/mirage.core';
 import { Keypair, Connection, PublicKey } from '@solana/web3.js';
 import { clusterApiUrl } from '@solana/web3.js/src/utils/cluster';
 
 const wallet = new Wallet(keypair);
-const connection = new Connection(clusterApiUrl("devnet"));
-const marketplaceAuthority = wallet.publicKey
-const newMarketplaceTradingToken = new PublicKey("So11111111111111111111111111111111111111112")
+const connection = new Connection(clusterApiUrl('devnet'));
+const marketplaceAuthority = wallet.publicKey;
+const newMarketplaceTradingToken = new PublicKey('So11111111111111111111111111111111111111112');
 
 const mirage = new Mirage({
   wallet,
@@ -142,17 +141,17 @@ const mirage = new Mirage({
 
 // 1. Creates a new marketplace
 await mirage.createMarketplace({
-  sellerFeeBasisPoints: 400
-})
+  sellerFeeBasisPoints: 400,
+});
 
 // 2. Updates the marketplace transaction fee
-const newSellerFeeBasisPoints = 300
+const newSellerFeeBasisPoints = 300;
 const result = await mirage.createMarketplace({
   authority: marketplaceAuthority,
-  sellerFeeBasisPoints: newSellerFeeBasisPoints
-})
+  sellerFeeBasisPoints: newSellerFeeBasisPoints,
+});
 
-console.log("result", result)
+console.log('result', result);
 // Logs the following:
 // result [
 // { context: { slot: 156487051 }, value: { err: null } },
@@ -161,19 +160,17 @@ console.log("result", result)
 ```
 
 ### Create `createUpdateMarketplaceTransaction`
+
 You can also just create the update marketplace transaction object without sending it to the chain. The full type interface can be found [here]()
 
 ```ts
 import { create } from '@mirrorworld/mirage.core';
 import { PublicKey, Transaction } from '@solana/web3.js';
 
-const marketplaceAuthority = new PublicKey("xxx-xxx-xxx")
-const sellerFeeBasisPoints = 300 // 4% transaction fee
+const marketplaceAuthority = new PublicKey('xxx-xxx-xxx');
+const sellerFeeBasisPoints = 300; // 4% transaction fee
 
-const transaction: Transaction = await createUpdateMarketplaceTransaction(
-  marketplaceAuthority,
-  sellerFeeBasisPoints
-)
+const transaction: Transaction = await createUpdateMarketplaceTransaction(marketplaceAuthority, sellerFeeBasisPoints);
 ```
 
 ## NFT Actions
