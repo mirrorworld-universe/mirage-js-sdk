@@ -1,36 +1,44 @@
-import { AUCTION_HOUSE_PROGRAM_ID, MINT_CONFIG } from './constants';
+import { AUCTION_HOUSE_PROGRAM_ID, MINT_CONFIG, NFT_STORAGE_API_KEY, WRAPPED_SOL_MINT } from './constants';
 import { Metaplex, Nft } from '@metaplex-foundation/js';
 import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
-import { Commitment, Connection, PublicKey, Transaction, RpcResponseAndContext, SignatureResult, LAMPORTS_PER_SOL } from '@solana/web3.js';
-import { Program, Provider } from '@project-serum/anchor';
+import { Commitment, Connection, LAMPORTS_PER_SOL, PublicKey, RpcResponseAndContext, SignatureResult, Transaction } from '@solana/web3.js';
 import type { Wallet } from '@project-serum/anchor';
+import { Program, Provider } from '@project-serum/anchor';
 import merge from 'lodash.merge';
-import { getTokenTransactions, processCreatorShares, uploadNFTFileToStorage } from './utils';
-import { MetadataObject } from './types';
+import { getNftOwner, getTokenTransactions, processCreatorShares, uploadNFTFileToStorage } from './utils';
+import { AuctionHouse, MetadataObject } from './types';
 import { AuctionHouseIDL, AuctionHouseProgramIDL } from './idl';
 
 import { BidReceipt, ListingReceipt, PurchaseReceipt } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/accounts';
 import { mintNFT, MintNFTResponse } from './mint';
 import { InsufficientBalanceError, programErrorHandler } from './errors';
 import {
-  createListingTransaction,
   createBuyTransaction,
   createCancelListingTransaction,
-  createUpdateListingTransaction,
+  createListingTransaction,
   createTransferInstruction,
+  createUpdateListingTransaction,
 } from './mirage-transactions';
 
 import { throwError } from './errors/errors.interface';
-import { getNftOwner } from './utils';
+import { createCreateMarketplaceTransaction, CreateMarketplaceActionOptions, CreateMarketplaceOptions } from './mirage-transactions/create-marketplace';
+import { createUpdateMarketplaceTransaction, UpdateMarketplaceOptions } from './mirage-transactions/update-marketplace';
 
 export interface IMirageOptions {
-  auctionHouseAuthority: PublicKey;
   connection: Connection;
   wallet: Wallet;
-  NFTStorageAPIKey: string;
+  NFTStorageAPIKey?: string;
   mintConfig?: {
     seller_fee_basis_points: number;
     mintRoyalties: number;
+  };
+  marketplace: {
+    authority: PublicKey;
+    /**
+     * Marketplace Trading Currency. If not provided, it defaults
+     * to SOL.
+     */
+    treasuryMint?: PublicKey;
   };
 }
 
@@ -52,6 +60,7 @@ export type TransactionSignature = string | undefined;
 
 export class Mirage {
   auctionHouseAuthority: PublicKey;
+  _treasuryMint: PublicKey = WRAPPED_SOL_MINT;
   auctionHouse?: PublicKey;
   _provider?: Provider;
   program?: Program<AuctionHouseProgramIDL>;
@@ -60,12 +69,13 @@ export class Mirage {
   NFTStorageAPIKey: string;
   mintConfig: IMirageOptions['mintConfig'];
   metaplex: Metaplex;
-  constructor({ auctionHouseAuthority, connection, wallet, NFTStorageAPIKey, mintConfig: userMintConfig = MINT_CONFIG }: IMirageOptions) {
-    this.auctionHouseAuthority = auctionHouseAuthority;
+  constructor({ connection, wallet, mintConfig: userMintConfig = MINT_CONFIG, marketplace }: IMirageOptions) {
+    this.auctionHouseAuthority = marketplace.authority;
+    this._treasuryMint = marketplace.treasuryMint || WRAPPED_SOL_MINT;
     this.connection = connection;
     this.wallet = wallet;
     this.mintConfig = merge(MINT_CONFIG, userMintConfig);
-    this.NFTStorageAPIKey = NFTStorageAPIKey;
+    this.NFTStorageAPIKey = NFT_STORAGE_API_KEY;
     this.metaplex = new Metaplex(connection);
     this.setup();
   }
@@ -116,9 +126,9 @@ export class Mirage {
   }
 
   /** Get the auction house addresses by the owner */
-  async getAuctionHouseAddress(): Promise<[PublicKey, number]> {
+  async getAuctionHouseAddress(treasuryMint: PublicKey = this._treasuryMint): Promise<[PublicKey, number]> {
     if (!this.auctionHouseAuthority) throw new Error('auctionHouseAuthority not provided');
-    return AuctionHouseProgram.findAuctionHouseAddress(this.auctionHouseAuthority, new PublicKey('So11111111111111111111111111111111111111112'));
+    return AuctionHouseProgram.findAuctionHouseAddress(this.auctionHouseAuthority, treasuryMint);
   }
 
   /** Loads provider instance */
@@ -135,6 +145,27 @@ export class Mirage {
       preflightCommitment: 'recent',
     });
     return new Program(AuctionHouseIDL, AUCTION_HOUSE_PROGRAM_ID, provider);
+  }
+
+  /**
+   * Fetches an auctionHouse object
+   * @param auctionHouse
+   */
+  async fetchAuctionHouse(auctionHouse: PublicKey) {
+    if (!this.program) {
+      this.program = await this.loadAuctionHouseProgram();
+    }
+    if (!this.connection) throwError('PROGRAM_NOT_INITIALIZED');
+    const baseObject = (await this.program!.account.auctionHouse.fetch(auctionHouse!)) as any as AuctionHouse;
+
+    const feeAmount = await this.program.provider.connection.getBalance(baseObject.auctionHouseFeeAccount);
+    const treasuryAmount = await Mirage.getTokenAmount(this.program, baseObject.auctionHouseTreasury, baseObject.treasuryMint);
+
+    return {
+      ...baseObject,
+      feeAmount,
+      treasuryAmount,
+    };
   }
 
   /**
@@ -421,7 +452,7 @@ export class Mirage {
    * Cancels a listing for sell or buy instructions for an NFT
    * @param mint NFT mint address whose listing is to be cancelled
    * @param currentListingPrice price at which NFT was listed
-   * @param tradeState optional: trade state address to cancel
+   * @param __DANGEROUSLY_INSET_SELLER__
    */
   async cancelListing(
     mint: string,
@@ -514,6 +545,48 @@ export class Mirage {
     return createTransferInstruction(mint, recipient, holderPublicKey, this.auctionHouse, auctionHouseAuthority, this.program, connection);
   }
 
+  async createCreateMarketplaceTransaction(
+    auctionHouseAuthority: CreateMarketplaceOptions['owner'],
+    sellerFeeBasisPoints: CreateMarketplaceOptions['sellerFeeBasisPoints'],
+    treasuryMint?: CreateMarketplaceOptions['treasuryMint'],
+    feeWithdrawalDestination?: CreateMarketplaceOptions['feeWithdrawalDestination'],
+    treasuryWithdrawalDestination?: CreateMarketplaceOptions['treasuryWithdrawalDestination'],
+    requiresSignOff?: CreateMarketplaceOptions['requiresSignOff'],
+    canChangeSalePrice?: CreateMarketplaceOptions['canChangeSalePrice']
+  ) {
+    return createCreateMarketplaceTransaction({
+      owner: auctionHouseAuthority,
+      treasuryMint,
+      feeWithdrawalDestination,
+      treasuryWithdrawalDestination,
+      requiresSignOff,
+      canChangeSalePrice,
+      sellerFeeBasisPoints,
+    });
+  }
+
+  async createUpdateMarketplaceTransaction(
+    authority: UpdateMarketplaceOptions['authority'],
+    sellerFeeBasisPoints: UpdateMarketplaceOptions['sellerFeeBasisPoints'],
+    newAuthority?: UpdateMarketplaceOptions['newAuthority'],
+    treasuryMint?: UpdateMarketplaceOptions['treasuryMint'],
+    feeWithdrawalDestination?: UpdateMarketplaceOptions['feeWithdrawalDestination'],
+    treasuryWithdrawalDestination?: UpdateMarketplaceOptions['treasuryWithdrawalDestination'],
+    requiresSignOff?: UpdateMarketplaceOptions['requiresSignOff'],
+    canChangeSalePrice?: UpdateMarketplaceOptions['canChangeSalePrice']
+  ) {
+    return createUpdateMarketplaceTransaction({
+      authority,
+      newAuthority,
+      treasuryMint,
+      feeWithdrawalDestination,
+      treasuryWithdrawalDestination,
+      requiresSignOff,
+      canChangeSalePrice,
+      sellerFeeBasisPoints,
+    });
+  }
+
   /**
    * Sends an NFT to a enw user.
    * @param mint NFT mint address to transfer to a new user
@@ -561,6 +634,51 @@ export class Mirage {
     console.log('result', result!);
     console.log('Successfully transferred nft ', mint, ' from ', this.wallet.publicKey.toBase58(), ' to ', _recipient.toBase58());
     return [result!, signature];
+  }
+
+  /**
+   * Creates a new marketplace instance for the user.
+   * @param options
+   */
+  async createMarketplace(options: CreateMarketplaceActionOptions) {
+    if (!this.wallet) throwError('WALLET_NOT_INITIALIZED');
+    const createMarketplaceTransaction = await this.createCreateMarketplaceTransaction(
+      this.wallet.publicKey,
+      options.sellerFeeBasisPoints,
+      options.treasuryMint || this._treasuryMint,
+      options.feeWithdrawalDestination,
+      options.treasuryWithdrawalDestination,
+      options.requiresSignOff,
+      options.canChangeSalePrice
+    );
+    createMarketplaceTransaction.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
+    createMarketplaceTransaction.feePayer = this.wallet.publicKey;
+
+    const signed = await this.signTransaction(createMarketplaceTransaction, this.wallet);
+    const signature = await this.connection.sendRawTransaction(signed);
+    const result = await this.connection.confirmTransaction(signature, 'confirmed');
+    return [result, signature];
+  }
+
+  async updateMarketplace(options: UpdateMarketplaceOptions) {
+    if (!this.wallet) throwError('WALLET_NOT_INITIALIZED');
+    const updateMarketplaceTransaction = await this.createUpdateMarketplaceTransaction(
+      this.wallet.publicKey,
+      options.sellerFeeBasisPoints,
+      options.newAuthority,
+      options.treasuryMint || this._treasuryMint,
+      options.feeWithdrawalDestination,
+      options.treasuryWithdrawalDestination,
+      options.requiresSignOff,
+      options.canChangeSalePrice
+    );
+    updateMarketplaceTransaction.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
+    updateMarketplaceTransaction.feePayer = this.wallet.publicKey;
+
+    const signed = await this.signTransaction(updateMarketplaceTransaction, this.wallet);
+    const signature = await this.connection.sendRawTransaction(signed);
+    const result = await this.connection.confirmTransaction(signature, 'confirmed');
+    return [result, signature];
   }
 
   /**
@@ -647,5 +765,21 @@ export class Mirage {
   async signTransaction(txt: Transaction, wallet: Wallet) {
     const signedTransaction = await wallet.signTransaction(txt);
     return signedTransaction.serialize();
+  }
+
+  private static async getTokenAmount(anchorProgram: Program<AuctionHouseProgramIDL>, account: PublicKey, mint: PublicKey): Promise<number> {
+    let amount = 0;
+    if (!mint.equals(WRAPPED_SOL_MINT)) {
+      try {
+        const token = await anchorProgram.provider.connection.getTokenAccountBalance(account)!;
+        amount = token!.value!.uiAmount! * Math.pow(10, token.value.decimals);
+      } catch (e) {
+        console.error(e);
+        console.info('Account ', account.toBase58(), 'didnt return value. Assuming 0 tokens.');
+      }
+    } else {
+      amount = await anchorProgram.provider.connection.getBalance(account);
+    }
+    return amount;
   }
 }
