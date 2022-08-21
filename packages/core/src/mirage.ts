@@ -159,7 +159,7 @@ export class Mirage {
     const baseObject = (await this.program!.account.auctionHouse.fetch(auctionHouse!)) as any as AuctionHouse;
 
     const feeAmount = await this.program.provider.connection.getBalance(baseObject.auctionHouseFeeAccount);
-    const treasuryAmount = await this.getTokenAmount(this.program, baseObject.auctionHouseTreasury, baseObject.treasuryMint);
+    const treasuryAmount = await Mirage.getTokenAmount(this.program, baseObject.auctionHouseTreasury, baseObject.treasuryMint);
 
     return {
       ...baseObject,
@@ -767,7 +767,7 @@ export class Mirage {
     return signedTransaction.serialize();
   }
 
-  private async getTokenAmount(anchorProgram: Program<AuctionHouseProgramIDL>, account: PublicKey, mint: PublicKey): Promise<number> {
+  private static async getTokenAmount(anchorProgram: Program<AuctionHouseProgramIDL>, account: PublicKey, mint: PublicKey): Promise<number> {
     let amount = 0;
     if (!mint.equals(WRAPPED_SOL_MINT)) {
       try {
