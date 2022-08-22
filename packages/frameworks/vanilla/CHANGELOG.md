@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.vanilla
 
+## 0.2.2-alpha.0
+
+### Patch Changes
+
+- fix build
+
 ## 0.2.1
 
 ### Patch Changes

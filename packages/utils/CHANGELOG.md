@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.utils
 
+## 1.2.2-alpha.0
+
+### Patch Changes
+
+- fix build
+
 ## 1.2.1
 
 ### Patch Changes

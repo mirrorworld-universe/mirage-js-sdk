@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.0.0-alpha.7
+
+### Patch Changes
+
+- fix build
+
 ## 2.0.0-alpha.6
 
 ### Major Changes
