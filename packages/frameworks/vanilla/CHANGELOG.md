@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.vanilla
 
+## 0.2.2-alpha.1
+
+### Patch Changes
+
+- Remove unused dependency
+
 ## 0.2.2-alpha.0
 
 ### Patch Changes
