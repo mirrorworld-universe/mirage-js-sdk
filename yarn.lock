@@ -2747,7 +2747,7 @@
   resolved "https://registry.yarnpkg.com/@metaplex-foundation/cusper/-/cusper-0.0.2.tgz#dc2032a452d6c269e25f016aa4dd63600e2af975"
   integrity sha512-S9RulC2fFCFOQraz61bij+5YCHhSO9llJegK8c8Y6731fSi6snUSQJdCUqYS8AIgR0TKbQvdvgSyIIdbDFZbBA==
 
-"@metaplex-foundation/js@^0.11.7":
+"@metaplex-foundation/js@0.11.7":
   version "0.11.7"
   resolved "https://registry.yarnpkg.com/@metaplex-foundation/js/-/js-0.11.7.tgz#72b986f2ce49698ddf46fa3800245bc41c61d5a1"
   integrity sha512-zL3Ac++8lUOoKjjhDArdNSimvVYcOqg4uhxfBVRKLV6H8q6E/sOepXuzYSLXxzYWdvapYWEPKFdEDFluYzk7DA==
@@ -2804,6 +2804,14 @@
     "@metaplex-foundation/mpl-core" "^0.6.1"
     "@solana/web3.js" "^1.35.1"
 
+"@metaplex-foundation/mpl-core@0.6.1", "@metaplex-foundation/mpl-core@^0.6.1":
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-core/-/mpl-core-0.6.1.tgz#bdc76a8b447a2ef310693973bf430e5ecec6ef0b"
+  integrity sha512-6R4HkfAqU2EUakNbVLcCmka0YuQTLGTbHJ62ig765+NRWuB2HNGUQ1HfHcRsGnyxhlCvwKK79JE01XUjFE+dzw==
+  dependencies:
+    "@solana/web3.js" "^1.35.1"
+    bs58 "^4.0.1"
+
 "@metaplex-foundation/mpl-core@^0.0.2":
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-core/-/mpl-core-0.0.2.tgz#17ee2cc216e17629d6df1dbba75964625ebbd603"
@@ -2821,14 +2829,6 @@
     "@solana/web3.js" "^1.35.1"
     bs58 "^4.0.1"
 
-"@metaplex-foundation/mpl-core@^0.6.1":
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-core/-/mpl-core-0.6.1.tgz#bdc76a8b447a2ef310693973bf430e5ecec6ef0b"
-  integrity sha512-6R4HkfAqU2EUakNbVLcCmka0YuQTLGTbHJ62ig765+NRWuB2HNGUQ1HfHcRsGnyxhlCvwKK79JE01XUjFE+dzw==
-  dependencies:
-    "@solana/web3.js" "^1.35.1"
-    bs58 "^4.0.1"
-
 "@metaplex-foundation/mpl-metaplex@^0.0.5":
   version "0.0.5"
   resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-metaplex/-/mpl-metaplex-0.0.5.tgz#f4b94582831824d134337453a8556c6c1ea13642"
@@ -2840,6 +2840,19 @@
     "@metaplex-foundation/mpl-token-vault" "^0.0.2"
     "@solana/spl-token" "^0.1.8"
     "@solana/web3.js" "^1.31.0"
+
+"@metaplex-foundation/mpl-token-metadata@2.2.1":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-token-metadata/-/mpl-token-metadata-2.2.1.tgz#80c9176f7286929c34125105c9f8c4a7bce11104"
+  integrity sha512-xCSzDpMt/UD4acqonfjk51CLUe4CayFoSKbnamE1mwCIfkE2xeEs6Rp9XKwSUpDkH15BMtMvXEsOcKjYiVmbMg==
+  dependencies:
+    "@metaplex-foundation/beet" "^0.1.0"
+    "@metaplex-foundation/beet-solana" "^0.1.1"
+    "@metaplex-foundation/cusper" "^0.0.2"
+    "@solana/spl-token" "^0.2.0"
+    "@solana/web3.js" "^1.35.1"
+    bn.js "^5.2.0"
+    debug "^4.3.3"
 
 "@metaplex-foundation/mpl-token-metadata@^0.0.2":
   version "0.0.2"
@@ -2859,7 +2872,7 @@
     "@solana/spl-token" "^0.1.8"
     "@solana/web3.js" "^1.31.0"
 
-"@metaplex-foundation/mpl-token-metadata@^2.1.2", "@metaplex-foundation/mpl-token-metadata@^2.2.1":
+"@metaplex-foundation/mpl-token-metadata@^2.1.2":
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-token-metadata/-/mpl-token-metadata-2.2.3.tgz#099472aade1643f546d54667b47738661f1e8bff"
   integrity sha512-42QiGLXuOj2d7N5KUrzqHDe0QKGHzIF12CRZaGsD6C0EAJpCyOAn2Gu8HTZQioexPP0u2xEWfiCK+zo7UAtatQ==
@@ -2881,7 +2894,7 @@
     "@solana/spl-token" "^0.1.8"
     "@solana/web3.js" "^1.31.0"
 
-"@metaplex/js@^4.12.0":
+"@metaplex/js@4.12.0", "@metaplex/js@^4.12.0":
   version "4.12.0"
   resolved "https://registry.yarnpkg.com/@metaplex/js/-/js-4.12.0.tgz#1190767a4e69d4e5613002aab3f4c1fb8de07896"
   integrity sha512-rIUTMXo5gIXFIZt08AEHyqH4oVoLL2dMYiNePQluw9pydesRym4jDayJ5POxEmKmyc6KGqVKw/YWUIivmUY5zg==
@@ -2999,7 +3012,7 @@
     pirates "^4.0.1"
     source-map-support "^0.5.16"
 
-"@project-serum/anchor@^0.23.0":
+"@project-serum/anchor@0.23.0":
   version "0.23.0"
   resolved "https://registry.yarnpkg.com/@project-serum/anchor/-/anchor-0.23.0.tgz#2b2eb6b51601b073e8db26663aa2d6c2f2841771"
   integrity sha512-LV2/ifZOJVFTZ4GbEloXln3iVfCvO1YM8i7BBCrUm4tehP7irMx4nr4/IabHWOzrQcQElsxSP/lb1tBp+2ff8A==
@@ -3186,10 +3199,10 @@
   dependencies:
     buffer "~6.0.3"
 
-"@solana/spl-token-registry@^0.2.3185":
-  version "0.2.4574"
-  resolved "https://registry.yarnpkg.com/@solana/spl-token-registry/-/spl-token-registry-0.2.4574.tgz#13f4636b7bec90d2bb43bbbb83512cd90d2ce257"
-  integrity sha512-JzlfZmke8Rxug20VT/VpI2XsXlsqMlcORIUivF+Yucj7tFi7A0dXG7h+2UnD0WaZJw8BrUz2ABNkUnv89vbv1A==
+"@solana/spl-token-registry@0.2.3185":
+  version "0.2.3185"
+  resolved "https://registry.yarnpkg.com/@solana/spl-token-registry/-/spl-token-registry-0.2.3185.tgz#a534c2a36db80a65f001b82fae907ec155118f23"
+  integrity sha512-jdGXq1x5O523DHjmbOLjc2mH2f9dZP0/qstnR8MSfJno/J6orqruy8o4/OK1+2Qs9jAj9IBb5IwjH+sRu6koJQ==
   dependencies:
     cross-fetch "3.0.6"
 
