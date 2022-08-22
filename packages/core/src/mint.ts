@@ -4,7 +4,6 @@ import { BN, Wallet } from '@project-serum/anchor';
 import fetch from 'isomorphic-fetch';
 import { actions, MetadataJson, programs } from '@metaplex/js';
 import { Transaction } from '@metaplex-foundation/mpl-core';
-import { sleep } from './transactions';
 import { InsufficientBalanceError } from './errors';
 
 const { prepareTokenAccountAndMintTxs } = actions;
@@ -28,6 +27,10 @@ export interface MintNFTParams {
   uri: string;
   maxSupply?: number;
   updateAuthority: PublicKey;
+}
+
+async function sleep(delay = 3000) {
+  return new Promise((resolve) => setTimeout(resolve, delay));
 }
 
 export interface MintNFTResponse {
