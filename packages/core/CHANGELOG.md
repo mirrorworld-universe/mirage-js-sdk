@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.0.0-alpha.5
+
+### Major Changes
+
+- Create and Update Marketplace APIs added.
+
 ## 2.0.0-alpha.4
 
 ### Patch Changes
