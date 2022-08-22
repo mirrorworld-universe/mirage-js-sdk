@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.0.0-alpha.6
+
+### Major Changes
+
+- 87b0a9e: Release Marketplace Creation, Update and Marketplace Querying
+
 ## 2.0.0-alpha.5
 
 ### Major Changes

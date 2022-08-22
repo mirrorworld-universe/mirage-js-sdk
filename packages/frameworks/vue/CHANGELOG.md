@@ -1,5 +1,16 @@
 # @mirrorworld/mirage.vue
 
+## 1.0.0-alpha.6
+
+### Major Changes
+
+- 87b0a9e: Release Marketplace Creation, Update and Marketplace Querying
+
+### Patch Changes
+
+- Updated dependencies [87b0a9e]
+  - @mirrorworld/mirage.core@2.0.0-alpha.6
+
 ## 1.0.0-alpha.5
 
 ### Major Changes
