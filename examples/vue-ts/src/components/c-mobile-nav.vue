@@ -1,7 +1,15 @@
 <template>
   <client-only>
     <c-box :display="{ base: 'flex', sm: 'flex', md: 'none' }">
-      <c-icon-button bg="none" position="absolute" top="4" left="4" :icon="isOpen ? 'x' : 'menu'" :aria-label="`${isOpen ? 'Close' : 'Open'} nav menu`" @click="isOpen = !isOpen" />
+      <c-icon-button
+        bg="none"
+        position="absolute"
+        top="4"
+        left="4"
+        :icon="isOpen ? 'x' : 'menu'"
+        :aria-label="`${isOpen ? 'Close' : 'Open'} nav menu`"
+        @click="isOpen = !isOpen"
+      />
       <c-drawer v-model="isOpen" size="full" placement="left">
         <c-drawer-overlay />
         <c-drawer-content>
@@ -16,18 +24,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { onBeforeRouteLeave } from 'vue-router'
+import { ref } from 'vue';
+import { onBeforeRouteLeave } from 'vue-router';
 
-const isOpen = ref(false)
+const isOpen = ref(false);
 
 const open = () => {
-  isOpen.value = true
-}
+  isOpen.value = true;
+};
 
 const close = () => {
-  isOpen.value = false
-}
+  isOpen.value = false;
+};
 
-onBeforeRouteLeave(close)
+onBeforeRouteLeave(close);
 </script>

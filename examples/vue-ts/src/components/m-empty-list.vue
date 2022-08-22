@@ -11,7 +11,7 @@
 
 <script lang="ts" setup>
 const props = defineProps<{
-  message: string,
-  icon: string
-}>()
+  message: string;
+  icon: string;
+}>();
 </script>

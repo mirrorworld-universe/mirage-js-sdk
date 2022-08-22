@@ -9,11 +9,10 @@
 
 <script lang="ts" setup>
 import { RouterView } from 'vue-router';
-import { WalletProvider, SolanaNetworks, ConnectionProvider } from './components'
+import { WalletProvider, SolanaNetworks, ConnectionProvider } from './components';
 
-
-console.log("AXIA Variables", {
+console.log('AXIA Variables', {
   SolanaNetworks,
-  WalletProvider
-})
+  WalletProvider,
+});
 </script>

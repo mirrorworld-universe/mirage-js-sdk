@@ -1,5 +1,41 @@
 # @mirrorworld/mirage.core
 
+## 2.0.0-alpha.5
+
+### Major Changes
+
+- Create and Update Marketplace APIs added.
+
+## 2.0.0-alpha.4
+
+### Patch Changes
+
+- Fixes buyerPrice parameter for the execute sale function
+
+## 2.0.0-alpha.3
+
+### Patch Changes
+
+- Removes listing cacnellations before transfer
+
+## 2.0.0-alpha.2
+
+### Patch Changes
+
+- Fix listing methods
+
+## 2.0.0-alpha.1
+
+### Patch Changes
+
+- Fix deps"
+
+## 2.0.0-alpha.0
+
+### Major Changes
+
+- 8586b1c: New major release. Exports all transactions
+
 ## 1.6.6
 
 ### Minor Changes

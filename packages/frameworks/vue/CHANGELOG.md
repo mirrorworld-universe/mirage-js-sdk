@@ -1,5 +1,55 @@
 # @mirrorworld/mirage.vue
 
+## 1.0.0-alpha.5
+
+### Major Changes
+
+- Create and Update Marketplace APIs added.
+
+### Patch Changes
+
+- Updated dependencies
+  - @mirrorworld/mirage.core@2.0.0-alpha.5
+
+## 0.3.5-alpha.4
+
+### Patch Changes
+
+- Fixes buyerPrice parameter for the execute sale function
+- Updated dependencies
+  - @mirrorworld/mirage.core@2.0.0-alpha.4
+
+## 0.3.5-alpha.3
+
+### Patch Changes
+
+- Removes listing cacnellations before transfer
+- Updated dependencies
+  - @mirrorworld/mirage.core@2.0.0-alpha.3
+
+## 0.3.5-alpha.2
+
+### Patch Changes
+
+- Fix listing methods
+- Updated dependencies
+  - @mirrorworld/mirage.core@2.0.0-alpha.2
+
+## 0.3.5-alpha.1
+
+### Patch Changes
+
+- Fix deps"
+- Updated dependencies
+  - @mirrorworld/mirage.core@2.0.0-alpha.1
+
+## 0.3.5-alpha.0
+
+### Patch Changes
+
+- Updated dependencies [8586b1c]
+  - @mirrorworld/mirage.core@2.0.0-alpha.0
+
 ## 0.3.4
 
 ### Patch Changes

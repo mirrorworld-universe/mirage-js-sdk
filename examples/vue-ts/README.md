@@ -3,6 +3,7 @@
 Template for Chakra UI Vue v1 with Typescript, Vite, components auto-importing, layouts, and static site generation.
 
 ## Features ✨
+
 - ✅ Vue 3
 - ✅ Gradients support
 - ✅ CSS Variables support
