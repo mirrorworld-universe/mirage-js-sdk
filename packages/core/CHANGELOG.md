@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.0.0-alpha.8
+
+### Patch Changes
+
+- fadb0bb: Patch release build for solana dependencies
+
 ## 2.0.0-alpha.7
 
 ### Patch Changes

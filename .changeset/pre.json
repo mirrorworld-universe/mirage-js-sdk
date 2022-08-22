@@ -8,6 +8,7 @@
     "@mirrorworld/mirage.utils": "1.2.1"
   },
   "changesets": [
+    "curvy-elephants-dance",
     "dull-students-yawn",
     "funny-parrots-check",
     "great-seahorses-happen",
