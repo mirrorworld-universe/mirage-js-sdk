@@ -1,5 +1,35 @@
 # @mirrorworld/mirage.vue
 
+## 1.0.0
+
+### Major Changes
+
+- 87b0a9e: Release Marketplace Creation, Update and Marketplace Querying
+- 87b0a9e: Create and Update Marketplace APIs added.
+
+### Patch Changes
+
+- 326f6e4: Fixes buyerPrice parameter for the execute sale function
+- 860e40f: Fix listing methods
+- 94f2b68: Fix deps"
+- f155825: fix build
+- d706bdb: Remove unused dependency
+- 232f9b1: Lock all solana and metaplex deps
+- d2ec2c7: Removes listing cacnellations before transfer
+- Updated dependencies [fadb0bb]
+- Updated dependencies [326f6e4]
+- Updated dependencies [8586b1c]
+- Updated dependencies [860e40f]
+- Updated dependencies [94f2b68]
+- Updated dependencies [f155825]
+- Updated dependencies [87b0a9e]
+- Updated dependencies [d706bdb]
+- Updated dependencies [232f9b1]
+- Updated dependencies [87b0a9e]
+- Updated dependencies [d2ec2c7]
+- Updated dependencies
+  - @mirrorworld/mirage.core@2.0.0
+
 ## 1.0.0-alpha.10
 
 ### Patch Changes

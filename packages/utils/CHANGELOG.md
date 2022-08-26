@@ -1,5 +1,13 @@
 # @mirrorworld/mirage.utils
 
+## 1.2.2
+
+### Patch Changes
+
+- f155825: fix build
+- d706bdb: Remove unused dependency
+- 232f9b1: Lock all solana and metaplex deps
+
 ## 1.2.2-alpha.2
 
 ### Patch Changes

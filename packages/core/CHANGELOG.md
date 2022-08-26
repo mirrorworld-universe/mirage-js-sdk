@@ -1,5 +1,25 @@
 # @mirrorworld/mirage.core
 
+## 2.0.0
+
+### Major Changes
+
+- 8586b1c: New major release. Exports all transactions
+- 87b0a9e: Release Marketplace Creation, Update and Marketplace Querying
+- 87b0a9e: Create and Update Marketplace APIs added.
+- Public Release for Mirage
+
+### Patch Changes
+
+- fadb0bb: Patch release build for solana dependencies
+- 326f6e4: Fixes buyerPrice parameter for the execute sale function
+- 860e40f: Fix listing methods
+- 94f2b68: Fix deps"
+- f155825: fix build
+- d706bdb: Remove unused dependency
+- 232f9b1: Lock all solana and metaplex deps
+- d2ec2c7: Removes listing cacnellations before transfer
+
 ## 2.0.0-alpha.10
 
 ### Patch Changes
