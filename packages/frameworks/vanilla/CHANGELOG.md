@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.vanilla
 
+## 0.2.3
+
+### Patch Changes
+
+- 41250f6: First public release
+
 ## 0.2.2
 
 ### Patch Changes

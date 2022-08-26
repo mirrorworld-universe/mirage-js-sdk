@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.utils
 
+## 1.2.3
+
+### Patch Changes
+
+- 41250f6: First public release
+
 ## 1.2.2
 
 ### Patch Changes
