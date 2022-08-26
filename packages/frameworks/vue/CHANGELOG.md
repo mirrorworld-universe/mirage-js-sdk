@@ -1,5 +1,13 @@
 # @mirrorworld/mirage.vue
 
+## 1.0.0-alpha.10
+
+### Patch Changes
+
+- Lock all solana and metaplex deps
+- Updated dependencies
+  - @mirrorworld/mirage.core@2.0.0-alpha.10
+
 ## 1.0.0-alpha.9
 
 ### Patch Changes

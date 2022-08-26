@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.utils
 
+## 1.2.2-alpha.2
+
+### Patch Changes
+
+- Lock all solana and metaplex deps
+
 ## 1.2.2-alpha.1
 
 ### Patch Changes
