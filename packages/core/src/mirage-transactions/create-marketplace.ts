@@ -97,6 +97,7 @@ export async function createCreateMarketplaceTransaction(createMarketplaceOption
     treasuryWithdrawalDestination,
     treasuryWithdrawalDestinationOwner,
   };
+
   const args: CreateAuctionHouseInstructionArgs = {
     bump: auctionHouseBump,
     feePayerBump: auctionHouseFeeAccountBump,
