@@ -752,9 +752,13 @@ export class Mirage {
   /**
    * Get token transactions
    * @param mint
+   * @param auctionHouseAddress
    */
-  async getTokenTransactions(mint: string | PublicKey): Promise<(TransactionReceipt | undefined)[]> {
-    return getTokenTransactions(new PublicKey(mint), this.auctionHouse!, this.connection);
+  async getTokenTransactions(
+    mint: string | PublicKey,
+    auctionHouseAddress: string | PublicKey = this.auctionHouse!
+  ): Promise<(TransactionReceipt | undefined)[]> {
+    return getTokenTransactions(new PublicKey(mint), new PublicKey(auctionHouseAddress), this.connection);
   }
 
   /**
