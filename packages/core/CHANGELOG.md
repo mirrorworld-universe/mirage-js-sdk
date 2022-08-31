@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.0.2
+
+### Patch Changes
+
+- 200d367: support any auction house for fetching token transaction
+
 ## 2.0.1
 
 ### Patch Changes
