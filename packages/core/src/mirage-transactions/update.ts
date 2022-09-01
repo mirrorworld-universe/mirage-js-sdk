@@ -31,7 +31,6 @@ import { ListingAlreadyExistsError } from '../errors';
  * @param sellerPublicKey
  * @param auctionHouse
  * @param connection
- * @param auctionHouseAuthority
  * @param program
  */
 export async function createUpdateListingTransaction(
@@ -41,7 +40,6 @@ export async function createUpdateListingTransaction(
   sellerPublicKey: PublicKey,
   auctionHouse: PublicKey,
   program: Program<AuctionHouseProgramIDL>,
-  auctionHouseAuthority: PublicKey,
   connection: Connection
 ) {
   const _currentListingPrice = Number(currentListingPrice) * LAMPORTS_PER_SOL;
@@ -49,11 +47,13 @@ export async function createUpdateListingTransaction(
   const _mint = new PublicKey(mint);
   const [sellerAddressAsString, _sellerPublicKey] = await getNftOwner(_mint, connection);
 
-  if (sellerPublicKey.toBase58() !== sellerAddressAsString && sellerPublicKey.toBase58() !== auctionHouseAuthority.toBase58()) {
+  const auctionHouseObj = (await program.account.auctionHouse.fetch(auctionHouse)) as any as AuctionHouse;
+  const authority = new PublicKey(auctionHouseObj.authority);
+
+  if (sellerPublicKey.toBase58() !== sellerAddressAsString && sellerPublicKey.toBase58() !== authority.toBase58()) {
     throw new Error('You cannot cancel listing of an NFT you do not own.');
   }
 
-  const auctionHouseObj = (await program.account.auctionHouse.fetch(auctionHouse)) as any as AuctionHouse;
   const [programAsSigner, programAsSignerBump] = await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
   const associatedTokenAccount = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, _sellerPublicKey);
   const [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
@@ -68,7 +68,6 @@ export async function createUpdateListingTransaction(
 
   const [listingReceipt] = await AuctionHouseProgram.findListingReceiptAddress(sellerTradeState);
 
-  const authority = auctionHouseAuthority;
   const auctionHouseFeeAccount = new PublicKey(auctionHouseObj.auctionHouseFeeAccount);
   const receipt = listingReceipt;
 

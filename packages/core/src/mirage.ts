@@ -77,7 +77,7 @@ export class Mirage {
     this.mintConfig = merge(MINT_CONFIG, userMintConfig);
     this.NFTStorageAPIKey = NFT_STORAGE_API_KEY;
     this.metaplex = new Metaplex(connection);
-    this.setup();
+    this.setup().then();
   }
 
   async setup() {
@@ -261,7 +261,14 @@ export class Mirage {
     if (!this.program) {
       throwError('PROGRAM_NOT_INITIALIZED');
     }
-    return createBuyTransaction(mint, listingPrice, buyerPublicKey, this.auctionHouse, this.program, connection);
+
+    const [sellerAddressAsString, _sellerPublicKey] = await getNftOwner(mint, connection);
+
+    if (buyerPublicKey.toBase58() === sellerAddressAsString) {
+      throw new Error('You cannot buy your own NFT');
+    }
+
+    return createBuyTransaction(mint, listingPrice, buyerPublicKey, _sellerPublicKey, this.auctionHouse, this.program, connection);
   }
 
   /**
@@ -296,16 +303,7 @@ export class Mirage {
     if (!this.program) {
       throwError('PROGRAM_NOT_INITIALIZED');
     }
-    return createUpdateListingTransaction(
-      mint,
-      currentListingPrice,
-      newListingPrice,
-      sellerPublicKey,
-      this.auctionHouse,
-      this.program,
-      auctionHouseAuthority,
-      connection
-    );
+    return createUpdateListingTransaction(mint, currentListingPrice, newListingPrice, sellerPublicKey, this.auctionHouse, this.program, connection);
   }
 
   /**
@@ -437,16 +435,14 @@ export class Mirage {
     if (!this.program) {
       throwError('PROGRAM_NOT_INITIALIZED');
     }
-    return createCancelListingTransaction(
-      mint,
-      currentListingPrice,
-      sellerPublicKey,
-      this.auctionHouse,
-      this.program,
-      auctionHouseAuthority,
-      connection,
-      __DANGEROUSLY_INSET_SELLER__
-    );
+    const seller = __DANGEROUSLY_INSET_SELLER__ ? new PublicKey(__DANGEROUSLY_INSET_SELLER__) : sellerPublicKey;
+
+    const [ownerAsString, _ownerPublicKey] = await getNftOwner(mint, connection);
+    if (seller.toBase58() !== _ownerPublicKey.toBase58() && sellerPublicKey.toBase58() !== auctionHouseAuthority.toBase58()) {
+      throw new Error('You cannot cancel listing of an NFT you do not own.');
+    }
+
+    return createCancelListingTransaction(mint, currentListingPrice, seller, this.auctionHouse, this.program, connection);
   }
   /**
    * Cancels a listing for sell or buy instructions for an NFT
@@ -542,7 +538,13 @@ export class Mirage {
     if (!this.program) {
       throwError('PROGRAM_NOT_INITIALIZED');
     }
-    return createTransferInstruction(mint, recipient, holderPublicKey, this.auctionHouse, auctionHouseAuthority, this.program, connection);
+
+    const [ownerAsString, _ownerPublicKey] = await getNftOwner(mint, connection);
+    if (holderPublicKey.toBase58() !== _ownerPublicKey.toBase58()) {
+      throw new Error('You cannot transfer NFT you do not own.');
+    }
+
+    return createTransferInstruction(mint, recipient, holderPublicKey, connection);
   }
 
   async createCreateMarketplaceTransaction(
@@ -588,7 +590,7 @@ export class Mirage {
   }
 
   /**
-   * Sends an NFT to a enw user.
+   * Sends an NFT to a new user.
    * @param mint NFT mint address to transfer to a new user
    * @param recipient Recipient's publicKey
    */
