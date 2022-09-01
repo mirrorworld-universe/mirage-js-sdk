@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.1.0
+
+### Minor Changes
+
+- cb1bdc4: Generalize auction house methods for any marketplace
+
 ## 2.0.2
 
 ### Patch Changes
