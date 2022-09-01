@@ -14,10 +14,9 @@ import {
   PublicBuyInstructionArgs,
 } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/instructions';
 
-import type { Program, Wallet } from '@project-serum/anchor';
+import type { Program } from '@project-serum/anchor';
 import { AuctionHouseProgramIDL } from '../idl';
 import { decodeMetadata, Metadata as MetadataSchema } from '../schema';
-import { getNftOwner } from '../utils';
 
 const { createPrintPurchaseReceiptInstruction, createPublicBuyInstruction, createExecuteSaleInstruction, createPrintBidReceiptInstruction } =
   AuctionHouseProgram.instructions;
@@ -27,6 +26,7 @@ const { createPrintPurchaseReceiptInstruction, createPublicBuyInstruction, creat
  * @param mint
  * @param buyerPrice
  * @param buyer
+ * @param seller
  * @param auctionHouse
  * @param program
  * @param connection
@@ -35,17 +35,13 @@ export async function createBuyTransaction(
   mint: PublicKey,
   buyerPrice: number,
   buyer: PublicKey,
+  seller: PublicKey,
   auctionHouse: PublicKey,
   program: Program<AuctionHouseProgramIDL>,
   connection: Connection
 ) {
   const _buyerPrice = Number(buyerPrice) * LAMPORTS_PER_SOL;
   const _mint = new PublicKey(mint);
-  const [sellerAddressAsString, _sellerPublicKey] = await getNftOwner(mint, connection);
-
-  if (buyer.toBase58() === sellerAddressAsString) {
-    throw new Error('You cannot buy your own NFT');
-  }
 
   /** Limit token size to 1 */
   const tokenSize = 1;
@@ -69,7 +65,7 @@ export async function createBuyTransaction(
   /**
    * Token account of the token to purchase,
    * This will default to finding the one with
-   * highest balance (of NFTs)
+   * the highest balance (of NFTs)
    * */
   const tokenAccount = results.value[0].address;
 
@@ -105,10 +101,10 @@ export async function createBuyTransaction(
 
   const publicBuyInstruction = createPublicBuyInstruction(publicBuyInstructionAccounts, publicBuyInstructionArgs);
 
-  const associatedTokenAccount = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, _sellerPublicKey);
+  const associatedTokenAccount = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, seller);
 
   const [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
-    _sellerPublicKey,
+    seller,
     auctionHouse!,
     associatedTokenAccount,
     auctionHouseObj.treasuryMint,
@@ -118,7 +114,7 @@ export async function createBuyTransaction(
   );
 
   const [freeTradeState, freeTradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
-    _sellerPublicKey,
+    seller,
     auctionHouse!,
     tokenAccount,
     auctionHouseObj.treasuryMint,
@@ -142,7 +138,7 @@ export async function createBuyTransaction(
 
   const executeSaleInstructionAccounts: ExecuteSaleInstructionAccounts = {
     buyer: buyerWallet,
-    seller: _sellerPublicKey,
+    seller,
     tokenAccount,
     tokenMint: _mint,
     metadata,
@@ -153,7 +149,7 @@ export async function createBuyTransaction(
     auctionHouseTreasury: new PublicKey(auctionHouseObj.auctionHouseTreasury),
     escrowPaymentAccount,
     programAsSigner,
-    sellerPaymentReceiptAccount: _sellerPublicKey,
+    sellerPaymentReceiptAccount: seller,
     buyerReceiptTokenAccount,
     buyerTradeState,
     sellerTradeState,

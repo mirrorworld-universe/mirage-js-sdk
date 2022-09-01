@@ -1,28 +1,13 @@
 import { Connection, PublicKey, Transaction } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { getAccountInfo, getNftOwner } from '../utils';
-import { Program } from '@project-serum/anchor';
-import { AuctionHouseProgramIDL } from '../idl';
+import { getAccountInfo } from '../utils';
 
-export async function createTransferInstruction(
-  mint: PublicKey,
-  recipient: PublicKey,
-  holderPublicKey: PublicKey,
-  auctionHouse: PublicKey,
-  auctionHouseAuthority: PublicKey,
-  program: Program<AuctionHouseProgramIDL>,
-  connection: Connection
-) {
+export async function createTransferInstruction(mint: PublicKey, recipient: PublicKey, sender: PublicKey, connection: Connection) {
   const _mint = new PublicKey(mint);
   const _recipient = new PublicKey(recipient);
 
   const txt = new Transaction();
 
-  const [senderAddress, sender, nft] = await getNftOwner(mint, connection);
-
-  if (holderPublicKey.toBase58() !== senderAddress) {
-    throw new Error('You cannot list an NFT you do not own');
-  }
   const senderAta = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, sender);
   const recipientAta = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, _recipient);
 
@@ -31,7 +16,7 @@ export async function createTransferInstruction(
   try {
     // Here we attempt to get the account information
     // for the user's ATA. If the account information
-    // is retrievable, we do nothing. However if it is not
+    // is retrievable, we do nothing. However, if it is not
     // it will throw a "TokenAccountNotFoundError".
     // This means that the recipient's token account has not
     // yet been initialized on-chain.
@@ -45,7 +30,7 @@ export async function createTransferInstruction(
         _mint,
         recipientAta,
         _recipient,
-        holderPublicKey
+        sender
       );
 
       txt.add(createAtaInstruction);
