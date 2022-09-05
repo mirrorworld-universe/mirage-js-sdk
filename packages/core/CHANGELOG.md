@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.1.2
+
+### Patch Changes
+
+- 9ac2f5e: enable setting custom fee payer when creating or updating marketplace
+
 ## 2.1.1
 
 ### Patch Changes
