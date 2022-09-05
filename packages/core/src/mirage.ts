@@ -554,7 +554,8 @@ export class Mirage {
     feeWithdrawalDestination?: CreateMarketplaceOptions['feeWithdrawalDestination'],
     treasuryWithdrawalDestination?: CreateMarketplaceOptions['treasuryWithdrawalDestination'],
     requiresSignOff?: CreateMarketplaceOptions['requiresSignOff'],
-    canChangeSalePrice?: CreateMarketplaceOptions['canChangeSalePrice']
+    canChangeSalePrice?: CreateMarketplaceOptions['canChangeSalePrice'],
+    feePayer?: PublicKey
   ) {
     const optional = {
       treasuryMint,
@@ -566,11 +567,14 @@ export class Mirage {
 
     Object.keys(optional).forEach((k) => !optional[k] && delete optional[k]);
 
-    return createCreateMarketplaceTransaction({
-      owner: auctionHouseAuthority,
-      sellerFeeBasisPoints,
-      ...optional,
-    });
+    return createCreateMarketplaceTransaction(
+      {
+        owner: auctionHouseAuthority,
+        sellerFeeBasisPoints,
+        ...optional,
+      },
+      feePayer
+    );
   }
 
   async createUpdateMarketplaceTransaction(
@@ -581,7 +585,8 @@ export class Mirage {
     feeWithdrawalDestination?: UpdateMarketplaceOptions['feeWithdrawalDestination'],
     treasuryWithdrawalDestination?: UpdateMarketplaceOptions['treasuryWithdrawalDestination'],
     requiresSignOff?: UpdateMarketplaceOptions['requiresSignOff'],
-    canChangeSalePrice?: UpdateMarketplaceOptions['canChangeSalePrice']
+    canChangeSalePrice?: UpdateMarketplaceOptions['canChangeSalePrice'],
+    feePayer?: PublicKey
   ) {
     const optional = {
       newAuthority,
@@ -594,11 +599,14 @@ export class Mirage {
 
     Object.keys(optional).forEach((k) => !optional[k] && delete optional[k]);
 
-    return createUpdateMarketplaceTransaction({
-      authority,
-      sellerFeeBasisPoints,
-      ...optional,
-    });
+    return createUpdateMarketplaceTransaction(
+      {
+        authority,
+        sellerFeeBasisPoints,
+        ...optional,
+      },
+      feePayer
+    );
   }
 
   /**
