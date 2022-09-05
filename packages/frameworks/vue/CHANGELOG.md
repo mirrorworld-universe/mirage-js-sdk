@@ -1,5 +1,12 @@
 # @mirrorworld/mirage.vue
 
+## 1.0.5
+
+### Patch Changes
+
+- Updated dependencies [9ac2f5e]
+  - @mirrorworld/mirage.core@2.1.2
+
 ## 1.0.4
 
 ### Patch Changes
