@@ -556,14 +556,20 @@ export class Mirage {
     requiresSignOff?: CreateMarketplaceOptions['requiresSignOff'],
     canChangeSalePrice?: CreateMarketplaceOptions['canChangeSalePrice']
   ) {
-    return createCreateMarketplaceTransaction({
-      owner: auctionHouseAuthority,
+    const optional = {
       treasuryMint,
       feeWithdrawalDestination,
       treasuryWithdrawalDestination,
       requiresSignOff,
       canChangeSalePrice,
+    };
+
+    Object.keys(optional).forEach((k) => !optional[k] && delete optional[k]);
+
+    return createCreateMarketplaceTransaction({
+      owner: auctionHouseAuthority,
       sellerFeeBasisPoints,
+      ...optional,
     });
   }
 
@@ -577,15 +583,21 @@ export class Mirage {
     requiresSignOff?: UpdateMarketplaceOptions['requiresSignOff'],
     canChangeSalePrice?: UpdateMarketplaceOptions['canChangeSalePrice']
   ) {
-    return createUpdateMarketplaceTransaction({
-      authority,
+    const optional = {
       newAuthority,
       treasuryMint,
       feeWithdrawalDestination,
       treasuryWithdrawalDestination,
       requiresSignOff,
       canChangeSalePrice,
+    };
+
+    Object.keys(optional).forEach((k) => !optional[k] && delete optional[k]);
+
+    return createUpdateMarketplaceTransaction({
+      authority,
       sellerFeeBasisPoints,
+      ...optional,
     });
   }
 
