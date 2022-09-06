@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.1.3
+
+### Patch Changes
+
+- 7f265a7: Generalize fetch auction house methods; changes to create marketplace transaction
+
 ## 2.1.2
 
 ### Patch Changes
