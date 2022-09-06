@@ -793,7 +793,7 @@ export class Mirage {
     return signedTransaction.serialize();
   }
 
-  private static async getTokenAmount(anchorProgram: Program<AuctionHouseProgramIDL>, account: PublicKey, mint: PublicKey): Promise<number> {
+  static async getTokenAmount(anchorProgram: Program<AuctionHouseProgramIDL>, account: PublicKey, mint: PublicKey): Promise<number> {
     let amount = 0;
     if (!mint.equals(WRAPPED_SOL_MINT)) {
       try {

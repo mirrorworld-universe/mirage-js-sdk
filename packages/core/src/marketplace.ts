@@ -10,6 +10,10 @@ import {
   createTransferInstruction,
   createUpdateListingTransaction,
 } from './mirage-transactions';
+import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
+import { NATIVE_MINT } from '@solana/spl-token';
+import { AuctionHouse } from './types';
+import { Mirage } from './mirage';
 
 export type IAuctionOptions = {
   connection: Connection;
@@ -41,6 +45,27 @@ export class Marketplace {
       preflightCommitment: 'recent',
     });
     return new Program(AuctionHouseIDL, AUCTION_HOUSE_PROGRAM_ID, provider);
+  }
+
+  async getAuctionHouseAddress(authority: PublicKey, treasuryMint?: PublicKey) {
+    return AuctionHouseProgram.findAuctionHouseAddress(authority, treasuryMint || NATIVE_MINT);
+  }
+
+  async fetchAuctionHouse(auctionHouse: PublicKey) {
+    if (!this.program) {
+      this.program = await this.loadAuctionHouseProgram();
+    }
+    if (!this.connection) throwError('PROGRAM_NOT_INITIALIZED');
+    const baseObject = (await this.program!.account.auctionHouse.fetch(auctionHouse!)) as any as AuctionHouse;
+
+    const feeAmount = await this.program.provider.connection.getBalance(baseObject.auctionHouseFeeAccount);
+    const treasuryAmount = await Mirage.getTokenAmount(this.program, baseObject.auctionHouseTreasury, baseObject.treasuryMint);
+
+    return {
+      ...baseObject,
+      feeAmount,
+      treasuryAmount,
+    };
   }
 
   async createTransferTransaction(userWallet: PublicKey, mint: PublicKey, recipient: PublicKey): Promise<Transaction> {
