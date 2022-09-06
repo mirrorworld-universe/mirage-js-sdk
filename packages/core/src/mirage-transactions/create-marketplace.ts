@@ -1,12 +1,6 @@
 import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
-import {
-  CreateAuctionHouseInstructionAccounts,
-  CreateAuctionHouseInstructionArgs,
-} from '@metaplex-foundation/mpl-auction-house/dist/src/generated/instructions';
-import { PublicKey, Transaction } from '@solana/web3.js';
-import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { WRAPPED_SOL_MINT } from '../constants';
-import merge from 'lodash.merge';
+import { PublicKey, PublicKeyInitData, Transaction, TransactionInstruction } from '@solana/web3.js';
+import { NATIVE_MINT } from '@solana/spl-token';
 
 export interface CreateMarketplaceOptions {
   /**
@@ -56,57 +50,82 @@ export interface CreateMarketplaceOptions {
 
 export interface CreateMarketplaceActionOptions extends Omit<CreateMarketplaceOptions, 'owner'> {}
 
-const createMarketplaceDefaultOptions: Pick<CreateMarketplaceOptions, 'treasuryMint' | 'requiresSignOff' | 'canChangeSalePrice'> = {
-  treasuryMint: WRAPPED_SOL_MINT,
-  requiresSignOff: false,
-  canChangeSalePrice: true,
-};
-
 export async function createCreateMarketplaceTransaction(createMarketplaceOptions: CreateMarketplaceOptions, feePayer?: PublicKey) {
+  const auctionHouseCreateInstruction = await createAuctionHouse({
+    payer: feePayer || createMarketplaceOptions.owner,
+    wallet: createMarketplaceOptions.owner,
+    sellerFeeBasisPoints: createMarketplaceOptions.sellerFeeBasisPoints,
+    treasuryWithdrawalDestination: createMarketplaceOptions.treasuryWithdrawalDestination || createMarketplaceOptions.owner,
+    feeWithdrawalDestination: createMarketplaceOptions.feeWithdrawalDestination || createMarketplaceOptions.owner,
+    treasuryMint: createMarketplaceOptions.treasuryMint,
+    requiresSignOff: !!createMarketplaceOptions.requiresSignOff,
+    canChangeSalePrice: !!createMarketplaceOptions.canChangeSalePrice,
+  });
+
   const txt = new Transaction();
+  txt.add(auctionHouseCreateInstruction);
 
-  const mergedOptions = merge(createMarketplaceDefaultOptions, createMarketplaceOptions) as CreateMarketplaceOptions & {
-    treasuryMint: PublicKey;
-    requiresSignOff: boolean;
-    canChangeSalePrice: boolean;
-  };
-  const treasuryMint = mergedOptions.treasuryMint;
-  const feeWithdrawalDestination = mergedOptions.feeWithdrawalDestination || mergedOptions.owner;
-  const treasuryWithdrawalDestinationOwner = mergedOptions.treasuryWithdrawalDestination || mergedOptions.owner;
-  const [auctionHouse, auctionHouseBump] = await AuctionHouseProgram.findAuctionHouseAddress(mergedOptions.owner, mergedOptions.treasuryMint);
-  const [auctionHouseFeeAccount, auctionHouseFeeAccountBump] = await AuctionHouseProgram.findAuctionHouseFeeAddress(auctionHouse);
-  const [auctionHouseTreasury, auctionHouseTreasuryBump] = await AuctionHouseProgram.findAuctionHouseTreasuryAddress(auctionHouse);
-
-  // If the treasuryMint is SOL, we shall set the destination account as the
-  // user provided account.
-  //
-  // Otherwise we should compute the ATA for the treasuryMint
-  // for the destination account.
-  const treasuryWithdrawalDestination = treasuryMint.equals(WRAPPED_SOL_MINT)
-    ? treasuryWithdrawalDestinationOwner
-    : await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, mergedOptions.treasuryMint, treasuryWithdrawalDestinationOwner);
-
-  const accounts: CreateAuctionHouseInstructionAccounts = {
-    auctionHouse,
-    auctionHouseFeeAccount,
-    treasuryMint,
-    auctionHouseTreasury,
-    feeWithdrawalDestination,
-    authority: mergedOptions.owner,
-    payer: feePayer || mergedOptions.owner,
-    treasuryWithdrawalDestination,
-    treasuryWithdrawalDestinationOwner,
-  };
-
-  const args: CreateAuctionHouseInstructionArgs = {
-    bump: auctionHouseBump,
-    feePayerBump: auctionHouseFeeAccountBump,
-    treasuryBump: auctionHouseTreasuryBump,
-    requiresSignOff: mergedOptions.requiresSignOff,
-    canChangeSalePrice: mergedOptions.canChangeSalePrice,
-    sellerFeeBasisPoints: mergedOptions.sellerFeeBasisPoints,
-  };
-  const createAuctionHouseInstruction = await AuctionHouseProgram.instructions.createCreateAuctionHouseInstruction(accounts, args);
-  txt.add(createAuctionHouseInstruction);
   return txt;
 }
+
+const { createCreateAuctionHouseInstruction } = AuctionHouseProgram.instructions;
+
+interface CreateAuctionHouseParams {
+  payer: PublicKey;
+  wallet: PublicKey;
+  sellerFeeBasisPoints: number;
+  canChangeSalePrice?: boolean;
+  requiresSignOff?: boolean;
+  treasuryWithdrawalDestination?: PublicKeyInitData;
+  feeWithdrawalDestination?: PublicKeyInitData;
+  treasuryMint?: PublicKeyInitData;
+}
+
+export const createAuctionHouse = async (params: CreateAuctionHouseParams): Promise<TransactionInstruction> => {
+  const {
+    payer,
+    wallet,
+    sellerFeeBasisPoints,
+    canChangeSalePrice = false,
+    requiresSignOff = false,
+    treasuryWithdrawalDestination,
+    feeWithdrawalDestination,
+    treasuryMint,
+  } = params;
+
+  const twdKey = treasuryWithdrawalDestination ? new PublicKey(treasuryWithdrawalDestination) : wallet;
+
+  const fwdKey = feeWithdrawalDestination ? new PublicKey(feeWithdrawalDestination) : wallet;
+
+  const tMintKey = treasuryMint ? new PublicKey(treasuryMint) : NATIVE_MINT;
+
+  const twdAta = tMintKey.equals(NATIVE_MINT) ? twdKey : (await AuctionHouseProgram.findAssociatedTokenAccountAddress(tMintKey, twdKey))[0];
+
+  const [auctionHouse, bump] = await AuctionHouseProgram.findAuctionHouseAddress(wallet, tMintKey);
+
+  const [feeAccount, feePayerBump] = await AuctionHouseProgram.findAuctionHouseFeeAddress(auctionHouse);
+
+  const [treasuryAccount, treasuryBump] = await AuctionHouseProgram.findAuctionHouseTreasuryAddress(auctionHouse);
+
+  return createCreateAuctionHouseInstruction(
+    {
+      treasuryMint: tMintKey,
+      payer: payer,
+      authority: wallet,
+      feeWithdrawalDestination: fwdKey,
+      treasuryWithdrawalDestination: twdAta,
+      treasuryWithdrawalDestinationOwner: twdKey,
+      auctionHouse,
+      auctionHouseFeeAccount: feeAccount,
+      auctionHouseTreasury: treasuryAccount,
+    },
+    {
+      bump,
+      feePayerBump,
+      treasuryBump,
+      sellerFeeBasisPoints,
+      requiresSignOff,
+      canChangeSalePrice,
+    }
+  );
+};
