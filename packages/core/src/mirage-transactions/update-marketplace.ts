@@ -1,12 +1,7 @@
 import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
-import {
-  UpdateAuctionHouseInstructionAccounts,
-  UpdateAuctionHouseInstructionArgs,
-} from '@metaplex-foundation/mpl-auction-house/dist/src/generated/instructions';
-import { PublicKey, Transaction } from '@solana/web3.js';
-import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { WRAPPED_SOL_MINT } from '../constants';
-import merge from 'lodash.merge';
+import { createUpdateAuctionHouseInstruction } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/instructions';
+import { PublicKey, PublicKeyInitData, Transaction, TransactionInstruction } from '@solana/web3.js';
+import { NATIVE_MINT } from '@solana/spl-token';
 
 export interface UpdateMarketplaceOptions {
   /**
@@ -58,54 +53,75 @@ export interface UpdateMarketplaceOptions {
   canChangeSalePrice?: boolean;
 }
 
-export interface CreateMarketplaceActionOptions extends Omit<UpdateMarketplaceOptions, 'authority'> {}
-
-const createMarketplaceDefaultOptions: Pick<UpdateMarketplaceOptions, 'treasuryMint' | 'requiresSignOff' | 'canChangeSalePrice'> = {
-  treasuryMint: WRAPPED_SOL_MINT,
-  requiresSignOff: false,
-  canChangeSalePrice: true,
-};
-
 export async function createUpdateMarketplaceTransaction(updateMarketplaceOptions: UpdateMarketplaceOptions, feePayer?: PublicKey) {
+  const auctionHouseUpdateInstruction = await updateAuctionHouseInstruction({
+    payer: feePayer || updateMarketplaceOptions.authority,
+    authority: updateMarketplaceOptions.authority,
+    newAuthority: updateMarketplaceOptions.newAuthority || updateMarketplaceOptions.authority,
+    sellerFeeBasisPoints: updateMarketplaceOptions.sellerFeeBasisPoints,
+    treasuryWithdrawalDestination: updateMarketplaceOptions.treasuryWithdrawalDestination || updateMarketplaceOptions.authority,
+    feeWithdrawalDestination: updateMarketplaceOptions.feeWithdrawalDestination || updateMarketplaceOptions.authority,
+    treasuryMint: updateMarketplaceOptions.treasuryMint,
+    requiresSignOff: !!updateMarketplaceOptions.requiresSignOff,
+    canChangeSalePrice: !!updateMarketplaceOptions.canChangeSalePrice,
+  });
+
   const txt = new Transaction();
+  txt.add(auctionHouseUpdateInstruction);
 
-  const mergedOptions = merge(createMarketplaceDefaultOptions, updateMarketplaceOptions) as UpdateMarketplaceOptions & {
-    treasuryMint: PublicKey;
-    requiresSignOff: boolean;
-    canChangeSalePrice: boolean;
-  };
-  const treasuryMint = mergedOptions.treasuryMint;
-  const feeWithdrawalDestination = mergedOptions.feeWithdrawalDestination || mergedOptions.authority;
-  const treasuryWithdrawalDestinationOwner = mergedOptions.treasuryWithdrawalDestination || mergedOptions.authority;
-  const [auctionHouse] = await AuctionHouseProgram.findAuctionHouseAddress(mergedOptions.authority, mergedOptions.treasuryMint);
-
-  // If the treasuryMint is SOL, we shall set the destination account as the
-  // user provided account.
-  //
-  // Otherwise we should compute the ATA for the treasuryMint
-  // for the destination account.
-  const treasuryWithdrawalDestination = treasuryMint.equals(WRAPPED_SOL_MINT)
-    ? treasuryWithdrawalDestinationOwner
-    : await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, mergedOptions.treasuryMint, treasuryWithdrawalDestinationOwner);
-  const newAuthority = mergedOptions.newAuthority || mergedOptions.authority;
-
-  const accounts: UpdateAuctionHouseInstructionAccounts = {
-    auctionHouse,
-    newAuthority,
-    treasuryMint,
-    feeWithdrawalDestination,
-    authority: mergedOptions.authority,
-    payer: feePayer || mergedOptions.authority,
-    treasuryWithdrawalDestination,
-    treasuryWithdrawalDestinationOwner,
-  };
-
-  const args: UpdateAuctionHouseInstructionArgs = {
-    requiresSignOff: mergedOptions.requiresSignOff,
-    canChangeSalePrice: mergedOptions.canChangeSalePrice,
-    sellerFeeBasisPoints: mergedOptions.sellerFeeBasisPoints,
-  };
-  const createAuctionHouseInstruction = await AuctionHouseProgram.instructions.createUpdateAuctionHouseInstruction(accounts, args);
-  txt.add(createAuctionHouseInstruction);
   return txt;
 }
+
+interface UpdateAuctionHouseParams {
+  payer: PublicKey;
+  authority: PublicKey;
+  newAuthority: PublicKey;
+  sellerFeeBasisPoints: number;
+  canChangeSalePrice?: boolean;
+  requiresSignOff?: boolean;
+  treasuryWithdrawalDestination?: PublicKeyInitData;
+  feeWithdrawalDestination?: PublicKeyInitData;
+  treasuryMint?: PublicKeyInitData;
+}
+
+const updateAuctionHouseInstruction = async (params: UpdateAuctionHouseParams): Promise<TransactionInstruction> => {
+  const {
+    payer,
+    authority,
+    newAuthority,
+    sellerFeeBasisPoints,
+    canChangeSalePrice = false,
+    requiresSignOff = false,
+    treasuryWithdrawalDestination,
+    feeWithdrawalDestination,
+    treasuryMint,
+  } = params;
+
+  const twdKey = treasuryWithdrawalDestination ? new PublicKey(treasuryWithdrawalDestination) : authority;
+
+  const fwdKey = feeWithdrawalDestination ? new PublicKey(feeWithdrawalDestination) : authority;
+
+  const tMintKey = treasuryMint ? new PublicKey(treasuryMint) : NATIVE_MINT;
+
+  const twdAta = tMintKey.equals(NATIVE_MINT) ? twdKey : (await AuctionHouseProgram.findAssociatedTokenAccountAddress(tMintKey, twdKey))[0];
+
+  const [auctionHouse] = await AuctionHouseProgram.findAuctionHouseAddress(authority, tMintKey);
+
+  return createUpdateAuctionHouseInstruction(
+    {
+      treasuryMint: tMintKey,
+      payer,
+      authority,
+      newAuthority,
+      feeWithdrawalDestination: fwdKey,
+      treasuryWithdrawalDestination: twdAta,
+      treasuryWithdrawalDestinationOwner: twdKey,
+      auctionHouse,
+    },
+    {
+      sellerFeeBasisPoints,
+      requiresSignOff,
+      canChangeSalePrice,
+    }
+  );
+};
