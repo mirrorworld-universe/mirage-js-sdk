@@ -14,6 +14,8 @@ import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import { NATIVE_MINT } from '@solana/spl-token';
 import { AuctionHouse } from './types';
 import { Mirage } from './mirage';
+import { createCreateMarketplaceTransaction, CreateMarketplaceOptions } from './mirage-transactions/create-marketplace';
+import { createUpdateMarketplaceTransaction, UpdateMarketplaceOptions } from './mirage-transactions/update-marketplace';
 
 export type IAuctionOptions = {
   connection: Connection;
@@ -39,7 +41,7 @@ export class Marketplace {
     }
   }
 
-  /** Loads auctionhouse program */
+  /** Loads Auction House program */
   async loadAuctionHouseProgram(): Promise<Program<AuctionHouseProgramIDL>> {
     const provider = new Provider(this.connection!, this.wallet!, {
       preflightCommitment: 'recent',
@@ -66,6 +68,68 @@ export class Marketplace {
       feeAmount,
       treasuryAmount,
     };
+  }
+
+  async createCreateMarketplaceTransaction(
+    auctionHouseAuthority: CreateMarketplaceOptions['owner'],
+    sellerFeeBasisPoints: CreateMarketplaceOptions['sellerFeeBasisPoints'],
+    treasuryMint?: CreateMarketplaceOptions['treasuryMint'],
+    feeWithdrawalDestination?: CreateMarketplaceOptions['feeWithdrawalDestination'],
+    treasuryWithdrawalDestination?: CreateMarketplaceOptions['treasuryWithdrawalDestination'],
+    requiresSignOff?: CreateMarketplaceOptions['requiresSignOff'],
+    canChangeSalePrice?: CreateMarketplaceOptions['canChangeSalePrice'],
+    feePayer?: PublicKey
+  ) {
+    const optional = {
+      treasuryMint,
+      feeWithdrawalDestination,
+      treasuryWithdrawalDestination,
+      requiresSignOff,
+      canChangeSalePrice,
+    };
+
+    Object.keys(optional).forEach((k) => !optional[k] && delete optional[k]);
+
+    return createCreateMarketplaceTransaction(
+      {
+        owner: auctionHouseAuthority,
+        sellerFeeBasisPoints,
+        ...optional,
+      },
+      feePayer
+    );
+  }
+
+  async createUpdateMarketplaceTransaction(
+    authority: UpdateMarketplaceOptions['authority'],
+    sellerFeeBasisPoints: UpdateMarketplaceOptions['sellerFeeBasisPoints'],
+    newAuthority?: UpdateMarketplaceOptions['newAuthority'],
+    treasuryMint?: UpdateMarketplaceOptions['treasuryMint'],
+    feeWithdrawalDestination?: UpdateMarketplaceOptions['feeWithdrawalDestination'],
+    treasuryWithdrawalDestination?: UpdateMarketplaceOptions['treasuryWithdrawalDestination'],
+    requiresSignOff?: UpdateMarketplaceOptions['requiresSignOff'],
+    canChangeSalePrice?: UpdateMarketplaceOptions['canChangeSalePrice'],
+    feePayer?: PublicKey
+  ) {
+    const optional = {
+      newAuthority,
+      treasuryMint,
+      feeWithdrawalDestination,
+      treasuryWithdrawalDestination,
+      requiresSignOff,
+      canChangeSalePrice,
+    };
+
+    Object.keys(optional).forEach((k) => !optional[k] && delete optional[k]);
+
+    return createUpdateMarketplaceTransaction(
+      {
+        authority,
+        sellerFeeBasisPoints,
+        ...optional,
+      },
+      feePayer
+    );
   }
 
   async createTransferTransaction(userWallet: PublicKey, mint: PublicKey, recipient: PublicKey): Promise<Transaction> {

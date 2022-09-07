@@ -51,7 +51,7 @@ export interface CreateMarketplaceOptions {
 export interface CreateMarketplaceActionOptions extends Omit<CreateMarketplaceOptions, 'owner'> {}
 
 export async function createCreateMarketplaceTransaction(createMarketplaceOptions: CreateMarketplaceOptions, feePayer?: PublicKey) {
-  const auctionHouseCreateInstruction = await createAuctionHouse({
+  const auctionHouseCreateInstruction = await createAuctionHouseInstruction({
     payer: feePayer || createMarketplaceOptions.owner,
     wallet: createMarketplaceOptions.owner,
     sellerFeeBasisPoints: createMarketplaceOptions.sellerFeeBasisPoints,
@@ -81,7 +81,7 @@ interface CreateAuctionHouseParams {
   treasuryMint?: PublicKeyInitData;
 }
 
-export const createAuctionHouse = async (params: CreateAuctionHouseParams): Promise<TransactionInstruction> => {
+const createAuctionHouseInstruction = async (params: CreateAuctionHouseParams): Promise<TransactionInstruction> => {
   const {
     payer,
     wallet,
