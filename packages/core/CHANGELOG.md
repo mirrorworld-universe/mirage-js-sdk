@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.1.4
+
+### Patch Changes
+
+- ebd7ba1: Update marketplace transaction
+
 ## 2.1.3
 
 ### Patch Changes
