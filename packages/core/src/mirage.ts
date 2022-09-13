@@ -555,6 +555,7 @@ export class Mirage {
     treasuryWithdrawalDestination?: CreateMarketplaceOptions['treasuryWithdrawalDestination'],
     requiresSignOff?: CreateMarketplaceOptions['requiresSignOff'],
     canChangeSalePrice?: CreateMarketplaceOptions['canChangeSalePrice'],
+    storeFrontUrl?: string,
     feePayer?: PublicKey
   ) {
     const optional = {
@@ -573,6 +574,7 @@ export class Mirage {
         sellerFeeBasisPoints,
         ...optional,
       },
+      storeFrontUrl,
       feePayer
     );
   }
@@ -586,6 +588,7 @@ export class Mirage {
     treasuryWithdrawalDestination?: UpdateMarketplaceOptions['treasuryWithdrawalDestination'],
     requiresSignOff?: UpdateMarketplaceOptions['requiresSignOff'],
     canChangeSalePrice?: UpdateMarketplaceOptions['canChangeSalePrice'],
+    storeFrontUrl?: string,
     feePayer?: PublicKey
   ) {
     const optional = {
@@ -605,6 +608,7 @@ export class Mirage {
         sellerFeeBasisPoints,
         ...optional,
       },
+      storeFrontUrl,
       feePayer
     );
   }

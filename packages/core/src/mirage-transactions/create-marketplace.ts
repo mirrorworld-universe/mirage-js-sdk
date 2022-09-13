@@ -1,6 +1,7 @@
 import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import { PublicKey, PublicKeyInitData, Transaction, TransactionInstruction } from '@solana/web3.js';
 import { NATIVE_MINT } from '@solana/spl-token';
+import { createOrUpdateStoreFront } from './store-front';
 
 export interface CreateMarketplaceOptions {
   /**
@@ -50,7 +51,7 @@ export interface CreateMarketplaceOptions {
 
 export interface CreateMarketplaceActionOptions extends Omit<CreateMarketplaceOptions, 'owner'> {}
 
-export async function createCreateMarketplaceTransaction(createMarketplaceOptions: CreateMarketplaceOptions, feePayer?: PublicKey) {
+export async function createCreateMarketplaceTransaction(createMarketplaceOptions: CreateMarketplaceOptions, storeFrontUrl?: string, feePayer?: PublicKey) {
   const auctionHouseCreateInstruction = await createAuctionHouseInstruction({
     payer: feePayer || createMarketplaceOptions.owner,
     wallet: createMarketplaceOptions.owner,
@@ -64,6 +65,15 @@ export async function createCreateMarketplaceTransaction(createMarketplaceOption
 
   const txt = new Transaction();
   txt.add(auctionHouseCreateInstruction);
+
+  if (storeFrontUrl) {
+    const setStorefrontV2Instructions = await createOrUpdateStoreFront(
+      createMarketplaceOptions.owner,
+      feePayer || createMarketplaceOptions.owner,
+      storeFrontUrl
+    );
+    txt.add(setStorefrontV2Instructions);
+  }
 
   return txt;
 }
