@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.1.5
+
+### Patch Changes
+
+- 033fd1f: Support setting up storefront for auction house
+
 ## 2.1.4
 
 ### Patch Changes
