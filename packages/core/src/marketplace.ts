@@ -16,6 +16,7 @@ import { AuctionHouse } from './types';
 import { Mirage } from './mirage';
 import { createCreateMarketplaceTransaction, CreateMarketplaceOptions } from './mirage-transactions/create-marketplace';
 import { createUpdateMarketplaceTransaction, UpdateMarketplaceOptions } from './mirage-transactions/update-marketplace';
+import { getStoreFrontConfig, StoreFrontOptions } from './mirage-transactions/store-front';
 
 export type IAuctionOptions = {
   connection: Connection;
@@ -70,6 +71,14 @@ export class Marketplace {
     };
   }
 
+  async getStoreFrontConfiguration(
+    auctionHouseAuthority: CreateMarketplaceOptions['owner'],
+    storeFrontOptions: StoreFrontOptions,
+    treasuryMints: CreateMarketplaceOptions['treasuryMint'][]
+  ) {
+    return getStoreFrontConfig(auctionHouseAuthority, storeFrontOptions, treasuryMints);
+  }
+
   async createCreateMarketplaceTransaction(
     auctionHouseAuthority: CreateMarketplaceOptions['owner'],
     sellerFeeBasisPoints: CreateMarketplaceOptions['sellerFeeBasisPoints'],
@@ -78,7 +87,8 @@ export class Marketplace {
     treasuryWithdrawalDestination?: CreateMarketplaceOptions['treasuryWithdrawalDestination'],
     requiresSignOff?: CreateMarketplaceOptions['requiresSignOff'],
     canChangeSalePrice?: CreateMarketplaceOptions['canChangeSalePrice'],
-    feePayer?: PublicKey
+    feePayer?: PublicKey,
+    storeFrontUrl?: string
   ) {
     const optional = {
       treasuryMint,
@@ -96,6 +106,7 @@ export class Marketplace {
         sellerFeeBasisPoints,
         ...optional,
       },
+      storeFrontUrl,
       feePayer
     );
   }
@@ -109,6 +120,7 @@ export class Marketplace {
     treasuryWithdrawalDestination?: UpdateMarketplaceOptions['treasuryWithdrawalDestination'],
     requiresSignOff?: UpdateMarketplaceOptions['requiresSignOff'],
     canChangeSalePrice?: UpdateMarketplaceOptions['canChangeSalePrice'],
+    storeFrontUrl?: string,
     feePayer?: PublicKey
   ) {
     const optional = {
@@ -128,6 +140,7 @@ export class Marketplace {
         sellerFeeBasisPoints,
         ...optional,
       },
+      storeFrontUrl,
       feePayer
     );
   }

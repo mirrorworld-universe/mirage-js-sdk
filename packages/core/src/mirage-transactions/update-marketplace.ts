@@ -2,6 +2,7 @@ import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import { createUpdateAuctionHouseInstruction } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/instructions';
 import { PublicKey, PublicKeyInitData, Transaction, TransactionInstruction } from '@solana/web3.js';
 import { NATIVE_MINT } from '@solana/spl-token';
+import { createOrUpdateStoreFront } from './store-front';
 
 export interface UpdateMarketplaceOptions {
   /**
@@ -53,7 +54,7 @@ export interface UpdateMarketplaceOptions {
   canChangeSalePrice?: boolean;
 }
 
-export async function createUpdateMarketplaceTransaction(updateMarketplaceOptions: UpdateMarketplaceOptions, feePayer?: PublicKey) {
+export async function createUpdateMarketplaceTransaction(updateMarketplaceOptions: UpdateMarketplaceOptions, storeFrontUrl?: string, feePayer?: PublicKey) {
   const auctionHouseUpdateInstruction = await updateAuctionHouseInstruction({
     payer: feePayer || updateMarketplaceOptions.authority,
     authority: updateMarketplaceOptions.authority,
@@ -68,6 +69,15 @@ export async function createUpdateMarketplaceTransaction(updateMarketplaceOption
 
   const txt = new Transaction();
   txt.add(auctionHouseUpdateInstruction);
+
+  if (storeFrontUrl) {
+    const setStorefrontV2Instructions = await createOrUpdateStoreFront(
+      updateMarketplaceOptions.authority,
+      feePayer || updateMarketplaceOptions.authority,
+      storeFrontUrl
+    );
+    txt.add(setStorefrontV2Instructions);
+  }
 
   return txt;
 }
