@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.1.6
+
+### Patch Changes
+
+- 95eedfe: Support buy on auction house with SPL token as a treasury mint
+
 ## 2.1.5
 
 ### Patch Changes
