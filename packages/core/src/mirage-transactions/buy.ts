@@ -1,131 +1,219 @@
-import { Connection, LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, Transaction, TransactionInstruction } from '@solana/web3.js';
+import { Keypair, LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, Transaction, TransactionInstruction } from '@solana/web3.js';
+import { ASSOCIATED_TOKEN_PROGRAM_ID, NATIVE_MINT, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
+import {
+  createExecuteSaleInstruction,
+  createPrintBidReceiptInstruction,
+  createPrintPurchaseReceiptInstruction,
+  createPublicBuyInstruction,
+} from '@metaplex-foundation/mpl-auction-house/dist/src/generated';
+import { Program } from '@project-serum/anchor';
+import { AuctionHouseProgramIDL } from '../idl';
 import { AuctionHouse } from '../types';
 import { getMetadata } from '../utils';
-import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import {
   ExecuteSaleInstructionAccounts,
   ExecuteSaleInstructionArgs,
-  PrintBidReceiptInstructionAccounts,
-  PrintBidReceiptInstructionArgs,
   PrintPurchaseReceiptInstructionAccounts,
   PrintPurchaseReceiptInstructionArgs,
-  PublicBuyInstructionAccounts,
-  PublicBuyInstructionArgs,
 } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/instructions';
-
-import type { Program } from '@project-serum/anchor';
-import { AuctionHouseProgramIDL } from '../idl';
 import { decodeMetadata, Metadata as MetadataSchema } from '../schema';
 
-const { createPrintPurchaseReceiptInstruction, createPublicBuyInstruction, createExecuteSaleInstruction, createPrintBidReceiptInstruction } =
-  AuctionHouseProgram.instructions;
-
-/**
- * Create Buy Transaction object
- * @param mint
- * @param buyerPrice
- * @param buyer
- * @param seller
- * @param auctionHouse
- * @param program
- * @param connection
- */
-export async function createBuyTransaction(
-  mint: PublicKey,
-  buyerPrice: number,
+export const createBuyTransaction = async (
+  tokenMint: PublicKey,
+  price: number,
   buyer: PublicKey,
   seller: PublicKey,
+  sellerAssociateTokenAccountAddress: PublicKey,
   auctionHouse: PublicKey,
-  program: Program<AuctionHouseProgramIDL>,
-  connection: Connection
-) {
-  const _buyerPrice = Number(buyerPrice) * LAMPORTS_PER_SOL;
-  const _mint = new PublicKey(mint);
+  program: Program<AuctionHouseProgramIDL>
+) => {
+  const ah = (await program!.account.auctionHouse.fetch(auctionHouse!)) as any as AuctionHouse;
+  const buyerPrice = Number(price) * LAMPORTS_PER_SOL;
+  const authority = new PublicKey(ah.authority);
+  const auctionHouseFeeAccount = new PublicKey(ah.auctionHouseFeeAccount);
+  const treasuryMint = new PublicKey(ah.treasuryMint);
+  const tokenAccount = sellerAssociateTokenAccountAddress;
+  const metadata = await getMetadata(tokenMint);
+  const isSplMint = !treasuryMint.equals(NATIVE_MINT);
 
-  /** Limit token size to 1 */
-  const tokenSize = 1;
-
-  // User wallet.
-  const buyerWallet = buyer;
+  let splTokenTransferAuthority = Keypair.generate();
+  let transferAuthority = buyer;
+  let paymentAccount = buyer;
+  let signers: Keypair[] = [];
 
   console.log({
-    _mint: _mint.toBase58(),
-    _sellerPublicKey: buyer.toBase58(),
-    buyingPrice: buyerPrice,
+    type: 'buy',
+    tokenMint: tokenMint.toBase58(),
+    buyer: buyer.toBase58(),
+    seller: seller.toBase58(),
+    sellerAssociateTokenAccountAddress: sellerAssociateTokenAccountAddress.toBase58(),
+    auctionHouse: auctionHouse.toBase58(),
+    treasuryMint: treasuryMint.toBase58(),
+    metadata: metadata.toBase58(),
+    isSplMint,
+    buyerPrice,
   });
 
-  const auctionHouseObj = (await program!.account.auctionHouse.fetch(auctionHouse!)) as any as AuctionHouse;
+  if (isSplMint) {
+    transferAuthority = splTokenTransferAuthority.publicKey;
+    signers = [...signers, splTokenTransferAuthority];
 
-  const [escrowPaymentAccount, escrowPaymentBump] = await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouse!, buyerWallet);
+    paymentAccount = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, treasuryMint, buyer);
+  }
 
-  const results = await program!.provider.connection.getTokenLargestAccounts(_mint);
-
-  const metadata = await getMetadata(_mint);
-  /**
-   * Token account of the token to purchase,
-   * This will default to finding the one with
-   * the highest balance (of NFTs)
-   * */
-  const tokenAccount = results.value[0].address;
+  const [escrowPaymentAccount, escrowPaymentBump] = await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouse, buyer);
 
   const [buyerTradeState, tradeStateBump] = await AuctionHouseProgram.findPublicBidTradeStateAddress(
-    buyerWallet,
-    auctionHouse!,
-    auctionHouseObj.treasuryMint,
-    _mint,
-    _buyerPrice,
-    tokenSize
-  );
-
-  const publicBuyInstructionAccounts: PublicBuyInstructionAccounts = {
-    wallet: buyerWallet,
-    transferAuthority: buyerWallet,
-    paymentAccount: buyerWallet,
-    treasuryMint: auctionHouseObj.treasuryMint,
-    tokenAccount,
-    metadata,
-    escrowPaymentAccount,
-    authority: new PublicKey(auctionHouseObj.authority),
-    auctionHouse: auctionHouse!,
-    auctionHouseFeeAccount: new PublicKey(auctionHouseObj.auctionHouseFeeAccount),
-    buyerTradeState,
-  };
-
-  const publicBuyInstructionArgs: PublicBuyInstructionArgs = {
-    buyerPrice: _buyerPrice,
-    escrowPaymentBump,
-    tokenSize,
-    tradeStateBump,
-  };
-
-  const publicBuyInstruction = createPublicBuyInstruction(publicBuyInstructionAccounts, publicBuyInstructionArgs);
-
-  const associatedTokenAccount = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, seller);
-
-  const [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
-    seller,
-    auctionHouse!,
-    associatedTokenAccount,
-    auctionHouseObj.treasuryMint,
-    _mint,
-    _buyerPrice,
+    buyer,
+    auctionHouse,
+    treasuryMint,
+    tokenMint,
+    buyerPrice,
     1
   );
 
+  let publicBuyInstruction = createPublicBuyInstruction(
+    {
+      wallet: buyer,
+      paymentAccount: buyer,
+      transferAuthority: buyer,
+      treasuryMint,
+      tokenAccount,
+      metadata,
+      escrowPaymentAccount,
+      authority,
+      auctionHouse,
+      auctionHouseFeeAccount,
+      buyerTradeState,
+    },
+    {
+      escrowPaymentBump,
+      tradeStateBump,
+      tokenSize: 1,
+      buyerPrice,
+    }
+  );
+
+  if (isSplMint) {
+    publicBuyInstruction.keys.map((key) => {
+      if (key.pubkey.equals(transferAuthority)) {
+        key.isSigner = true;
+      }
+
+      return key;
+    });
+  }
+
+  const [receipt, receiptBump] = await AuctionHouseProgram.findBidReceiptAddress(buyerTradeState);
+
+  const printBidReceiptInstruction = createPrintBidReceiptInstruction(
+    {
+      receipt,
+      bookkeeper: buyer,
+      instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
+    },
+    {
+      receiptBump,
+    }
+  );
+
+  let transaction = new Transaction();
+
+  if (isSplMint) {
+    const createApproveInstruction = Token.createApproveInstruction(TOKEN_PROGRAM_ID, paymentAccount, transferAuthority, buyer, [], buyerPrice);
+
+    transaction.add(createApproveInstruction);
+  }
+
+  transaction.add(publicBuyInstruction).add(printBidReceiptInstruction);
+
+  if (isSplMint) {
+    const createRevokeInstruction = Token.createRevokeInstruction(TOKEN_PROGRAM_ID, paymentAccount, buyer, []);
+
+    transaction.add(createRevokeInstruction);
+  }
+
+  const [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(seller, auctionHouse!, tokenAccount, treasuryMint, tokenMint, buyerPrice, 1);
+
+  const executeSaleInstruction = await createExecuteSaleInstructions(
+    buyer,
+    seller,
+    buyerPrice,
+    tokenAccount,
+    tokenMint,
+    metadata,
+    auctionHouse,
+    ah,
+    escrowPaymentAccount,
+    escrowPaymentBump,
+    buyerTradeState,
+    sellerTradeState,
+    program
+  );
+  transaction.add(executeSaleInstruction);
+
+  const [purchaseReceipt, purchaseReceiptBump] = await AuctionHouseProgram.findPurchaseReceiptAddress(sellerTradeState, buyerTradeState);
+  const printPurchaseReceiptInstruction = await createPrintPurchaseInstruction(buyer, sellerTradeState, buyerTradeState, purchaseReceipt, purchaseReceiptBump);
+  transaction.add(printPurchaseReceiptInstruction);
+
+  if (isSplMint) {
+    transaction.sign(...signers);
+  }
+
+  return [transaction, purchaseReceipt] as const;
+};
+
+const createPrintPurchaseInstruction = async (
+  buyer: PublicKey,
+  sellerTradeState: PublicKey,
+  buyerTradeState: PublicKey,
+  purchaseReceipt: PublicKey,
+  purchaseReceiptBump: number
+): Promise<TransactionInstruction> => {
+  const [bidReceipt, _bidReceiptBump] = await AuctionHouseProgram.findBidReceiptAddress(buyerTradeState);
+  const [listingReceipt] = await AuctionHouseProgram.findListingReceiptAddress(sellerTradeState);
+
+  const printPurchaseReceiptInstructionAccounts: PrintPurchaseReceiptInstructionAccounts = {
+    bookkeeper: buyer,
+    purchaseReceipt,
+    bidReceipt,
+    listingReceipt,
+    instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
+  };
+  const printPurchaseReceiptInstructionArgs: PrintPurchaseReceiptInstructionArgs = {
+    purchaseReceiptBump,
+  };
+
+  return createPrintPurchaseReceiptInstruction(printPurchaseReceiptInstructionAccounts, printPurchaseReceiptInstructionArgs);
+};
+
+const createExecuteSaleInstructions = async (
+  buyer: PublicKey,
+  seller: PublicKey,
+  buyerPrice: number,
+  tokenAccount: PublicKey,
+  tokenMint: PublicKey,
+  metadata: PublicKey,
+  auctionHouse: PublicKey,
+  ah: AuctionHouse,
+  escrowPaymentAccount: PublicKey,
+  escrowPaymentBump: number,
+  buyerTradeState: PublicKey,
+  sellerTradeState: PublicKey,
+  program: Program<AuctionHouseProgramIDL>
+): Promise<TransactionInstruction> => {
+  const [programAsSigner, programAsSignerBump] = await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
+  const [buyerReceiptTokenAccount] = await AuctionHouseProgram.findAssociatedTokenAccountAddress(tokenMint, buyer);
   const [freeTradeState, freeTradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
     seller,
     auctionHouse!,
     tokenAccount,
-    auctionHouseObj.treasuryMint,
-    _mint,
+    ah.treasuryMint,
+    tokenMint,
     0,
     1
   );
-
-  const [programAsSigner, programAsSignerBump] = await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
-
-  const [buyerReceiptTokenAccount] = await AuctionHouseProgram.findAssociatedTokenAccountAddress(_mint, buyerWallet);
 
   const metadataObj = await program!.provider.connection.getAccountInfo(metadata);
   const metadataDecoded: MetadataSchema = decodeMetadata(Buffer.from(metadataObj!.data));
@@ -137,16 +225,16 @@ export async function createBuyTransaction(
   }));
 
   const executeSaleInstructionAccounts: ExecuteSaleInstructionAccounts = {
-    buyer: buyerWallet,
+    buyer,
     seller,
     tokenAccount,
-    tokenMint: _mint,
+    tokenMint,
     metadata,
-    auctionHouse: auctionHouse!,
-    treasuryMint: auctionHouseObj.treasuryMint,
-    authority: new PublicKey(auctionHouseObj.authority),
-    auctionHouseFeeAccount: new PublicKey(auctionHouseObj.auctionHouseFeeAccount),
-    auctionHouseTreasury: new PublicKey(auctionHouseObj.auctionHouseTreasury),
+    auctionHouse,
+    treasuryMint: ah.treasuryMint,
+    authority: new PublicKey(ah.authority),
+    auctionHouseFeeAccount: new PublicKey(ah.auctionHouseFeeAccount),
+    auctionHouseTreasury: new PublicKey(ah.auctionHouseTreasury),
     escrowPaymentAccount,
     programAsSigner,
     sellerPaymentReceiptAccount: seller,
@@ -160,8 +248,8 @@ export async function createBuyTransaction(
     escrowPaymentBump,
     freeTradeStateBump,
     programAsSignerBump,
-    buyerPrice: _buyerPrice,
-    tokenSize,
+    buyerPrice,
+    tokenSize: 1,
     // @ts-ignore
     partialOrderSize: null,
     partialOrderPrice: null,
@@ -169,50 +257,9 @@ export async function createBuyTransaction(
 
   const _executeSaleInstruction = await createExecuteSaleInstruction(executeSaleInstructionAccounts, createExecuteSaleInstructionArgs);
 
-  const [bidReceipt, bidReceiptBump] = await AuctionHouseProgram.findBidReceiptAddress(buyerTradeState);
-
-  // Executing sale:
-  console.log('===== EXECUTING SALE =====');
-
-  console.log('[buyerTradeState, bidReceipt]', [buyerTradeState.toBase58(), bidReceipt.toBase58()]);
-  const [purchaseReceipt, purchaseReceiptBump] = await AuctionHouseProgram.findPurchaseReceiptAddress(sellerTradeState, buyerTradeState);
-  const [listingReceipt] = await AuctionHouseProgram.findListingReceiptAddress(sellerTradeState);
-
-  console.log('[sellerTradeState, listingReceipt]', [sellerTradeState.toBase58(), listingReceipt.toBase58()]);
-
-  const printBidReceiptInstructionAccounts: PrintBidReceiptInstructionAccounts = {
-    bookkeeper: buyerWallet,
-    receipt: bidReceipt,
-    instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
-  };
-  const printBidReceiptInstructionArgs: PrintBidReceiptInstructionArgs = {
-    receiptBump: bidReceiptBump,
-  };
-
-  const printPurchaseReceiptInstructionAccounts: PrintPurchaseReceiptInstructionAccounts = {
-    bookkeeper: buyerWallet,
-    purchaseReceipt,
-    bidReceipt,
-    listingReceipt,
-    instruction: SYSVAR_INSTRUCTIONS_PUBKEY,
-  };
-  const printPurchaseReceiptInstructionArgs: PrintPurchaseReceiptInstructionArgs = {
-    purchaseReceiptBump,
-  };
-
-  const printBidReceiptInstruction = createPrintBidReceiptInstruction(printBidReceiptInstructionAccounts, printBidReceiptInstructionArgs);
-
-  const printPurchaseReceiptInstruction = createPrintPurchaseReceiptInstruction(printPurchaseReceiptInstructionAccounts, printPurchaseReceiptInstructionArgs);
-
-  const executeSaleInstruction = new TransactionInstruction({
+  return new TransactionInstruction({
     programId: AuctionHouseProgram.PUBKEY,
     data: _executeSaleInstruction.data,
-    // @ts-ignore
     keys: [..._executeSaleInstruction.keys, ...creatorAccounts],
   });
-
-  const transaction = new Transaction();
-  transaction.add(publicBuyInstruction).add(printBidReceiptInstruction).add(executeSaleInstruction).add(printPurchaseReceiptInstruction);
-
-  return [transaction, purchaseReceipt] as const;
-}
+};
