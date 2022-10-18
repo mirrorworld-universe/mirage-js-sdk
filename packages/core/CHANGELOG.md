@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.1.7
+
+### Patch Changes
+
+- d8781a8: Add methods for managing marketplace fees
+
 ## 2.1.6
 
 ### Patch Changes
