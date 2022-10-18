@@ -17,6 +17,7 @@ import { Mirage } from './mirage';
 import { createCreateMarketplaceTransaction, CreateMarketplaceOptions } from './mirage-transactions/create-marketplace';
 import { createUpdateMarketplaceTransaction, UpdateMarketplaceOptions } from './mirage-transactions/update-marketplace';
 import { getStoreFrontConfig, StoreFrontOptions } from './mirage-transactions/store-front';
+import { getAuctionHouseBalance, withdrawFees } from './mirage-transactions/treasury';
 
 export type IAuctionOptions = {
   connection: Connection;
@@ -143,6 +144,28 @@ export class Marketplace {
       storeFrontUrl,
       feePayer
     );
+  }
+
+  async getMarketplaceFeeBalance(auctionHouseAddress: PublicKey): Promise<number> {
+    if (!this.program) {
+      this.program = await this.loadAuctionHouseProgram();
+    }
+    if (!this.program) {
+      throwError('PROGRAM_NOT_INITIALIZED');
+    }
+
+    return getAuctionHouseBalance(auctionHouseAddress, this.program, this.connection);
+  }
+
+  async withdrawMarketplaceFees(amount: number, auctionHouseAddress: PublicKey): Promise<Transaction> {
+    if (!this.program) {
+      this.program = await this.loadAuctionHouseProgram();
+    }
+    if (!this.program) {
+      throwError('PROGRAM_NOT_INITIALIZED');
+    }
+
+    return withdrawFees(amount, auctionHouseAddress, this.program);
   }
 
   async createTransferTransaction(userWallet: PublicKey, mint: PublicKey, recipient: PublicKey): Promise<Transaction> {
