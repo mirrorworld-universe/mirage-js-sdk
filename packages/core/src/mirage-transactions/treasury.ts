@@ -1,11 +1,11 @@
 import { Connection, Keypair, PublicKey, Transaction } from '@solana/web3.js';
 import { AuctionHouse } from '../types';
 import { Program } from '@project-serum/anchor';
-import { AuctionHouseProgramIDL } from '../idl';
 import { NATIVE_MINT, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { createWithdrawFromTreasuryInstruction } from '@metaplex-foundation/mpl-auction-house/dist/src/generated';
+import { AuctionHouseIDL } from '../auctionHouseIdl';
 
-export const getAuctionHouseBalance = async (auctionHouse: PublicKey, program: Program<AuctionHouseProgramIDL>, connection: Connection): Promise<number> => {
+export const getAuctionHouseBalance = async (auctionHouse: PublicKey, program: Program<AuctionHouseIDL>, connection: Connection): Promise<number> => {
   const ah = (await program!.account.auctionHouse.fetch(auctionHouse!)) as any as AuctionHouse;
   const isNative = ah.treasuryMint.equals(NATIVE_MINT);
 
@@ -27,7 +27,7 @@ export const getAuctionHouseBalance = async (auctionHouse: PublicKey, program: P
   }
 };
 
-export const withdrawFees = async (amount: number, auctionHouse: PublicKey, program: Program<AuctionHouseProgramIDL>): Promise<Transaction> => {
+export const withdrawFees = async (amount: number, auctionHouse: PublicKey, program: Program<AuctionHouseIDL>): Promise<Transaction> => {
   const ah = (await program!.account.auctionHouse.fetch(auctionHouse!)) as any as AuctionHouse;
 
   const withdrawFromTreasuryInstructionAccounts = {

@@ -2773,10 +2773,10 @@
     mime "^3.0.0"
     tweetnacl "^1.0.3"
 
-"@metaplex-foundation/mpl-auction-house@1.2.0", "@metaplex-foundation/mpl-auction-house@^2.0.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-auction-house/-/mpl-auction-house-1.2.0.tgz#8826ba175670fcebbdc05c4d0bae29538fcac4e5"
-  integrity sha512-e1gG+9pytk70zj+zPXBqP6pHzNuWcyECcM7xvLep53dqk1x85bqjImmPph7mT3UT+SH9xc1ZQr8eZBIhkagVNA==
+"@metaplex-foundation/mpl-auction-house@1.3.2", "@metaplex-foundation/mpl-auction-house@^2.0.0":
+  version "1.3.0"
+  resolved "https://registry.npmjs.org/@metaplex-foundation/mpl-auction-house/-/mpl-auction-house-1.3.0.tgz#3338eb4dec4ae7a70afe2a9301a7110b0e85e62e"
+  integrity sha512-6ANimqf2x0eByWLe7qp0DtWYPD+XX59xZD9wla6n320nu6vUpuX/wVZR87E5B6iu5igH5AnFcMwN8uumldQ8jA==
   dependencies:
     "@metaplex-foundation/beet" "^0.1.0"
     "@metaplex-foundation/beet-solana" "^0.1.1"
@@ -2915,29 +2915,6 @@
     crypto-hash "^1.3.0"
     form-data "^4.0.0"
 
-"@mirrorworld/mirage.core@2.0.1":
-  version "2.0.1"
-  resolved "https://registry.npmjs.org/@mirrorworld/mirage.core/-/mirage.core-2.0.1.tgz#5015d30b428c6709413b657401470cb3f89f62c2"
-  integrity sha512-EuQ01QpJYVhVRqehOfnV/9VZgcu3xbAuvrS7REXLA68UtL6HyzGhTXJ2M1fMhdvXaPfYAtNfvjroflNgX+FlyA==
-  dependencies:
-    "@metaplex-foundation/js" "0.11.7"
-    "@metaplex-foundation/mpl-auction-house" "1.2.0"
-    "@metaplex-foundation/mpl-core" "0.6.1"
-    "@metaplex-foundation/mpl-token-metadata" "2.2.1"
-    "@metaplex/js" "4.12.0"
-    "@project-serum/anchor" "0.23.0"
-    "@solana/spl-token" "0.1.8"
-    "@solana/spl-token-registry" "0.2.3185"
-    "@solana/web3.js" "1.44.3"
-    "@types/isomorphic-fetch" "^0.0.36"
-    "@types/lodash.merge" "^4.6.6"
-    borsh "^0.7.0"
-    bs58 "^5.0.0"
-    dayjs "^1.11.0"
-    isomorphic-fetch "^3.0.0"
-    lodash.merge "^4.6.2"
-    percent-round "^2.2.1"
-
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"
@@ -3035,28 +3012,7 @@
     pirates "^4.0.1"
     source-map-support "^0.5.16"
 
-"@project-serum/anchor@0.23.0":
-  version "0.23.0"
-  resolved "https://registry.yarnpkg.com/@project-serum/anchor/-/anchor-0.23.0.tgz#2b2eb6b51601b073e8db26663aa2d6c2f2841771"
-  integrity sha512-LV2/ifZOJVFTZ4GbEloXln3iVfCvO1YM8i7BBCrUm4tehP7irMx4nr4/IabHWOzrQcQElsxSP/lb1tBp+2ff8A==
-  dependencies:
-    "@project-serum/borsh" "^0.2.5"
-    "@solana/web3.js" "^1.36.0"
-    base64-js "^1.5.1"
-    bn.js "^5.1.2"
-    bs58 "^4.0.1"
-    buffer-layout "^1.2.2"
-    camelcase "^5.3.1"
-    cross-fetch "^3.1.5"
-    crypto-hash "^1.3.0"
-    eventemitter3 "^4.0.7"
-    find "^0.3.0"
-    js-sha256 "^0.9.0"
-    pako "^2.0.3"
-    snake-case "^3.0.4"
-    toml "^3.0.0"
-
-"@project-serum/anchor@^0.24.2":
+"@project-serum/anchor@0.24.2", "@project-serum/anchor@^0.24.2":
   version "0.24.2"
   resolved "https://registry.yarnpkg.com/@project-serum/anchor/-/anchor-0.24.2.tgz#a3c52a99605c80735f446ca9b3a4885034731004"
   integrity sha512-0/718g8/DnEuwAidUwh5wLYphUYXhUbiClkuRNhvNoa+1Y8a4g2tJyxoae+emV+PG/Gikd/QUBNMkIcimiIRTA==
@@ -6379,13 +6335,6 @@ find-yarn-workspace-root2@1.2.16:
   dependencies:
     micromatch "^4.0.2"
     pkg-dir "^4.2.0"
-
-find@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/find/-/find-0.3.0.tgz#4082e8fc8d8320f1a382b5e4f521b9bc50775cb8"
-  integrity sha512-iSd+O4OEYV/I36Zl8MdYJO0xD82wH528SaCieTVHhclgiYNe9y+yPKSwK+A7/WsmHL1EZ+pYUJBXWTL5qofksw==
-  dependencies:
-    traverse-chain "~0.1.0"
 
 flat-cache@^3.0.4:
   version "3.0.4"
@@ -10788,11 +10737,6 @@ tr46@~0.0.3:
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/tr46/-/tr46-0.0.3.tgz#8184fd347dac9cdc185992f3a6622e14b9d9ab6a"
   integrity sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==
-
-traverse-chain@~0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/traverse-chain/-/traverse-chain-0.1.0.tgz#61dbc2d53b69ff6091a12a168fd7d433107e40f1"
-  integrity sha512-up6Yvai4PYKhpNp5PkYtx50m3KbwQrqDwbuZP/ItyL64YEWHAvH6Md83LFLV/GRSk/BoUVwwgUzX6SOQSbsfAg==
 
 tree-kill@^1.2.2:
   version "1.2.2"

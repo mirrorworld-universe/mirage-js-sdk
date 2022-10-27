@@ -1,6 +1,5 @@
 import { Connection, PublicKey, Transaction } from '@solana/web3.js';
-import { Program, Provider, Wallet } from '@project-serum/anchor';
-import { AuctionHouseIDL, AuctionHouseProgramIDL } from './idl';
+import { AnchorProvider, Program, Wallet } from '@project-serum/anchor';
 import { AUCTION_HOUSE_PROGRAM_ID } from './constants';
 import { throwError } from './errors/errors.interface';
 import {
@@ -18,6 +17,7 @@ import { createCreateMarketplaceTransaction, CreateMarketplaceOptions } from './
 import { createUpdateMarketplaceTransaction, UpdateMarketplaceOptions } from './mirage-transactions/update-marketplace';
 import { getStoreFrontConfig, StoreFrontOptions } from './mirage-transactions/store-front';
 import { getAuctionHouseBalance, withdrawFees } from './mirage-transactions/treasury';
+import { AuctionHouseIDL, IDL } from './auctionHouseIdl';
 
 export type IAuctionOptions = {
   connection: Connection;
@@ -29,7 +29,7 @@ export type Receipt = PublicKey;
 export class Marketplace {
   connection: Connection;
   wallet: Wallet;
-  program?: Program<AuctionHouseProgramIDL>;
+  program?: Program<AuctionHouseIDL>;
 
   constructor({ connection, wallet }: IAuctionOptions) {
     this.wallet = wallet;
@@ -44,11 +44,11 @@ export class Marketplace {
   }
 
   /** Loads Auction House program */
-  async loadAuctionHouseProgram(): Promise<Program<AuctionHouseProgramIDL>> {
-    const provider = new Provider(this.connection!, this.wallet!, {
+  async loadAuctionHouseProgram(): Promise<Program<AuctionHouseIDL>> {
+    const provider = new AnchorProvider(this.connection!, this.wallet!, {
       preflightCommitment: 'recent',
     });
-    return new Program(AuctionHouseIDL, AUCTION_HOUSE_PROGRAM_ID, provider);
+    return new Program(IDL, AUCTION_HOUSE_PROGRAM_ID, provider);
   }
 
   async getAuctionHouseAddress(authority: PublicKey, treasuryMint?: PublicKey) {

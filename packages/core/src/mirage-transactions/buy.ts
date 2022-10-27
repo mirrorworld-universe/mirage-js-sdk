@@ -8,7 +8,7 @@ import {
   createPublicBuyInstruction,
 } from '@metaplex-foundation/mpl-auction-house/dist/src/generated';
 import { Program } from '@project-serum/anchor';
-import { AuctionHouseProgramIDL } from '../idl';
+import { AuctionHouseIDL } from '../auctionHouseIdl';
 import { AuctionHouse } from '../types';
 import { getMetadata } from '../utils';
 import {
@@ -26,7 +26,7 @@ export const createBuyTransaction = async (
   seller: PublicKey,
   sellerAssociateTokenAccountAddress: PublicKey,
   auctionHouse: PublicKey,
-  program: Program<AuctionHouseProgramIDL>
+  program: Program<AuctionHouseIDL>
 ) => {
   const ah = (await program!.account.auctionHouse.fetch(auctionHouse!)) as any as AuctionHouse;
   const buyerPrice = Number(price) * LAMPORTS_PER_SOL;
@@ -201,7 +201,7 @@ const createExecuteSaleInstructions = async (
   escrowPaymentBump: number,
   buyerTradeState: PublicKey,
   sellerTradeState: PublicKey,
-  program: Program<AuctionHouseProgramIDL>
+  program: Program<AuctionHouseIDL>
 ): Promise<TransactionInstruction> => {
   const [programAsSigner, programAsSignerBump] = await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
   const [buyerReceiptTokenAccount] = await AuctionHouseProgram.findAssociatedTokenAccountAddress(tokenMint, buyer);
@@ -250,7 +250,6 @@ const createExecuteSaleInstructions = async (
     programAsSignerBump,
     buyerPrice,
     tokenSize: 1,
-    // @ts-ignore
     partialOrderSize: null,
     partialOrderPrice: null,
   };

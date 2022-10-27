@@ -4,7 +4,7 @@ import fetch from 'isomorphic-fetch';
 import percentRound from 'percent-round';
 import { BN } from '@project-serum/anchor';
 import { AUCTION_HOUSE, AUCTION_HOUSE_PROGRAM_ID, NFT_STORAGE_API_KEY, SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID, TOKEN_METADATA_PROGRAM_ID } from './constants';
-import { IMetadata, INFTStorageResponse, MetadataObject } from './types';
+import { INFTStorageResponse, MetadataObject } from './types';
 import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import dayjs from 'dayjs';
 import { TransactionReceipt } from './mirage';

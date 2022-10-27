@@ -3,11 +3,11 @@ import { Metaplex, Nft } from '@metaplex-foundation/js';
 import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import { Commitment, Connection, LAMPORTS_PER_SOL, PublicKey, RpcResponseAndContext, SignatureResult, Transaction } from '@solana/web3.js';
 import type { Wallet } from '@project-serum/anchor';
-import { Program, Provider } from '@project-serum/anchor';
+import { AnchorProvider, Program, Provider } from '@project-serum/anchor';
 import merge from 'lodash.merge';
 import { getNftOwner, getTokenTransactions, processCreatorShares, uploadNFTFileToStorage } from './utils';
 import { AuctionHouse, MetadataObject } from './types';
-import { AuctionHouseIDL, AuctionHouseProgramIDL } from './idl';
+import { AuctionHouseIDL, IDL } from './auctionHouseIdl';
 
 import { BidReceipt, ListingReceipt, PurchaseReceipt } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/accounts';
 import { mintNFT, MintNFTResponse } from './mint';
@@ -63,7 +63,7 @@ export class Mirage {
   _treasuryMint: PublicKey = WRAPPED_SOL_MINT;
   auctionHouse?: PublicKey;
   _provider?: Provider;
-  program?: Program<AuctionHouseProgramIDL>;
+  program?: Program<AuctionHouseIDL>;
   connection: Connection;
   wallet: Wallet;
   NFTStorageAPIKey: string;
@@ -134,17 +134,17 @@ export class Mirage {
   /** Loads provider instance */
   async getProvider(commitment: Commitment = 'processed'): Promise<Provider> {
     const wallet = this.wallet;
-    return new Provider(this.connection, wallet, {
+    return new AnchorProvider(this.connection, wallet, {
       preflightCommitment: commitment,
     });
   }
 
   /** Loads auctionhouse program */
-  async loadAuctionHouseProgram(): Promise<Program<AuctionHouseProgramIDL>> {
-    const provider = new Provider(this.connection!, this.wallet!, {
+  async loadAuctionHouseProgram(): Promise<Program<AuctionHouseIDL>> {
+    const provider = new AnchorProvider(this.connection!, this.wallet!, {
       preflightCommitment: 'recent',
     });
-    return new Program(AuctionHouseIDL, AUCTION_HOUSE_PROGRAM_ID, provider);
+    return new Program(IDL, AUCTION_HOUSE_PROGRAM_ID, provider);
   }
 
   /**
@@ -440,7 +440,7 @@ export class Mirage {
     }
     const seller = __DANGEROUSLY_INSET_SELLER__ ? new PublicKey(__DANGEROUSLY_INSET_SELLER__) : sellerPublicKey;
 
-    const [ownerAsString, _ownerPublicKey] = await getNftOwner(mint, connection);
+    const [_ownerAsString, _ownerPublicKey] = await getNftOwner(mint, connection);
     if (seller.toBase58() !== _ownerPublicKey.toBase58() && sellerPublicKey.toBase58() !== auctionHouseAuthority.toBase58()) {
       throw new Error('You cannot cancel listing of an NFT you do not own.');
     }
@@ -542,7 +542,7 @@ export class Mirage {
       throwError('PROGRAM_NOT_INITIALIZED');
     }
 
-    const [ownerAsString, _ownerPublicKey] = await getNftOwner(mint, connection);
+    const [_ownerAsString, _ownerPublicKey] = await getNftOwner(mint, connection);
     if (holderPublicKey.toBase58() !== _ownerPublicKey.toBase58()) {
       throw new Error('You cannot transfer NFT you do not own.');
     }
@@ -800,7 +800,7 @@ export class Mirage {
     return signedTransaction.serialize();
   }
 
-  static async getTokenAmount(anchorProgram: Program<AuctionHouseProgramIDL>, account: PublicKey, mint: PublicKey): Promise<number> {
+  static async getTokenAmount(anchorProgram: Program<AuctionHouseIDL>, account: PublicKey, mint: PublicKey): Promise<number> {
     let amount = 0;
     if (!mint.equals(WRAPPED_SOL_MINT)) {
       try {

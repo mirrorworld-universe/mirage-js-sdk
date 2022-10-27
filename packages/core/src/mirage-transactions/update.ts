@@ -18,10 +18,10 @@ import {
 } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/instructions';
 
 import type { Program } from '@project-serum/anchor';
-import { AuctionHouseProgramIDL } from '../idl';
 
 import { getNftOwner } from '../utils';
 import { ListingAlreadyExistsError } from '../errors';
+import { AuctionHouseIDL } from '../auctionHouseIdl';
 
 /**
  * Create Update Listing Transaction
@@ -39,7 +39,7 @@ export async function createUpdateListingTransaction(
   newListingPrice: number,
   sellerPublicKey: PublicKey,
   auctionHouse: PublicKey,
-  program: Program<AuctionHouseProgramIDL>,
+  program: Program<AuctionHouseIDL>,
   connection: Connection
 ) {
   const _currentListingPrice = Number(currentListingPrice) * LAMPORTS_PER_SOL;
