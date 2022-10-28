@@ -10,8 +10,8 @@ import {
   SellInstructionArgs,
 } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/instructions';
 
-import type { Program, Wallet } from '@project-serum/anchor';
-import { AuctionHouseProgramIDL } from '../idl';
+import type { Program } from '@project-serum/anchor';
+import { AuctionHouseIDL } from '../auctionHouseIdl';
 
 const { createPrintListingReceiptInstruction, createSellInstruction } = AuctionHouseProgram.instructions;
 
@@ -28,7 +28,7 @@ export async function createListingTransaction(
   listingPrice: number,
   sellerPublicKey: PublicKey,
   auctionHouse: PublicKey,
-  program: Program<AuctionHouseProgramIDL>
+  program: Program<AuctionHouseIDL>
 ) {
   const _listingPrice = Number(listingPrice) * LAMPORTS_PER_SOL;
   const tokenSize = 1;

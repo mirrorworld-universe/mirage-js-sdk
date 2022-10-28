@@ -99,6 +99,6 @@
     "nodemon": "^2.0.19"
   },
   "resolutions": {
-    "@metaplex-foundation/mpl-auction-house": "1.2.0"
+    "@metaplex-foundation/mpl-auction-house": "1.3.0"
   }
 }

@@ -11,7 +11,7 @@ import {
 } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/instructions';
 
 import type { Program } from '@project-serum/anchor';
-import { AuctionHouseProgramIDL } from '../idl';
+import { AuctionHouseIDL } from '../auctionHouseIdl';
 
 /**
  * Create Cancel Listing Transaction
@@ -27,7 +27,7 @@ export async function createCancelListingTransaction(
   currentListingPrice: number,
   sellerPublicKey: PublicKey,
   auctionHouse: PublicKey,
-  program: Program<AuctionHouseProgramIDL>,
+  program: Program<AuctionHouseIDL>,
   connection: Connection
 ) {
   const buyerPrice = Number(currentListingPrice) * LAMPORTS_PER_SOL;
