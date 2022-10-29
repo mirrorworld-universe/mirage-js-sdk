@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.1.8
+
+### Patch Changes
+
+- 3c3e0b4: Update Auction house IDL to 1.3.0
+
 ## 2.1.7
 
 ### Patch Changes
