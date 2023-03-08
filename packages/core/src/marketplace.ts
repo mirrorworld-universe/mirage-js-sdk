@@ -1,4 +1,4 @@
-import { Connection, PublicKey, Transaction } from '@solana/web3.js';
+import { Connection, Keypair, PublicKey, Transaction } from '@solana/web3.js';
 import { AnchorProvider, Program, Wallet } from '@project-serum/anchor';
 import { AUCTION_HOUSE_PROGRAM_ID } from './constants';
 import { throwError } from './errors/errors.interface';
@@ -202,7 +202,7 @@ export class Marketplace {
     seller: PublicKey,
     sellerAssociateAccount: PublicKey,
     auctionHouseAddress: PublicKey
-  ): Promise<readonly [Transaction, Receipt]> {
+  ): Promise<readonly [Transaction, Receipt, Keypair[]]> {
     if (!this.program) {
       this.program = await this.loadAuctionHouseProgram();
     }

@@ -316,10 +316,14 @@ export class Mirage {
    */
   async buyToken(mint: string, _buyerPrice: number): Promise<readonly [RpcResponseAndContext<any>, ReceiptAddress, TransactionSignature]> {
     const buyerWallet = this.wallet;
-    const [buyTxt, purchaseReceipt] = await this.createBuyTransaction(new PublicKey(mint), _buyerPrice, buyerWallet.publicKey);
+    const [buyTxt, purchaseReceipt, signers] = await this.createBuyTransaction(new PublicKey(mint), _buyerPrice, buyerWallet.publicKey);
 
     buyTxt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     buyTxt.feePayer = buyerWallet.publicKey;
+
+    if (signers?.length) {
+      buyTxt.sign(...signers);
+    }
 
     const estimatedCost = (await buyTxt.getEstimatedFee(this.connection)) / LAMPORTS_PER_SOL + Number(_buyerPrice);
     const { value: _balance } = await this.connection.getBalanceAndContext(this.wallet.publicKey);
