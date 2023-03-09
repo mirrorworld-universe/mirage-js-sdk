@@ -157,11 +157,7 @@ export const createBuyTransaction = async (
   const printPurchaseReceiptInstruction = await createPrintPurchaseInstruction(buyer, sellerTradeState, buyerTradeState, purchaseReceipt, purchaseReceiptBump);
   transaction.add(printPurchaseReceiptInstruction);
 
-  if (isSplMint) {
-    transaction.sign(...signers);
-  }
-
-  return [transaction, purchaseReceipt] as const;
+  return [transaction, purchaseReceipt, signers] as const;
 };
 
 const createPrintPurchaseInstruction = async (
