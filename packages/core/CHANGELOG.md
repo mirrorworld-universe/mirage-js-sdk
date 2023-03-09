@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.1.9
+
+### Patch Changes
+
+- cb1b03b: Propagate SPL signer on buy NFT with SPL token
+
 ## 2.1.8
 
 ### Patch Changes
