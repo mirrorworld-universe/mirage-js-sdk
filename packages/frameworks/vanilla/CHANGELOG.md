@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.vanilla
 
+## 0.2.4
+
+### Patch Changes
+
+- fa674d6: Hotfix for namespace
+
 ## 0.2.3
 
 ### Patch Changes
