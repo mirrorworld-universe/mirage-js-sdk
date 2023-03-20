@@ -1,5 +1,5 @@
 {
-  "name": "@mirrorworld/mirage.vanilla",
+  "name": "@usemirrorworld/mirage.vanilla",
   "version": "0.2.3",
   "description": "Vanilla library for Mirage SDK",
   "keywords": [
@@ -9,8 +9,8 @@
   "author": "Jonathan Bakebwa <codebender828@gmail.com>",
   "homepage": "https://github.com/mirrorworld-universe/mirage-js-sdk#readme",
   "license": "MIT",
-  "main": "dist/mirrorworld-mirage.vanilla.cjs.js",
-  "module": "dist/mirrorworld-mirage.vanilla.esm.js",
+  "main": "dist/usemirrorworld-mirage.vanilla.cjs.js",
+  "module": "dist/usemirrorworld-mirage.vanilla.esm.js",
   "repository": "https://github.com/mirrorworld-universe/mirage-js-sdk/tree/main/packages/core/vanilla",
   "sideEffects": false,
   "files": [

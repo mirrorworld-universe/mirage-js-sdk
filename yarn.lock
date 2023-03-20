@@ -2773,9 +2773,9 @@
     mime "^3.0.0"
     tweetnacl "^1.0.3"
 
-"@metaplex-foundation/mpl-auction-house@1.3.2", "@metaplex-foundation/mpl-auction-house@^2.0.0":
+"@metaplex-foundation/mpl-auction-house@1.3.0", "@metaplex-foundation/mpl-auction-house@^2.0.0":
   version "1.3.0"
-  resolved "https://registry.npmjs.org/@metaplex-foundation/mpl-auction-house/-/mpl-auction-house-1.3.0.tgz#3338eb4dec4ae7a70afe2a9301a7110b0e85e62e"
+  resolved "https://registry.yarnpkg.com/@metaplex-foundation/mpl-auction-house/-/mpl-auction-house-1.3.0.tgz#3338eb4dec4ae7a70afe2a9301a7110b0e85e62e"
   integrity sha512-6ANimqf2x0eByWLe7qp0DtWYPD+XX59xZD9wla6n320nu6vUpuX/wVZR87E5B6iu5igH5AnFcMwN8uumldQ8jA==
   dependencies:
     "@metaplex-foundation/beet" "^0.1.0"

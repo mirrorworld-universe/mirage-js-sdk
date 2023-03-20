@@ -1,5 +1,5 @@
 {
-  "name": "@mirrorworld/mirage.utils",
+  "name": "@usemirrorworld/mirage.utils",
   "version": "1.2.3",
   "description": "Mirage SDK Core",
   "keywords": [
@@ -13,8 +13,8 @@
   "author": "Jonathan Bakebwa <codebender828@gmail.com>",
   "homepage": "https://github.com/mirrorworld-universe/mirage-js-sdk#readme",
   "license": "MIT",
-  "main": "dist/mirrorworld-mirage.utils.cjs.js",
-  "module": "dist/mirrorworld-mirage.utils.esm.js",
+  "main": "dist/usemirrorworld-mirage.utils.cjs.js",
+  "module": "dist/usemirrorworld-mirage.utils.esm.js",
   "repository": "https://github.com/mirrorworld-universe/mirage-js-sdk/tree/main/packages/utils",
   "sideEffects": false,
   "files": [

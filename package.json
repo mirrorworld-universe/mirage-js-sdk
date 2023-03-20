@@ -40,11 +40,11 @@
   "author": "codebender828",
   "size-limit": [
     {
-      "path": "packages/core/dist/mirrorworld-mirage.core.esm.js",
+      "path": "packages/core/dist/usemirrorworld-mirage.core.esm.js",
       "limit": "10 KB"
     },
     {
-      "path": "packages/core/dist/mirrorworld-mirage.core.cjs.js",
+      "path": "packages/core/dist/usemirrorworld-mirage.core.cjs.js",
       "limit": "10 KB"
     }
   ],

@@ -1,5 +1,5 @@
 {
-  "name": "@mirrorworld/mirage.vue",
+  "name": "@usemirrorworld/mirage.vue",
   "version": "1.0.12",
   "description": "Vue composables for Mirage SDK",
   "keywords": [
@@ -9,8 +9,8 @@
   "author": "Jonathan Bakebwa <codebender828@gmail.com>",
   "homepage": "https://github.com/mirrorworld-universe/mirage-js-sdk#readme",
   "license": "MIT",
-  "main": "dist/mirrorworld-mirage.vue.cjs.js",
-  "module": "dist/mirrorworld-mirage.vue.esm.js",
+  "main": "dist/usemirrorworld-mirage.vue.cjs.js",
+  "module": "dist/usemirrorworld-mirage.vue.esm.js",
   "repository": "https://github.com/mirrorworld-universe/mirage-js-sdk/tree/main/packages/core/vue",
   "sideEffects": false,
   "files": [
@@ -26,7 +26,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@mirrorworld/mirage.core": "2.1.9"
+    "@usemirrorworld/mirage.core": "2.1.9"
   },
   "devDependencies": {
     "vue": "^3.2.6"
