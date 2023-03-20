@@ -1,5 +1,13 @@
 # @mirrorworld/mirage.vue
 
+## 1.0.13
+
+### Patch Changes
+
+- fa674d6: Hotfix for namespace
+- Updated dependencies [fa674d6]
+  - @usemirrorworld/mirage.core@2.1.10
+
 ## 1.0.12
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.1.10
+
+### Patch Changes
+
+- fa674d6: Hotfix for namespace
+
 ## 2.1.9
 
 ### Patch Changes

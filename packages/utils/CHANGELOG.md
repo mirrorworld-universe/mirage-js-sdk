@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.utils
 
+## 1.2.4
+
+### Patch Changes
+
+- fa674d6: Hotfix for namespace
+
 ## 1.2.3
 
 ### Patch Changes
