@@ -28,7 +28,6 @@ export const getAuctionHouseTreasuryAddress = (auctionHouse: PublicKey) => {
 export const getBuyerTradeState = (
   auctionHouse: PublicKey,
   wallet: PublicKey,
-  tokenAccount: PublicKey,
   treasuryMint: PublicKey,
   tokenMint: PublicKey,
   price: number,
@@ -39,7 +38,6 @@ export const getBuyerTradeState = (
       Buffer.from(AUCTION_HOUSE),
       wallet.toBuffer(),
       auctionHouse.toBuffer(),
-      tokenAccount.toBuffer(),
       treasuryMint.toBuffer(),
       tokenMint.toBuffer(),
       new BN(price).toBuffer('le', 8),

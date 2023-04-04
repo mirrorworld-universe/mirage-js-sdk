@@ -72,7 +72,7 @@ export const createBuyTransaction = async (
   }
 
   const [escrowPaymentAccount, escrowPaymentBump] = getAuctionHouseBuyerEscrow(auctionHouse, buyer);
-  const [buyerTradeState, tradeStateBump] = getBuyerTradeState(auctionHouse, buyer, tokenAccount, treasuryMint, tokenMint, buyerPrice, 1);
+  const [buyerTradeState, tradeStateBump] = getBuyerTradeState(auctionHouse, buyer, treasuryMint, tokenMint, buyerPrice, 1);
 
   let publicBuyInstruction = createPublicBuyInstruction(
     {
