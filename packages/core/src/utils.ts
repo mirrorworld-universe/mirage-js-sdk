@@ -226,7 +226,7 @@ export async function getTokenTransactions(
   const _mint = new PublicKey(mint);
 
   const metaplex = new Metaplex(connection);
-  const nft = await metaplex.nfts().findByMint({ mintAddress: _mint });
+  const nft = await metaplex.nfts().findByMint(_mint);
 
   /**
    * Allocated data size on auction_house program per PDA type
@@ -280,7 +280,7 @@ export async function getTokenTransactions(
 
   const result = (await Promise.all(ReceiptAccounts))
     .flat()
-    .filter((receipt) => !!receipt && receipt.metadata.toBase58() === nft.metadataAddress.toBase58())
+    .filter((receipt) => !!receipt && receipt.metadata.toBase58() === nft.metadataAccount.publicKey.toBase58())
     .map((receipt) => ({
       ...receipt!,
       /** @ts-ignore */

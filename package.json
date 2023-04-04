@@ -24,6 +24,7 @@
     "pkgs:check": "manypkg check",
     "pkgs:fix": "manypkg fix",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
+    "docs": "yarn build && yarn typedoc",
     "test": "echo \"TODO: Add Testing ✅\""
   },
   "husky": {
