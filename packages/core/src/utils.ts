@@ -8,27 +8,23 @@ import { INFTStorageResponse, MetadataObject } from './types';
 import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import dayjs from 'dayjs';
 import { TransactionReceipt } from './mirage';
-import { programs } from '@metaplex/js';
-
-const {
-  metadata: { Metadata },
-} = programs;
+import { Metaplex } from '@metaplex-foundation/js';
 
 /** Get metadatata account for mint */
-export const getMetadata = async (mint: PublicKey): Promise<PublicKey> => {
-  return (await PublicKey.findProgramAddress([Buffer.from('metadata'), TOKEN_METADATA_PROGRAM_ID.toBuffer(), mint.toBuffer()], TOKEN_METADATA_PROGRAM_ID))[0];
+export const getMetadata = (mint: PublicKey): PublicKey => {
+  return PublicKey.findProgramAddressSync([Buffer.from('metadata'), TOKEN_METADATA_PROGRAM_ID.toBuffer(), mint.toBuffer()], TOKEN_METADATA_PROGRAM_ID)[0];
 };
 
 /** Get associated token for mint */
-export const getAtaForMint = async (mint: PublicKey, address: PublicKey): Promise<[PublicKey, number]> => {
-  return await PublicKey.findProgramAddress([address.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()], SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID);
+export const getAtaForMint = (mint: PublicKey, address: PublicKey): [PublicKey, number] => {
+  return PublicKey.findProgramAddressSync([address.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()], SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID);
 };
 
-export const getAuctionHouseProgramAsSigner = async (): Promise<[PublicKey, number]> => {
-  return await PublicKey.findProgramAddress([Buffer.from(AUCTION_HOUSE), Buffer.from('signer')], AUCTION_HOUSE_PROGRAM_ID);
+export const getAuctionHouseProgramAsSigner = (): [PublicKey, number] => {
+  return PublicKey.findProgramAddressSync([Buffer.from(AUCTION_HOUSE), Buffer.from('signer')], AUCTION_HOUSE_PROGRAM_ID);
 };
 
-export const getAuctionHouseTradeState = async (
+export const getAuctionHouseTradeState = (
   auctionHouse: PublicKey,
   wallet: PublicKey,
   tokenAccount: PublicKey,
@@ -36,8 +32,8 @@ export const getAuctionHouseTradeState = async (
   tokenMint: PublicKey,
   tokenSize: BN,
   buyPrice: BN
-): Promise<[PublicKey, number]> => {
-  return await PublicKey.findProgramAddress(
+): [PublicKey, number] => {
+  return PublicKey.findProgramAddressSync(
     [
       Buffer.from(AUCTION_HOUSE),
       wallet.toBuffer(),
@@ -52,8 +48,8 @@ export const getAuctionHouseTradeState = async (
   );
 };
 
-export const getAuctionHouseBuyerEscrow = async (auctionHouse: PublicKey, wallet: PublicKey): Promise<[PublicKey, number]> => {
-  return await PublicKey.findProgramAddress([Buffer.from(AUCTION_HOUSE), auctionHouse.toBuffer(), wallet.toBuffer()], AUCTION_HOUSE_PROGRAM_ID);
+export const getAuctionHouseBuyerEscrow = (auctionHouse: PublicKey, wallet: PublicKey): [PublicKey, number] => {
+  return PublicKey.findProgramAddressSync([Buffer.from(AUCTION_HOUSE), auctionHouse.toBuffer(), wallet.toBuffer()], AUCTION_HOUSE_PROGRAM_ID);
 };
 
 export enum AccountState {
@@ -87,6 +83,9 @@ export async function getAccountInfo(connection: Connection, address: PublicKey,
 
 /**
  * Uploads an NFT's image or video or file to decentralized storage.
+ * @param image
+ * @param metadataJson
+ * @param isAnimation
  * @param nftStorageKey API key provided by `https://nft.storage`. See documentation at:
  */
 export async function uploadNFTFileToStorage(
@@ -124,8 +123,7 @@ export async function uploadNFTFileToStorage(
       body: payload,
     });
     const metadata = (await response.json()) as INFTStorageResponse;
-    const metadataUrl = `https://${metadata.value.cid}.ipfs.dweb.link`;
-    return metadataUrl;
+    return `https://${metadata.value.cid}.ipfs.dweb.link`;
   };
 
   if (image && metadataJson) {
@@ -198,11 +196,10 @@ export function processCreatorShares(creators: { address: string; share: number 
   });
   const shares = finalCreators.map((c) => c.share);
   const rounded = percentRound(shares);
-  const finalCreatorsWithShares = rounded.map((p, i) => ({
+  return rounded.map((p, i) => ({
     address: finalCreators[i].address,
     share: p,
   }));
-  return finalCreatorsWithShares;
 }
 
 /* Get NFT Owner */
@@ -227,7 +224,10 @@ export async function getTokenTransactions(
   connection: Connection
 ): Promise<(TransactionReceipt | undefined)[]> {
   const _mint = new PublicKey(mint);
-  const metadata = await Metadata.findByMint(connection, _mint);
+
+  const metaplex = new Metaplex(connection);
+  const nft = await metaplex.nfts().findByMint(_mint);
+
   /**
    * Allocated data size on auction_house program per PDA type
    * CreateAuctionHouse: 459
@@ -242,7 +242,7 @@ export async function getTokenTransactions(
 
   const ReceiptAccountSizes = [PrintListingReceiptSize, PrintBidReceiptSize, PrintPurchaseReceiptSize] as const;
 
-  const ReceiptAccounts = await ReceiptAccountSizes.map(async (size) => {
+  const ReceiptAccounts = ReceiptAccountSizes.map(async (size) => {
     const accounts = await connection.getProgramAccounts(AUCTION_HOUSE_PROGRAM_ID, {
       commitment: 'confirmed',
       filters: [
@@ -251,41 +251,36 @@ export async function getTokenTransactions(
         },
       ],
     });
-    const parsedAccounts = await accounts.map(async (account) => {
+    const parsedAccounts = accounts.map(async (account) => {
       switch (size) {
         case PrintListingReceiptSize:
-          const [ListingReceipt] = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountInfo(account.account);
+          const [ListingReceipt] = AuctionHouseProgram.accounts.ListingReceipt.fromAccountInfo(account.account);
           return {
             ...ListingReceipt,
             receipt_type: ListingReceipt.canceledAt ? 'cancel_listing_receipt' : 'listing_receipt',
           } as TransactionReceipt;
-          break;
         case PrintBidReceiptSize:
-          const [BidReceipt] = await AuctionHouseProgram.accounts.BidReceipt.fromAccountInfo(account.account);
+          const [BidReceipt] = AuctionHouseProgram.accounts.BidReceipt.fromAccountInfo(account.account);
           return {
             ...BidReceipt,
             receipt_type: 'bid_receipt',
           } as TransactionReceipt;
-          break;
         case PrintPurchaseReceiptSize:
-          const [PurchaseReceipt] = await AuctionHouseProgram.accounts.PurchaseReceipt.fromAccountInfo(account.account);
+          const [PurchaseReceipt] = AuctionHouseProgram.accounts.PurchaseReceipt.fromAccountInfo(account.account);
           return {
             ...PurchaseReceipt,
             receipt_type: 'purchase_receipt',
           } as TransactionReceipt;
         default:
           return undefined;
-          break;
       }
     });
     return await Promise.all(parsedAccounts);
   });
 
-  const result = await (
-    await Promise.all(ReceiptAccounts)
-  )
+  const result = (await Promise.all(ReceiptAccounts))
     .flat()
-    .filter((receipt) => !!receipt && receipt.metadata.toBase58() === metadata.pubkey.toBase58())
+    .filter((receipt) => !!receipt && receipt.metadata.toBase58() === nft.metadataAccount.publicKey.toBase58())
     .map((receipt) => ({
       ...receipt!,
       /** @ts-ignore */
@@ -302,9 +297,9 @@ export async function getTokenTransactions(
     }))
     .filter((receipt) => receipt.auctionHouse.toBase58() === auctionHouse!.toBase58())
     .sort((a, b) => {
-      if ((a.receipt_type === 'bid_receipt', b.receipt_type === 'purchase_receipt')) {
+      if (a.receipt_type === 'bid_receipt' && b.receipt_type === 'purchase_receipt') {
         return 1;
-      } else if ((a.receipt_type === 'purchase_receipt', b.receipt_type === 'bid_receipt')) {
+      } else if (a.receipt_type === 'purchase_receipt' && b.receipt_type === 'bid_receipt') {
         return -1;
       } else {
         return 0;

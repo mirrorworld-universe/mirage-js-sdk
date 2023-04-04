@@ -205,7 +205,7 @@ export class Mirage {
     txt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     txt.feePayer = sellerWallet.publicKey;
 
-    const estimatedCost = (await txt.getEstimatedFee(this.connection)) / LAMPORTS_PER_SOL;
+    const estimatedCost = ((await txt.getEstimatedFee(this.connection)) || 0) / LAMPORTS_PER_SOL;
     const { value: _balance } = await this.connection.getBalanceAndContext(this.wallet.publicKey);
     const balance = _balance / LAMPORTS_PER_SOL;
     console.info('Estimated cost of transaction: ', estimatedCost);
@@ -325,7 +325,7 @@ export class Mirage {
       buyTxt.sign(...signers);
     }
 
-    const estimatedCost = (await buyTxt.getEstimatedFee(this.connection)) / LAMPORTS_PER_SOL + Number(_buyerPrice);
+    const estimatedCost = ((await buyTxt.getEstimatedFee(this.connection)) || 0) / LAMPORTS_PER_SOL;
     const { value: _balance } = await this.connection.getBalanceAndContext(this.wallet.publicKey);
     const balance = _balance / LAMPORTS_PER_SOL;
     console.info('Estimated cost of transaction: ', estimatedCost);
@@ -376,7 +376,7 @@ export class Mirage {
     txt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     txt.feePayer = this.wallet.publicKey;
 
-    const estimatedCost = (await txt.getEstimatedFee(this.connection)) / LAMPORTS_PER_SOL;
+    const estimatedCost = ((await txt.getEstimatedFee(this.connection)) || 0) / LAMPORTS_PER_SOL;
     const { value: _balance } = await this.connection.getBalanceAndContext(this.wallet.publicKey);
     const balance = _balance / LAMPORTS_PER_SOL;
     console.info('Estimated cost of transaction: ', estimatedCost);
@@ -476,7 +476,7 @@ export class Mirage {
     txt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     txt.feePayer = this.wallet.publicKey;
 
-    const estimatedCost = (await txt.getEstimatedFee(this.connection)) / LAMPORTS_PER_SOL;
+    const estimatedCost = ((await txt.getEstimatedFee(this.connection)) || 0) / LAMPORTS_PER_SOL;
     const { value: _balance } = await this.connection.getBalanceAndContext(this.wallet.publicKey);
     const balance = _balance / LAMPORTS_PER_SOL;
     console.info('Estimated cost of transaction: ', estimatedCost);
@@ -635,7 +635,7 @@ export class Mirage {
     txt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     txt.feePayer = this.wallet.publicKey;
 
-    const estimatedCost = (await txt.getEstimatedFee(this.connection)) / LAMPORTS_PER_SOL;
+    const estimatedCost = ((await txt.getEstimatedFee(this.connection)) || 0) / LAMPORTS_PER_SOL;
     const { value: _balance } = await this.connection.getBalanceAndContext(this.wallet.publicKey);
     const balance = _balance / LAMPORTS_PER_SOL;
     console.info('Estimated cost of transaction: ', estimatedCost);
