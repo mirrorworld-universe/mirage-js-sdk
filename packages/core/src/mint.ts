@@ -124,7 +124,7 @@ export const mintNFT = async ({ connection, wallet, uri, maxSupply, updateAuthor
   txt.recentBlockhash = (await connection.getRecentBlockhash()).blockhash;
   txt.feePayer = wallet.publicKey;
 
-  const estimatedCost = (await txt.getEstimatedFee(connection)) / LAMPORTS_PER_SOL;
+  const estimatedCost = ((await txt.getEstimatedFee(connection)) || 0) / LAMPORTS_PER_SOL;
   const { value: _balance } = await connection.getBalanceAndContext(wallet.publicKey);
   const balance = _balance / LAMPORTS_PER_SOL;
   console.log('Estimated cost of transaction: ', estimatedCost);

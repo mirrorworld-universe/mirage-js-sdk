@@ -1,5 +1,5 @@
 import { AUCTION_HOUSE_PROGRAM_ID, MINT_CONFIG, NFT_STORAGE_API_KEY, WRAPPED_SOL_MINT } from './constants';
-import { Metaplex, Nft } from '@metaplex-foundation/js';
+import { Metaplex } from '@metaplex-foundation/js';
 import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import { Commitment, Connection, LAMPORTS_PER_SOL, PublicKey, RpcResponseAndContext, SignatureResult, Transaction } from '@solana/web3.js';
 import type { Wallet } from '@project-serum/anchor';
@@ -23,6 +23,8 @@ import {
 import { throwError } from './errors/errors.interface';
 import { createCreateMarketplaceTransaction, CreateMarketplaceActionOptions, CreateMarketplaceOptions } from './mirage-transactions/create-marketplace';
 import { createUpdateMarketplaceTransaction, UpdateMarketplaceOptions } from './mirage-transactions/update-marketplace';
+import { FindNftsByOwnerOutput } from '@metaplex-foundation/js/src/plugins/nftModule/operations/findNftsByOwner';
+import { FindNftByMintOutput } from '@metaplex-foundation/js/src/plugins/nftModule/operations/findNftByMint';
 
 export interface IMirageOptions {
   connection: Connection;
@@ -106,13 +108,13 @@ export class Mirage {
   }
 
   /** Get user's NFTs */
-  async getUserNfts(publicKey: PublicKey): Promise<Nft[]> {
-    return this.metaplex.nfts().findAllByOwner(publicKey);
+  async getUserNfts(publicKey: PublicKey): Promise<FindNftsByOwnerOutput> {
+    return this.metaplex.nfts().findAllByOwner({ owner: publicKey });
   }
 
   /** Get single NFT by mint */
-  async getNft(mintKey: PublicKey): Promise<Nft> {
-    return this.metaplex.nfts().findByMint(mintKey);
+  async getNft(mintKey: PublicKey): Promise<FindNftByMintOutput> {
+    return this.metaplex.nfts().findByMint({ mintAddress: mintKey });
   }
 
   /** Gets the owner of an NFT */
@@ -205,7 +207,7 @@ export class Mirage {
     txt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     txt.feePayer = sellerWallet.publicKey;
 
-    const estimatedCost = (await txt.getEstimatedFee(this.connection)) / LAMPORTS_PER_SOL;
+    const estimatedCost = ((await txt.getEstimatedFee(this.connection)) || 0) / LAMPORTS_PER_SOL;
     const { value: _balance } = await this.connection.getBalanceAndContext(this.wallet.publicKey);
     const balance = _balance / LAMPORTS_PER_SOL;
     console.info('Estimated cost of transaction: ', estimatedCost);
@@ -325,7 +327,7 @@ export class Mirage {
       buyTxt.sign(...signers);
     }
 
-    const estimatedCost = (await buyTxt.getEstimatedFee(this.connection)) / LAMPORTS_PER_SOL + Number(_buyerPrice);
+    const estimatedCost = ((await buyTxt.getEstimatedFee(this.connection)) || 0) / LAMPORTS_PER_SOL;
     const { value: _balance } = await this.connection.getBalanceAndContext(this.wallet.publicKey);
     const balance = _balance / LAMPORTS_PER_SOL;
     console.info('Estimated cost of transaction: ', estimatedCost);
@@ -376,7 +378,7 @@ export class Mirage {
     txt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     txt.feePayer = this.wallet.publicKey;
 
-    const estimatedCost = (await txt.getEstimatedFee(this.connection)) / LAMPORTS_PER_SOL;
+    const estimatedCost = ((await txt.getEstimatedFee(this.connection)) || 0) / LAMPORTS_PER_SOL;
     const { value: _balance } = await this.connection.getBalanceAndContext(this.wallet.publicKey);
     const balance = _balance / LAMPORTS_PER_SOL;
     console.info('Estimated cost of transaction: ', estimatedCost);
@@ -476,7 +478,7 @@ export class Mirage {
     txt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     txt.feePayer = this.wallet.publicKey;
 
-    const estimatedCost = (await txt.getEstimatedFee(this.connection)) / LAMPORTS_PER_SOL;
+    const estimatedCost = ((await txt.getEstimatedFee(this.connection)) || 0) / LAMPORTS_PER_SOL;
     const { value: _balance } = await this.connection.getBalanceAndContext(this.wallet.publicKey);
     const balance = _balance / LAMPORTS_PER_SOL;
     console.info('Estimated cost of transaction: ', estimatedCost);
@@ -635,7 +637,7 @@ export class Mirage {
     txt.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
     txt.feePayer = this.wallet.publicKey;
 
-    const estimatedCost = (await txt.getEstimatedFee(this.connection)) / LAMPORTS_PER_SOL;
+    const estimatedCost = ((await txt.getEstimatedFee(this.connection)) || 0) / LAMPORTS_PER_SOL;
     const { value: _balance } = await this.connection.getBalanceAndContext(this.wallet.publicKey);
     const balance = _balance / LAMPORTS_PER_SOL;
     console.info('Estimated cost of transaction: ', estimatedCost);
@@ -724,7 +726,7 @@ export class Mirage {
    * @param metadataLink URL for your token metadata. If provided, then upload is ignored.
    * @param file
    */
-  async mintNft(metadata: MetadataObject, metadataLink?: string, file?: File): Promise<Nft> {
+  async mintNft(metadata: MetadataObject, metadataLink?: string, file?: File): Promise<FindNftByMintOutput> {
     if (!metadata && !metadataLink) throw new Error('Expected metadata object or metadataURL to mint an NFT');
 
     const creators = processCreatorShares(
