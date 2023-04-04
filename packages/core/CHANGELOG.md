@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.1.12
+
+### Patch Changes
+
+- 39b49d1: Update auction house program IDL
+
 ## 2.1.10
 
 ### Patch Changes
