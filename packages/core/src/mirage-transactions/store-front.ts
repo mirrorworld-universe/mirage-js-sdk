@@ -1,7 +1,7 @@
 import { programs } from '@metaplex/js';
 import { PublicKey } from '@solana/web3.js';
 import { NATIVE_MINT } from '@solana/spl-token';
-import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
+import { getAuctionHouseAddress } from '../auctionUtils';
 
 const {
   metaplex: { Store, SetStoreV2, StoreConfig },
@@ -63,7 +63,7 @@ export const getStoreFrontConfig = async (
 
   const auctionHouses: { address: string }[] = [];
   for (let n = 0; n < treasuryMints.length; n++) {
-    const [auctionHouse, _bump] = await AuctionHouseProgram.findAuctionHouseAddress(authority, treasuryMints[n] || NATIVE_MINT);
+    const [auctionHouse, _bump] = getAuctionHouseAddress(authority, treasuryMints[n] || NATIVE_MINT);
     auctionHouses.push({ address: auctionHouse.toBase58() });
   }
 

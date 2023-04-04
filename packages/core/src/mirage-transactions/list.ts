@@ -2,18 +2,18 @@ import { LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, Transaction } 
 import { AuctionHouse } from '../types';
 import { getMetadata } from '../utils';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import {
+  createSellInstruction,
+  createPrintListingReceiptInstruction,
   PrintListingReceiptInstructionAccounts,
   PrintListingReceiptInstructionArgs,
   SellInstructionAccounts,
   SellInstructionArgs,
-} from '@metaplex-foundation/mpl-auction-house/dist/src/generated/instructions';
+} from '@metaplex-foundation/mpl-auction-house';
 
 import type { Program } from '@project-serum/anchor';
 import { AuctionHouseIDL } from '../auctionHouseIdl';
-
-const { createPrintListingReceiptInstruction, createSellInstruction } = AuctionHouseProgram.instructions;
+import { getAuctionHouseProgramAsSignerAddress, getListReceiptAddress, getSellerTradeState } from '../auctionUtils';
 
 /**
  * Create List Transaction
@@ -37,9 +37,9 @@ export async function createListingTransaction(
   const nftMetadataAccount = await getMetadata(mint);
   const associatedTokenAccount = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, mint, sellerPublicKey);
 
-  const [sellerTradeState, tradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
+  const [sellerTradeState, tradeStateBump] = getSellerTradeState(
+    auctionHouse,
     sellerPublicKey,
-    auctionHouse!,
     associatedTokenAccount,
     auctionHouseObj.treasuryMint,
     mint,
@@ -47,21 +47,13 @@ export async function createListingTransaction(
     1
   );
 
-  const [freeTradeState, freeTradeBump] = await AuctionHouseProgram.findTradeStateAddress(
-    sellerPublicKey,
-    auctionHouse!,
-    associatedTokenAccount,
-    auctionHouseObj.treasuryMint,
-    mint,
-    0,
-    1
-  );
+  const [freeTradeState, freeTradeBump] = getSellerTradeState(auctionHouse, sellerPublicKey, associatedTokenAccount, auctionHouseObj.treasuryMint, mint, 0, 1);
 
-  const [receipt, receiptBump] = await AuctionHouseProgram.findListingReceiptAddress(sellerTradeState);
+  const [receipt, receiptBump] = getListReceiptAddress(sellerTradeState);
 
   console.debug('[sellerTradeState, receipt]', [sellerTradeState.toBase58(), receipt.toBase58()]);
 
-  const [programAsSigner, programAsSignerBump] = await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
+  const [programAsSigner, programAsSignerBump] = getAuctionHouseProgramAsSignerAddress();
 
   const sellInstructionAccounts: SellInstructionAccounts = {
     auctionHouse: auctionHouse!,

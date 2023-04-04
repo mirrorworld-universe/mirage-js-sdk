@@ -1,8 +1,9 @@
-import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import { createUpdateAuctionHouseInstruction } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/instructions';
 import { PublicKey, PublicKeyInitData, Transaction, TransactionInstruction } from '@solana/web3.js';
 import { NATIVE_MINT } from '@solana/spl-token';
 import { createOrUpdateStoreFront } from './store-front';
+import { getAtaForMint } from '../utils';
+import { getAuctionHouseAddress } from '../auctionUtils';
 
 export interface UpdateMarketplaceOptions {
   /**
@@ -113,9 +114,9 @@ const updateAuctionHouseInstruction = async (params: UpdateAuctionHouseParams): 
 
   const tMintKey = treasuryMint ? new PublicKey(treasuryMint) : NATIVE_MINT;
 
-  const twdAta = tMintKey.equals(NATIVE_MINT) ? twdKey : (await AuctionHouseProgram.findAssociatedTokenAccountAddress(tMintKey, twdKey))[0];
+  const twdAta = tMintKey.equals(NATIVE_MINT) ? twdKey : getAtaForMint(tMintKey, twdKey)[0];
 
-  const [auctionHouse] = await AuctionHouseProgram.findAuctionHouseAddress(authority, tMintKey);
+  const [auctionHouse] = getAuctionHouseAddress(authority, tMintKey);
 
   return createUpdateAuctionHouseInstruction(
     {

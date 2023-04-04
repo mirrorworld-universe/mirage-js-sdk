@@ -1,7 +1,9 @@
-import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
+import { createCreateAuctionHouseInstruction } from '@metaplex-foundation/mpl-auction-house';
 import { PublicKey, PublicKeyInitData, Transaction, TransactionInstruction } from '@solana/web3.js';
 import { NATIVE_MINT } from '@solana/spl-token';
 import { createOrUpdateStoreFront } from './store-front';
+import { getAtaForMint } from '../utils';
+import { getAuctionHouseAddress, getAuctionHouseFeeAddress, getAuctionHouseTreasuryAddress } from '../auctionUtils';
 
 export interface CreateMarketplaceOptions {
   /**
@@ -78,8 +80,6 @@ export async function createCreateMarketplaceTransaction(createMarketplaceOption
   return txt;
 }
 
-const { createCreateAuctionHouseInstruction } = AuctionHouseProgram.instructions;
-
 interface CreateAuctionHouseParams {
   payer: PublicKey;
   wallet: PublicKey;
@@ -109,13 +109,13 @@ const createAuctionHouseInstruction = async (params: CreateAuctionHouseParams): 
 
   const tMintKey = treasuryMint ? new PublicKey(treasuryMint) : NATIVE_MINT;
 
-  const twdAta = tMintKey.equals(NATIVE_MINT) ? twdKey : (await AuctionHouseProgram.findAssociatedTokenAccountAddress(tMintKey, twdKey))[0];
+  const twdAta = tMintKey.equals(NATIVE_MINT) ? twdKey : getAtaForMint(tMintKey, twdKey)[0];
 
-  const [auctionHouse, bump] = await AuctionHouseProgram.findAuctionHouseAddress(wallet, tMintKey);
+  const [auctionHouse, bump] = getAuctionHouseAddress(wallet, tMintKey);
 
-  const [feeAccount, feePayerBump] = await AuctionHouseProgram.findAuctionHouseFeeAddress(auctionHouse);
+  const [feeAccount, feePayerBump] = getAuctionHouseFeeAddress(auctionHouse);
 
-  const [treasuryAccount, treasuryBump] = await AuctionHouseProgram.findAuctionHouseTreasuryAddress(auctionHouse);
+  const [treasuryAccount, treasuryBump] = getAuctionHouseTreasuryAddress(auctionHouse);
 
   return createCreateAuctionHouseInstruction(
     {
