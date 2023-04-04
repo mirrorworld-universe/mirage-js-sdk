@@ -28,7 +28,7 @@ export const createBuyTransaction = async (
   auctionHouse: PublicKey,
   program: Program<AuctionHouseIDL>
 ) => {
-  const ah = (await program!.account.auctionHouse.fetch(auctionHouse!)) as any as AuctionHouse;
+  const ah = (await program.account.auctionHouse.fetch(auctionHouse)) as any as AuctionHouse;
   const buyerPrice = Number(price) * LAMPORTS_PER_SOL;
   const authority = new PublicKey(ah.authority);
   const auctionHouseFeeAccount = new PublicKey(ah.auctionHouseFeeAccount);
@@ -211,7 +211,7 @@ const createExecuteSaleInstructions = async (
     1
   );
 
-  const metadataObj = await program!.provider.connection.getAccountInfo(metadata);
+  const metadataObj = await program.provider.connection.getAccountInfo(metadata);
   const metadataDecoded: MetadataSchema = decodeMetadata(Buffer.from(metadataObj!.data));
 
   const creatorAccounts = metadataDecoded.data.creators!.map((c) => ({

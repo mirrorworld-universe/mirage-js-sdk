@@ -1,5 +1,5 @@
 export type AuctionHouseIDL = {
-  version: '1.3.1';
+  version: '1.4.1';
   name: 'auction_house';
   instructions: [
     {
@@ -23,12 +23,54 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance fee account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'fee_payer';
+              }
+            ];
+          };
         },
         {
           name: 'auctionHouse';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority', 'fee_withdrawal_destination', 'auction_house_fee_account'];
         },
         {
           name: 'systemProgram';
@@ -72,12 +114,54 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['Auction House treasury PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'treasury';
+              }
+            ];
+          };
         },
         {
           name: 'auctionHouse';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'Mint';
+                path: 'treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority', 'treasury_mint', 'treasury_withdrawal_destination', 'auction_house_treasury'];
         },
         {
           name: 'tokenProgram';
@@ -150,6 +234,28 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'Mint';
+                path: 'treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority', 'treasury_mint'];
         },
         {
           name: 'tokenProgram';
@@ -239,18 +345,78 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'authority';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'Mint';
+                path: 'treasury_mint';
+              }
+            ];
+          };
         },
         {
           name: 'auctionHouseFeeAccount';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance fee account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'fee_payer';
+              }
+            ];
+          };
         },
         {
           name: 'auctionHouseTreasury';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance treasury PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'treasury';
+              }
+            ];
+          };
         },
         {
           name: 'tokenProgram';
@@ -347,6 +513,26 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['Buyer escrow payment account PDA.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'wallet';
+              }
+            ];
+          };
         },
         {
           name: 'authority';
@@ -359,18 +545,108 @@ export type AuctionHouseIDL = {
           isMut: false;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority', 'treasury_mint', 'auction_house_fee_account'];
         },
         {
           name: 'auctionHouseFeeAccount';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance fee account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'fee_payer';
+              }
+            ];
+          };
         },
         {
           name: 'buyerTradeState';
           isMut: true;
           isSigner: false;
           docs: ['Buyer trade state PDA.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'wallet';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'TokenAccount';
+                path: 'token_account';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'Mint';
+                path: 'treasury_mint';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'TokenAccount';
+                path: 'token_account.mint';
+              },
+              {
+                kind: 'arg';
+                type: 'u64';
+                path: 'buyer_price';
+              },
+              {
+                kind: 'arg';
+                type: 'u64';
+                path: 'token_size';
+              }
+            ];
+          };
         },
         {
           name: 'tokenProgram';
@@ -451,6 +727,26 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['Buyer escrow payment account PDA.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'wallet';
+              }
+            ];
+          };
         },
         {
           name: 'authority';
@@ -468,23 +764,133 @@ export type AuctionHouseIDL = {
           isMut: false;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority', 'treasury_mint', 'auction_house_fee_account'];
         },
         {
           name: 'auctionHouseFeeAccount';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance fee account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'fee_payer';
+              }
+            ];
+          };
         },
         {
           name: 'buyerTradeState';
           isMut: true;
           isSigner: false;
           docs: ['Buyer trade state PDA.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'wallet';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'TokenAccount';
+                path: 'token_account';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'Mint';
+                path: 'treasury_mint';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'TokenAccount';
+                path: 'token_account.mint';
+              },
+              {
+                kind: 'arg';
+                type: 'u64';
+                path: 'buyer_price';
+              },
+              {
+                kind: 'arg';
+                type: 'u64';
+                path: 'token_size';
+              }
+            ];
+          };
         },
         {
           name: 'ahAuctioneerPda';
           isMut: false;
           isSigner: false;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auctioneer';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'auctioneer_authority';
+              }
+            ];
+          };
         },
         {
           name: 'tokenProgram';
@@ -561,6 +967,26 @@ export type AuctionHouseIDL = {
           name: 'escrowPaymentAccount';
           isMut: true;
           isSigner: false;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'wallet';
+              }
+            ];
+          };
         },
         {
           name: 'authority';
@@ -571,16 +997,100 @@ export type AuctionHouseIDL = {
           name: 'auctionHouse';
           isMut: false;
           isSigner: false;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority', 'treasury_mint', 'auction_house_fee_account'];
         },
         {
           name: 'auctionHouseFeeAccount';
           isMut: true;
           isSigner: false;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'fee_payer';
+              }
+            ];
+          };
         },
         {
           name: 'buyerTradeState';
           isMut: true;
           isSigner: false;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'wallet';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'Mint';
+                path: 'treasury_mint';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'TokenAccount';
+                path: 'token_account.mint';
+              },
+              {
+                kind: 'arg';
+                type: 'u64';
+                path: 'buyer_price';
+              },
+              {
+                kind: 'arg';
+                type: 'u64';
+                path: 'token_size';
+              }
+            ];
+          };
         },
         {
           name: 'tokenProgram';
@@ -657,6 +1167,26 @@ export type AuctionHouseIDL = {
           name: 'escrowPaymentAccount';
           isMut: true;
           isSigner: false;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'wallet';
+              }
+            ];
+          };
         },
         {
           name: 'authority';
@@ -673,22 +1203,126 @@ export type AuctionHouseIDL = {
           name: 'auctionHouse';
           isMut: false;
           isSigner: false;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority', 'treasury_mint', 'auction_house_fee_account'];
         },
         {
           name: 'auctionHouseFeeAccount';
           isMut: true;
           isSigner: false;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'fee_payer';
+              }
+            ];
+          };
         },
         {
           name: 'buyerTradeState';
           isMut: true;
           isSigner: false;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'wallet';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'Mint';
+                path: 'treasury_mint';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'TokenAccount';
+                path: 'token_account.mint';
+              },
+              {
+                kind: 'arg';
+                type: 'u64';
+                path: 'buyer_price';
+              },
+              {
+                kind: 'arg';
+                type: 'u64';
+                path: 'token_size';
+              }
+            ];
+          };
         },
         {
           name: 'ahAuctioneerPda';
           isMut: false;
           isSigner: false;
           docs: ['The auctioneer PDA owned by Auction House storing scopes.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auctioneer';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'auctioneer_authority';
+              }
+            ];
+          };
         },
         {
           name: 'tokenProgram';
@@ -760,12 +1394,54 @@ export type AuctionHouseIDL = {
           isMut: false;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority', 'auction_house_fee_account'];
         },
         {
           name: 'auctionHouseFeeAccount';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance fee account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'fee_payer';
+              }
+            ];
+          };
         },
         {
           name: 'tradeState';
@@ -829,12 +1505,54 @@ export type AuctionHouseIDL = {
           isMut: false;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority', 'auction_house_fee_account'];
         },
         {
           name: 'auctionHouseFeeAccount';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance fee account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'fee_payer';
+              }
+            ];
+          };
         },
         {
           name: 'tradeState';
@@ -847,6 +1565,26 @@ export type AuctionHouseIDL = {
           isMut: false;
           isSigner: false;
           docs: ['The auctioneer PDA owned by Auction House storing scopes.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auctioneer';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'auctioneer_authority';
+              }
+            ];
+          };
         },
         {
           name: 'tokenProgram';
@@ -892,6 +1630,26 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['Buyer escrow payment account PDA.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'wallet';
+              }
+            ];
+          };
         },
         {
           name: 'treasuryMint';
@@ -910,12 +1668,54 @@ export type AuctionHouseIDL = {
           isMut: false;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority', 'treasury_mint', 'auction_house_fee_account'];
         },
         {
           name: 'auctionHouseFeeAccount';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance fee account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'fee_payer';
+              }
+            ];
+          };
         },
         {
           name: 'tokenProgram';
@@ -971,6 +1771,26 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['Buyer escrow payment account PDA.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'wallet';
+              }
+            ];
+          };
         },
         {
           name: 'treasuryMint';
@@ -995,18 +1815,80 @@ export type AuctionHouseIDL = {
           isMut: false;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority', 'treasury_mint', 'auction_house_fee_account'];
         },
         {
           name: 'auctionHouseFeeAccount';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance fee account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'fee_payer';
+              }
+            ];
+          };
         },
         {
           name: 'ahAuctioneerPda';
           isMut: false;
           isSigner: false;
           docs: ['The auctioneer PDA owned by Auction House storing scopes.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auctioneer';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'auctioneer_authority';
+              }
+            ];
+          };
         },
         {
           name: 'tokenProgram';
@@ -1079,6 +1961,26 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['Buyer escrow payment account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'buyer';
+              }
+            ];
+          };
         },
         {
           name: 'sellerPaymentReceiptAccount';
@@ -1103,18 +2005,80 @@ export type AuctionHouseIDL = {
           isMut: false;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority', 'treasury_mint', 'auction_house_treasury', 'auction_house_fee_account'];
         },
         {
           name: 'auctionHouseFeeAccount';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance fee account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'fee_payer';
+              }
+            ];
+          };
         },
         {
           name: 'auctionHouseTreasury';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance treasury account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'treasury';
+              }
+            ];
+          };
         },
         {
           name: 'buyerTradeState';
@@ -1127,6 +2091,52 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['Seller trade state PDA account encoding the sell order.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'seller';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'token_account';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'token_mint';
+              },
+              {
+                kind: 'arg';
+                type: 'u64';
+                path: 'buyer_price';
+              },
+              {
+                kind: 'arg';
+                type: 'u64';
+                path: 'token_size';
+              }
+            ];
+          };
         },
         {
           name: 'freeTradeState';
@@ -1153,6 +2163,20 @@ export type AuctionHouseIDL = {
           name: 'programAsSigner';
           isMut: false;
           isSigner: false;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'signer';
+              }
+            ];
+          };
         },
         {
           name: 'rent';
@@ -1227,6 +2251,26 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['Buyer escrow payment account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'buyer';
+              }
+            ];
+          };
         },
         {
           name: 'sellerPaymentReceiptAccount';
@@ -1251,18 +2295,80 @@ export type AuctionHouseIDL = {
           isMut: false;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority', 'treasury_mint', 'auction_house_treasury', 'auction_house_fee_account'];
         },
         {
           name: 'auctionHouseFeeAccount';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance fee account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'fee_payer';
+              }
+            ];
+          };
         },
         {
           name: 'auctionHouseTreasury';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance treasury account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'treasury';
+              }
+            ];
+          };
         },
         {
           name: 'buyerTradeState';
@@ -1275,6 +2381,52 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['Seller trade state PDA account encoding the sell order.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'seller';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'token_account';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'token_mint';
+              },
+              {
+                kind: 'arg';
+                type: 'u64';
+                path: 'buyer_price';
+              },
+              {
+                kind: 'arg';
+                type: 'u64';
+                path: 'token_size';
+              }
+            ];
+          };
         },
         {
           name: 'freeTradeState';
@@ -1301,6 +2453,20 @@ export type AuctionHouseIDL = {
           name: 'programAsSigner';
           isMut: false;
           isSigner: false;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'signer';
+              }
+            ];
+          };
         },
         {
           name: 'rent';
@@ -1387,6 +2553,26 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['Buyer escrow payment account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'buyer';
+              }
+            ];
+          };
         },
         {
           name: 'sellerPaymentReceiptAccount';
@@ -1417,18 +2603,80 @@ export type AuctionHouseIDL = {
           isMut: false;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority', 'treasury_mint', 'auction_house_treasury', 'auction_house_fee_account'];
         },
         {
           name: 'auctionHouseFeeAccount';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance fee account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'fee_payer';
+              }
+            ];
+          };
         },
         {
           name: 'auctionHouseTreasury';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance treasury account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'treasury';
+              }
+            ];
+          };
         },
         {
           name: 'buyerTradeState';
@@ -1453,6 +2701,26 @@ export type AuctionHouseIDL = {
           isMut: false;
           isSigner: false;
           docs: ['The auctioneer PDA owned by Auction House storing scopes.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auctioneer';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'auctioneer_authority';
+              }
+            ];
+          };
         },
         {
           name: 'tokenProgram';
@@ -1473,6 +2741,20 @@ export type AuctionHouseIDL = {
           name: 'programAsSigner';
           isMut: false;
           isSigner: false;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'signer';
+              }
+            ];
+          };
         },
         {
           name: 'rent';
@@ -1547,6 +2829,26 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['Buyer escrow payment account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'buyer';
+              }
+            ];
+          };
         },
         {
           name: 'sellerPaymentReceiptAccount';
@@ -1577,18 +2879,80 @@ export type AuctionHouseIDL = {
           isMut: false;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority', 'treasury_mint', 'auction_house_treasury', 'auction_house_fee_account'];
         },
         {
           name: 'auctionHouseFeeAccount';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance fee account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'fee_payer';
+              }
+            ];
+          };
         },
         {
           name: 'auctionHouseTreasury';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance treasury account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'treasury';
+              }
+            ];
+          };
         },
         {
           name: 'buyerTradeState';
@@ -1601,6 +2965,52 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['Seller trade state PDA account encoding the sell order.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'seller';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'token_account';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'token_mint';
+              },
+              {
+                kind: 'arg';
+                type: 'u64';
+                path: 'buyer_price';
+              },
+              {
+                kind: 'arg';
+                type: 'u64';
+                path: 'token_size';
+              }
+            ];
+          };
         },
         {
           name: 'freeTradeState';
@@ -1613,6 +3023,26 @@ export type AuctionHouseIDL = {
           isMut: false;
           isSigner: false;
           docs: ['The auctioneer PDA owned by Auction House storing scopes.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auctioneer';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'auctioneer_authority';
+              }
+            ];
+          };
         },
         {
           name: 'tokenProgram';
@@ -1633,6 +3063,20 @@ export type AuctionHouseIDL = {
           name: 'programAsSigner';
           isMut: false;
           isSigner: false;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'signer';
+              }
+            ];
+          };
         },
         {
           name: 'rent';
@@ -1707,18 +3151,108 @@ export type AuctionHouseIDL = {
           isMut: false;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority', 'auction_house_fee_account'];
         },
         {
           name: 'auctionHouseFeeAccount';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance fee account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'fee_payer';
+              }
+            ];
+          };
         },
         {
           name: 'sellerTradeState';
           isMut: true;
           isSigner: false;
           docs: ['Seller trade state PDA account encoding the sell order.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'wallet';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'TokenAccount';
+                path: 'token_account';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'TokenAccount';
+                path: 'token_account.mint';
+              },
+              {
+                kind: 'arg';
+                type: 'u64';
+                path: 'buyer_price';
+              },
+              {
+                kind: 'arg';
+                type: 'u64';
+                path: 'token_size';
+              }
+            ];
+          };
         },
         {
           name: 'freeSellerTradeState';
@@ -1740,6 +3274,20 @@ export type AuctionHouseIDL = {
           name: 'programAsSigner';
           isMut: false;
           isSigner: false;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'signer';
+              }
+            ];
+          };
         },
         {
           name: 'rent';
@@ -1808,12 +3356,54 @@ export type AuctionHouseIDL = {
           isMut: false;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority', 'auction_house_fee_account'];
         },
         {
           name: 'auctionHouseFeeAccount';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance fee account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'fee_payer';
+              }
+            ];
+          };
         },
         {
           name: 'sellerTradeState';
@@ -1832,11 +3422,45 @@ export type AuctionHouseIDL = {
           isMut: false;
           isSigner: false;
           docs: ['The auctioneer PDA owned by Auction House storing scopes.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auctioneer';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'auctioneer_authority';
+              }
+            ];
+          };
         },
         {
           name: 'programAsSigner';
           isMut: false;
           isSigner: false;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'signer';
+              }
+            ];
+          };
         },
         {
           name: 'tokenProgram';
@@ -1896,6 +3520,26 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['Buyer escrow payment account PDA.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'wallet';
+              }
+            ];
+          };
         },
         {
           name: 'treasuryMint';
@@ -1914,12 +3558,54 @@ export type AuctionHouseIDL = {
           isMut: false;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority', 'treasury_mint', 'auction_house_fee_account'];
         },
         {
           name: 'auctionHouseFeeAccount';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance fee account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'fee_payer';
+              }
+            ];
+          };
         },
         {
           name: 'tokenProgram';
@@ -1976,6 +3662,26 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['Buyer escrow payment account PDA.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'wallet';
+              }
+            ];
+          };
         },
         {
           name: 'treasuryMint';
@@ -2000,18 +3706,80 @@ export type AuctionHouseIDL = {
           isMut: false;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['treasury_mint', 'auction_house_fee_account'];
         },
         {
           name: 'auctionHouseFeeAccount';
           isMut: true;
           isSigner: false;
           docs: ['Auction House instance fee account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'fee_payer';
+              }
+            ];
+          };
         },
         {
           name: 'ahAuctioneerPda';
           isMut: false;
           isSigner: false;
           docs: ['The auctioneer PDA owned by Auction House storing scopes.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auctioneer';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'auctioneer_authority';
+              }
+            ];
+          };
         },
         {
           name: 'tokenProgram';
@@ -2060,12 +3828,53 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['Buyer escrow payment account PDA.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'wallet';
+              }
+            ];
+          };
         },
         {
           name: 'auctionHouse';
           isMut: false;
           isSigner: false;
           docs: ['Auction House instance PDA account.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
         },
         {
           name: 'systemProgram';
@@ -2087,6 +3896,28 @@ export type AuctionHouseIDL = {
           name: 'auctionHouse';
           isMut: true;
           isSigner: false;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority'];
         },
         {
           name: 'authority';
@@ -2104,6 +3935,26 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['The auctioneer PDA owned by Auction House storing scopes.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auctioneer';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'auctioneer_authority';
+              }
+            ];
+          };
         },
         {
           name: 'systemProgram';
@@ -2129,6 +3980,28 @@ export type AuctionHouseIDL = {
           name: 'auctionHouse';
           isMut: true;
           isSigner: false;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.creator';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house.treasury_mint';
+              }
+            ];
+          };
+          relations: ['authority'];
         },
         {
           name: 'authority';
@@ -2146,6 +4019,27 @@ export type AuctionHouseIDL = {
           isMut: true;
           isSigner: false;
           docs: ['The auctioneer PDA owned by Auction House storing scopes.'];
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                type: 'string';
+                value: 'auctioneer';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                account: 'AuctionHouse';
+                path: 'auction_house';
+              },
+              {
+                kind: 'account';
+                type: 'publicKey';
+                path: 'auctioneer_authority';
+              }
+            ];
+          };
+          relations: ['auctioneer_authority'];
         },
         {
           name: 'systemProgram';
@@ -2328,6 +4222,154 @@ export type AuctionHouseIDL = {
           type: 'u8';
         }
       ];
+    },
+    {
+      name: 'sellRemainingAccounts';
+      accounts: [
+        {
+          name: 'metadataProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'delegateRecord';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'tokenRecord';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'tokenMint';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'edition';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'authRulesProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'authRules';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'sysvarInstructions';
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [];
+    },
+    {
+      name: 'cancelRemainingAccounts';
+      accounts: [
+        {
+          name: 'metadataProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'delegateRecord';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'programAsSigner';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'metadata';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'edition';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'tokenRecord';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'tokenMint';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'authRulesProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'authRules';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'sysvarInstructions';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'systemProgram';
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [];
+    },
+    {
+      name: 'executeSaleRemainingAccounts';
+      accounts: [
+        {
+          name: 'metadataProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'edition';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'ownerTr';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'destinationTr';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'authRulesProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'authRules';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'sysvarInstructions';
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [];
     }
   ];
   accounts: [
@@ -2916,12 +4958,17 @@ export type AuctionHouseIDL = {
       code: 6043;
       name: 'InsufficientFunds';
       msg: 'Insufficient funds in escrow account to purchase.';
+    },
+    {
+      code: 6044;
+      name: 'SaleRequiresExactlyOneSigner';
+      msg: 'This sale requires exactly one signer: either the seller or the authority.';
     }
   ];
 };
 
 export const IDL: AuctionHouseIDL = {
-  version: '1.3.1',
+  version: '1.4.1',
   name: 'auction_house',
   instructions: [
     {
@@ -2945,12 +4992,54 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance fee account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'fee_payer',
+              },
+            ],
+          },
         },
         {
           name: 'auctionHouse',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority', 'fee_withdrawal_destination', 'auction_house_fee_account'],
         },
         {
           name: 'systemProgram',
@@ -2994,12 +5083,54 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['Auction House treasury PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'treasury',
+              },
+            ],
+          },
         },
         {
           name: 'auctionHouse',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'Mint',
+                path: 'treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority', 'treasury_mint', 'treasury_withdrawal_destination', 'auction_house_treasury'],
         },
         {
           name: 'tokenProgram',
@@ -3072,6 +5203,28 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'Mint',
+                path: 'treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority', 'treasury_mint'],
         },
         {
           name: 'tokenProgram',
@@ -3161,18 +5314,78 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'authority',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'Mint',
+                path: 'treasury_mint',
+              },
+            ],
+          },
         },
         {
           name: 'auctionHouseFeeAccount',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance fee account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'fee_payer',
+              },
+            ],
+          },
         },
         {
           name: 'auctionHouseTreasury',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance treasury PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'treasury',
+              },
+            ],
+          },
         },
         {
           name: 'tokenProgram',
@@ -3269,6 +5482,26 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['Buyer escrow payment account PDA.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'wallet',
+              },
+            ],
+          },
         },
         {
           name: 'authority',
@@ -3281,18 +5514,108 @@ export const IDL: AuctionHouseIDL = {
           isMut: false,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority', 'treasury_mint', 'auction_house_fee_account'],
         },
         {
           name: 'auctionHouseFeeAccount',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance fee account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'fee_payer',
+              },
+            ],
+          },
         },
         {
           name: 'buyerTradeState',
           isMut: true,
           isSigner: false,
           docs: ['Buyer trade state PDA.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'wallet',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'TokenAccount',
+                path: 'token_account',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'Mint',
+                path: 'treasury_mint',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'TokenAccount',
+                path: 'token_account.mint',
+              },
+              {
+                kind: 'arg',
+                type: 'u64',
+                path: 'buyer_price',
+              },
+              {
+                kind: 'arg',
+                type: 'u64',
+                path: 'token_size',
+              },
+            ],
+          },
         },
         {
           name: 'tokenProgram',
@@ -3373,6 +5696,26 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['Buyer escrow payment account PDA.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'wallet',
+              },
+            ],
+          },
         },
         {
           name: 'authority',
@@ -3390,23 +5733,133 @@ export const IDL: AuctionHouseIDL = {
           isMut: false,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority', 'treasury_mint', 'auction_house_fee_account'],
         },
         {
           name: 'auctionHouseFeeAccount',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance fee account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'fee_payer',
+              },
+            ],
+          },
         },
         {
           name: 'buyerTradeState',
           isMut: true,
           isSigner: false,
           docs: ['Buyer trade state PDA.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'wallet',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'TokenAccount',
+                path: 'token_account',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'Mint',
+                path: 'treasury_mint',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'TokenAccount',
+                path: 'token_account.mint',
+              },
+              {
+                kind: 'arg',
+                type: 'u64',
+                path: 'buyer_price',
+              },
+              {
+                kind: 'arg',
+                type: 'u64',
+                path: 'token_size',
+              },
+            ],
+          },
         },
         {
           name: 'ahAuctioneerPda',
           isMut: false,
           isSigner: false,
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auctioneer',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'auctioneer_authority',
+              },
+            ],
+          },
         },
         {
           name: 'tokenProgram',
@@ -3483,6 +5936,26 @@ export const IDL: AuctionHouseIDL = {
           name: 'escrowPaymentAccount',
           isMut: true,
           isSigner: false,
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'wallet',
+              },
+            ],
+          },
         },
         {
           name: 'authority',
@@ -3493,16 +5966,100 @@ export const IDL: AuctionHouseIDL = {
           name: 'auctionHouse',
           isMut: false,
           isSigner: false,
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority', 'treasury_mint', 'auction_house_fee_account'],
         },
         {
           name: 'auctionHouseFeeAccount',
           isMut: true,
           isSigner: false,
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'fee_payer',
+              },
+            ],
+          },
         },
         {
           name: 'buyerTradeState',
           isMut: true,
           isSigner: false,
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'wallet',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'Mint',
+                path: 'treasury_mint',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'TokenAccount',
+                path: 'token_account.mint',
+              },
+              {
+                kind: 'arg',
+                type: 'u64',
+                path: 'buyer_price',
+              },
+              {
+                kind: 'arg',
+                type: 'u64',
+                path: 'token_size',
+              },
+            ],
+          },
         },
         {
           name: 'tokenProgram',
@@ -3579,6 +6136,26 @@ export const IDL: AuctionHouseIDL = {
           name: 'escrowPaymentAccount',
           isMut: true,
           isSigner: false,
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'wallet',
+              },
+            ],
+          },
         },
         {
           name: 'authority',
@@ -3595,22 +6172,126 @@ export const IDL: AuctionHouseIDL = {
           name: 'auctionHouse',
           isMut: false,
           isSigner: false,
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority', 'treasury_mint', 'auction_house_fee_account'],
         },
         {
           name: 'auctionHouseFeeAccount',
           isMut: true,
           isSigner: false,
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'fee_payer',
+              },
+            ],
+          },
         },
         {
           name: 'buyerTradeState',
           isMut: true,
           isSigner: false,
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'wallet',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'Mint',
+                path: 'treasury_mint',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'TokenAccount',
+                path: 'token_account.mint',
+              },
+              {
+                kind: 'arg',
+                type: 'u64',
+                path: 'buyer_price',
+              },
+              {
+                kind: 'arg',
+                type: 'u64',
+                path: 'token_size',
+              },
+            ],
+          },
         },
         {
           name: 'ahAuctioneerPda',
           isMut: false,
           isSigner: false,
           docs: ['The auctioneer PDA owned by Auction House storing scopes.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auctioneer',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'auctioneer_authority',
+              },
+            ],
+          },
         },
         {
           name: 'tokenProgram',
@@ -3682,12 +6363,54 @@ export const IDL: AuctionHouseIDL = {
           isMut: false,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority', 'auction_house_fee_account'],
         },
         {
           name: 'auctionHouseFeeAccount',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance fee account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'fee_payer',
+              },
+            ],
+          },
         },
         {
           name: 'tradeState',
@@ -3751,12 +6474,54 @@ export const IDL: AuctionHouseIDL = {
           isMut: false,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority', 'auction_house_fee_account'],
         },
         {
           name: 'auctionHouseFeeAccount',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance fee account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'fee_payer',
+              },
+            ],
+          },
         },
         {
           name: 'tradeState',
@@ -3769,6 +6534,26 @@ export const IDL: AuctionHouseIDL = {
           isMut: false,
           isSigner: false,
           docs: ['The auctioneer PDA owned by Auction House storing scopes.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auctioneer',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'auctioneer_authority',
+              },
+            ],
+          },
         },
         {
           name: 'tokenProgram',
@@ -3814,6 +6599,26 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['Buyer escrow payment account PDA.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'wallet',
+              },
+            ],
+          },
         },
         {
           name: 'treasuryMint',
@@ -3832,12 +6637,54 @@ export const IDL: AuctionHouseIDL = {
           isMut: false,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority', 'treasury_mint', 'auction_house_fee_account'],
         },
         {
           name: 'auctionHouseFeeAccount',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance fee account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'fee_payer',
+              },
+            ],
+          },
         },
         {
           name: 'tokenProgram',
@@ -3893,6 +6740,26 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['Buyer escrow payment account PDA.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'wallet',
+              },
+            ],
+          },
         },
         {
           name: 'treasuryMint',
@@ -3917,18 +6784,80 @@ export const IDL: AuctionHouseIDL = {
           isMut: false,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority', 'treasury_mint', 'auction_house_fee_account'],
         },
         {
           name: 'auctionHouseFeeAccount',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance fee account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'fee_payer',
+              },
+            ],
+          },
         },
         {
           name: 'ahAuctioneerPda',
           isMut: false,
           isSigner: false,
           docs: ['The auctioneer PDA owned by Auction House storing scopes.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auctioneer',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'auctioneer_authority',
+              },
+            ],
+          },
         },
         {
           name: 'tokenProgram',
@@ -4001,6 +6930,26 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['Buyer escrow payment account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'buyer',
+              },
+            ],
+          },
         },
         {
           name: 'sellerPaymentReceiptAccount',
@@ -4025,18 +6974,80 @@ export const IDL: AuctionHouseIDL = {
           isMut: false,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority', 'treasury_mint', 'auction_house_treasury', 'auction_house_fee_account'],
         },
         {
           name: 'auctionHouseFeeAccount',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance fee account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'fee_payer',
+              },
+            ],
+          },
         },
         {
           name: 'auctionHouseTreasury',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance treasury account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'treasury',
+              },
+            ],
+          },
         },
         {
           name: 'buyerTradeState',
@@ -4049,6 +7060,52 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['Seller trade state PDA account encoding the sell order.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'seller',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'token_account',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'token_mint',
+              },
+              {
+                kind: 'arg',
+                type: 'u64',
+                path: 'buyer_price',
+              },
+              {
+                kind: 'arg',
+                type: 'u64',
+                path: 'token_size',
+              },
+            ],
+          },
         },
         {
           name: 'freeTradeState',
@@ -4075,6 +7132,20 @@ export const IDL: AuctionHouseIDL = {
           name: 'programAsSigner',
           isMut: false,
           isSigner: false,
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'signer',
+              },
+            ],
+          },
         },
         {
           name: 'rent',
@@ -4149,6 +7220,26 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['Buyer escrow payment account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'buyer',
+              },
+            ],
+          },
         },
         {
           name: 'sellerPaymentReceiptAccount',
@@ -4173,18 +7264,80 @@ export const IDL: AuctionHouseIDL = {
           isMut: false,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority', 'treasury_mint', 'auction_house_treasury', 'auction_house_fee_account'],
         },
         {
           name: 'auctionHouseFeeAccount',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance fee account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'fee_payer',
+              },
+            ],
+          },
         },
         {
           name: 'auctionHouseTreasury',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance treasury account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'treasury',
+              },
+            ],
+          },
         },
         {
           name: 'buyerTradeState',
@@ -4197,6 +7350,52 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['Seller trade state PDA account encoding the sell order.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'seller',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'token_account',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'token_mint',
+              },
+              {
+                kind: 'arg',
+                type: 'u64',
+                path: 'buyer_price',
+              },
+              {
+                kind: 'arg',
+                type: 'u64',
+                path: 'token_size',
+              },
+            ],
+          },
         },
         {
           name: 'freeTradeState',
@@ -4223,6 +7422,20 @@ export const IDL: AuctionHouseIDL = {
           name: 'programAsSigner',
           isMut: false,
           isSigner: false,
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'signer',
+              },
+            ],
+          },
         },
         {
           name: 'rent',
@@ -4309,6 +7522,26 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['Buyer escrow payment account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'buyer',
+              },
+            ],
+          },
         },
         {
           name: 'sellerPaymentReceiptAccount',
@@ -4339,18 +7572,80 @@ export const IDL: AuctionHouseIDL = {
           isMut: false,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority', 'treasury_mint', 'auction_house_treasury', 'auction_house_fee_account'],
         },
         {
           name: 'auctionHouseFeeAccount',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance fee account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'fee_payer',
+              },
+            ],
+          },
         },
         {
           name: 'auctionHouseTreasury',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance treasury account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'treasury',
+              },
+            ],
+          },
         },
         {
           name: 'buyerTradeState',
@@ -4375,6 +7670,26 @@ export const IDL: AuctionHouseIDL = {
           isMut: false,
           isSigner: false,
           docs: ['The auctioneer PDA owned by Auction House storing scopes.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auctioneer',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'auctioneer_authority',
+              },
+            ],
+          },
         },
         {
           name: 'tokenProgram',
@@ -4395,6 +7710,20 @@ export const IDL: AuctionHouseIDL = {
           name: 'programAsSigner',
           isMut: false,
           isSigner: false,
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'signer',
+              },
+            ],
+          },
         },
         {
           name: 'rent',
@@ -4469,6 +7798,26 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['Buyer escrow payment account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'buyer',
+              },
+            ],
+          },
         },
         {
           name: 'sellerPaymentReceiptAccount',
@@ -4499,18 +7848,80 @@ export const IDL: AuctionHouseIDL = {
           isMut: false,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority', 'treasury_mint', 'auction_house_treasury', 'auction_house_fee_account'],
         },
         {
           name: 'auctionHouseFeeAccount',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance fee account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'fee_payer',
+              },
+            ],
+          },
         },
         {
           name: 'auctionHouseTreasury',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance treasury account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'treasury',
+              },
+            ],
+          },
         },
         {
           name: 'buyerTradeState',
@@ -4523,6 +7934,52 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['Seller trade state PDA account encoding the sell order.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'seller',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'token_account',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'token_mint',
+              },
+              {
+                kind: 'arg',
+                type: 'u64',
+                path: 'buyer_price',
+              },
+              {
+                kind: 'arg',
+                type: 'u64',
+                path: 'token_size',
+              },
+            ],
+          },
         },
         {
           name: 'freeTradeState',
@@ -4535,6 +7992,26 @@ export const IDL: AuctionHouseIDL = {
           isMut: false,
           isSigner: false,
           docs: ['The auctioneer PDA owned by Auction House storing scopes.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auctioneer',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'auctioneer_authority',
+              },
+            ],
+          },
         },
         {
           name: 'tokenProgram',
@@ -4555,6 +8032,20 @@ export const IDL: AuctionHouseIDL = {
           name: 'programAsSigner',
           isMut: false,
           isSigner: false,
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'signer',
+              },
+            ],
+          },
         },
         {
           name: 'rent',
@@ -4629,18 +8120,108 @@ export const IDL: AuctionHouseIDL = {
           isMut: false,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority', 'auction_house_fee_account'],
         },
         {
           name: 'auctionHouseFeeAccount',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance fee account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'fee_payer',
+              },
+            ],
+          },
         },
         {
           name: 'sellerTradeState',
           isMut: true,
           isSigner: false,
           docs: ['Seller trade state PDA account encoding the sell order.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'wallet',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'TokenAccount',
+                path: 'token_account',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'TokenAccount',
+                path: 'token_account.mint',
+              },
+              {
+                kind: 'arg',
+                type: 'u64',
+                path: 'buyer_price',
+              },
+              {
+                kind: 'arg',
+                type: 'u64',
+                path: 'token_size',
+              },
+            ],
+          },
         },
         {
           name: 'freeSellerTradeState',
@@ -4662,6 +8243,20 @@ export const IDL: AuctionHouseIDL = {
           name: 'programAsSigner',
           isMut: false,
           isSigner: false,
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'signer',
+              },
+            ],
+          },
         },
         {
           name: 'rent',
@@ -4730,12 +8325,54 @@ export const IDL: AuctionHouseIDL = {
           isMut: false,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority', 'auction_house_fee_account'],
         },
         {
           name: 'auctionHouseFeeAccount',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance fee account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'fee_payer',
+              },
+            ],
+          },
         },
         {
           name: 'sellerTradeState',
@@ -4754,11 +8391,45 @@ export const IDL: AuctionHouseIDL = {
           isMut: false,
           isSigner: false,
           docs: ['The auctioneer PDA owned by Auction House storing scopes.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auctioneer',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'auctioneer_authority',
+              },
+            ],
+          },
         },
         {
           name: 'programAsSigner',
           isMut: false,
           isSigner: false,
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'signer',
+              },
+            ],
+          },
         },
         {
           name: 'tokenProgram',
@@ -4818,6 +8489,26 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['Buyer escrow payment account PDA.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'wallet',
+              },
+            ],
+          },
         },
         {
           name: 'treasuryMint',
@@ -4836,12 +8527,54 @@ export const IDL: AuctionHouseIDL = {
           isMut: false,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority', 'treasury_mint', 'auction_house_fee_account'],
         },
         {
           name: 'auctionHouseFeeAccount',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance fee account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'fee_payer',
+              },
+            ],
+          },
         },
         {
           name: 'tokenProgram',
@@ -4898,6 +8631,26 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['Buyer escrow payment account PDA.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'wallet',
+              },
+            ],
+          },
         },
         {
           name: 'treasuryMint',
@@ -4922,18 +8675,80 @@ export const IDL: AuctionHouseIDL = {
           isMut: false,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['treasury_mint', 'auction_house_fee_account'],
         },
         {
           name: 'auctionHouseFeeAccount',
           isMut: true,
           isSigner: false,
           docs: ['Auction House instance fee account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'fee_payer',
+              },
+            ],
+          },
         },
         {
           name: 'ahAuctioneerPda',
           isMut: false,
           isSigner: false,
           docs: ['The auctioneer PDA owned by Auction House storing scopes.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auctioneer',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'auctioneer_authority',
+              },
+            ],
+          },
         },
         {
           name: 'tokenProgram',
@@ -4982,12 +8797,53 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['Buyer escrow payment account PDA.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'wallet',
+              },
+            ],
+          },
         },
         {
           name: 'auctionHouse',
           isMut: false,
           isSigner: false,
           docs: ['Auction House instance PDA account.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
         },
         {
           name: 'systemProgram',
@@ -5009,6 +8865,28 @@ export const IDL: AuctionHouseIDL = {
           name: 'auctionHouse',
           isMut: true,
           isSigner: false,
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority'],
         },
         {
           name: 'authority',
@@ -5026,6 +8904,26 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['The auctioneer PDA owned by Auction House storing scopes.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auctioneer',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'auctioneer_authority',
+              },
+            ],
+          },
         },
         {
           name: 'systemProgram',
@@ -5051,6 +8949,28 @@ export const IDL: AuctionHouseIDL = {
           name: 'auctionHouse',
           isMut: true,
           isSigner: false,
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.creator',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house.treasury_mint',
+              },
+            ],
+          },
+          relations: ['authority'],
         },
         {
           name: 'authority',
@@ -5068,6 +8988,27 @@ export const IDL: AuctionHouseIDL = {
           isMut: true,
           isSigner: false,
           docs: ['The auctioneer PDA owned by Auction House storing scopes.'],
+          pda: {
+            seeds: [
+              {
+                kind: 'const',
+                type: 'string',
+                value: 'auctioneer',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                account: 'AuctionHouse',
+                path: 'auction_house',
+              },
+              {
+                kind: 'account',
+                type: 'publicKey',
+                path: 'auctioneer_authority',
+              },
+            ],
+          },
+          relations: ['auctioneer_authority'],
         },
         {
           name: 'systemProgram',
@@ -5250,6 +9191,154 @@ export const IDL: AuctionHouseIDL = {
           type: 'u8',
         },
       ],
+    },
+    {
+      name: 'sellRemainingAccounts',
+      accounts: [
+        {
+          name: 'metadataProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'delegateRecord',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'tokenRecord',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'tokenMint',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'edition',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'authRulesProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'authRules',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'sysvarInstructions',
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [],
+    },
+    {
+      name: 'cancelRemainingAccounts',
+      accounts: [
+        {
+          name: 'metadataProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'delegateRecord',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'programAsSigner',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'metadata',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'edition',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'tokenRecord',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'tokenMint',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'authRulesProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'authRules',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'sysvarInstructions',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [],
+    },
+    {
+      name: 'executeSaleRemainingAccounts',
+      accounts: [
+        {
+          name: 'metadataProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'edition',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'ownerTr',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'destinationTr',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'authRulesProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'authRules',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'sysvarInstructions',
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [],
     },
   ],
   accounts: [
@@ -5838,6 +9927,11 @@ export const IDL: AuctionHouseIDL = {
       code: 6043,
       name: 'InsufficientFunds',
       msg: 'Insufficient funds in escrow account to purchase.',
+    },
+    {
+      code: 6044,
+      name: 'SaleRequiresExactlyOneSigner',
+      msg: 'This sale requires exactly one signer: either the seller or the authority.',
     },
   ],
 };

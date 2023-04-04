@@ -33,7 +33,7 @@ export async function createCancelListingTransaction(
   const buyerPrice = Number(currentListingPrice) * LAMPORTS_PER_SOL;
   const _mint = new PublicKey(mint);
 
-  const auctionHouseObj = (await program.account.auctionHouse.fetch(auctionHouse!)) as any as AuctionHouse;
+  const auctionHouseObj = (await program.account.auctionHouse.fetch(auctionHouse)) as any as AuctionHouse;
 
   console.log('Processing cancel listing');
   let sellerTradeState;

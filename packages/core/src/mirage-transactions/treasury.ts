@@ -6,7 +6,7 @@ import { createWithdrawFromTreasuryInstruction } from '@metaplex-foundation/mpl-
 import { AuctionHouseIDL } from '../auctionHouseIdl';
 
 export const getAuctionHouseBalance = async (auctionHouse: PublicKey, program: Program<AuctionHouseIDL>, connection: Connection): Promise<number> => {
-  const ah = (await program!.account.auctionHouse.fetch(auctionHouse!)) as any as AuctionHouse;
+  const ah = (await program.account.auctionHouse.fetch(auctionHouse)) as any as AuctionHouse;
   const isNative = ah.treasuryMint.equals(NATIVE_MINT);
 
   try {
@@ -28,7 +28,7 @@ export const getAuctionHouseBalance = async (auctionHouse: PublicKey, program: P
 };
 
 export const withdrawFees = async (amount: number, auctionHouse: PublicKey, program: Program<AuctionHouseIDL>): Promise<Transaction> => {
-  const ah = (await program!.account.auctionHouse.fetch(auctionHouse!)) as any as AuctionHouse;
+  const ah = (await program.account.auctionHouse.fetch(auctionHouse)) as any as AuctionHouse;
 
   const withdrawFromTreasuryInstructionAccounts = {
     treasuryMint: ah.treasuryMint,
