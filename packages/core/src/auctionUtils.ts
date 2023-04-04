@@ -1,5 +1,6 @@
 import { PublicKey } from '@solana/web3.js';
 import { AUCTION_HOUSE, AUCTION_HOUSE_PROGRAM_ID, SIGNER } from './constants';
+import {BN} from "@project-serum/anchor";
 
 const BID_RECEIPT_PREFIX = 'bid_receipt';
 const PURCHASE_RECEIPT_PREFIX = 'purchase_receipt';
@@ -41,8 +42,8 @@ export const getBuyerTradeState = (
       tokenAccount.toBuffer(),
       treasuryMint.toBuffer(),
       tokenMint.toBuffer(),
-      Buffer.from(price.toString()),
-      Buffer.from(tokenSize.toString()),
+      new BN(price).toBuffer(),
+      new BN(tokenSize).toBuffer(),
     ],
     AUCTION_HOUSE_PROGRAM_ID
   );
@@ -65,8 +66,8 @@ export const getSellerTradeState = (
       tokenAccount.toBuffer(),
       treasuryMint.toBuffer(),
       tokenMint.toBuffer(),
-      Buffer.from(price.toString()),
-      Buffer.from(tokenSize.toString()),
+      new BN(price).toBuffer(),
+      new BN(tokenSize).toBuffer(),
     ],
     AUCTION_HOUSE_PROGRAM_ID
   );
