@@ -32,7 +32,7 @@ export async function createListingTransaction(
 ) {
   const _listingPrice = Number(listingPrice) * LAMPORTS_PER_SOL;
   const tokenSize = 1;
-  const auctionHouseObj = (await program!.account.auctionHouse.fetch(auctionHouse!)) as any as AuctionHouse;
+  const auctionHouseObj = (await program.account.auctionHouse.fetch(auctionHouse)) as any as AuctionHouse;
 
   const nftMetadataAccount = await getMetadata(mint);
   const associatedTokenAccount = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, mint, sellerPublicKey);
