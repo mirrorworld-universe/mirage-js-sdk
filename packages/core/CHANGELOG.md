@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.1.14
+
+### Patch Changes
+
+- dbbe7ff: Update auction house js lib
+
 ## 2.1.12
 
 ### Patch Changes
