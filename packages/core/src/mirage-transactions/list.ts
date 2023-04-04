@@ -1,7 +1,6 @@
 import { LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, Transaction } from '@solana/web3.js';
 import { AuctionHouse } from '../types';
-import { getMetadata } from '../utils';
-import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { getAtaForMint, getMetadata } from '../utils';
 import {
   createSellInstruction,
   createPrintListingReceiptInstruction,
@@ -35,7 +34,17 @@ export async function createListingTransaction(
   const auctionHouseObj = (await program.account.auctionHouse.fetch(auctionHouse)) as any as AuctionHouse;
 
   const nftMetadataAccount = await getMetadata(mint);
-  const associatedTokenAccount = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, mint, sellerPublicKey);
+  const [associatedTokenAccount] = getAtaForMint(mint, sellerPublicKey);
+
+  console.log('listing', {
+    auctionHouse: auctionHouse.toBase58(),
+    sellerPublicKey: sellerPublicKey.toBase58(),
+    associatedTokenAccountL: associatedTokenAccount.toBase58(),
+    treasuryMint: auctionHouseObj.treasuryMint.toBase58(),
+    mint: mint.toBase58(),
+    price: _listingPrice,
+    tokenAmount: 1,
+  });
 
   const [sellerTradeState, tradeStateBump] = getSellerTradeState(
     auctionHouse,
