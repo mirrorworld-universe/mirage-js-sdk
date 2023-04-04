@@ -1,16 +1,15 @@
 import { Keypair, LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, Transaction, TransactionInstruction } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, NATIVE_MINT, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import {
   createExecuteSaleInstruction,
+  createPublicBuyInstruction,
   createPrintBidReceiptInstruction,
   createPrintPurchaseReceiptInstruction,
-  createPublicBuyInstruction,
-} from '@metaplex-foundation/mpl-auction-house/dist/src/generated';
+} from '@metaplex-foundation/mpl-auction-house';
 import { Program } from '@project-serum/anchor';
 import { AuctionHouseIDL } from '../auctionHouseIdl';
+import { getAtaForMint, getMetadata } from '../utils';
 import { AuctionHouse } from '../types';
-import { getMetadata } from '../utils';
 import {
   ExecuteSaleInstructionAccounts,
   ExecuteSaleInstructionArgs,
@@ -18,6 +17,16 @@ import {
   PrintPurchaseReceiptInstructionArgs,
 } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/instructions';
 import { decodeMetadata, Metadata as MetadataSchema } from '../schema';
+import {
+  getAuctionHouseBuyerEscrow,
+  getAuctionHouseProgramAsSignerAddress,
+  getBuyerTradeState,
+  getListReceiptAddress,
+  getPrintBidReceiptAddress,
+  getPurchaseReceiptAddress,
+  getSellerTradeState,
+} from '../auctionUtils';
+import { AUCTION_HOUSE_PROGRAM_ID } from '../constants';
 
 export const createBuyTransaction = async (
   tokenMint: PublicKey,
@@ -62,16 +71,8 @@ export const createBuyTransaction = async (
     paymentAccount = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, treasuryMint, buyer);
   }
 
-  const [escrowPaymentAccount, escrowPaymentBump] = await AuctionHouseProgram.findEscrowPaymentAccountAddress(auctionHouse, buyer);
-
-  const [buyerTradeState, tradeStateBump] = await AuctionHouseProgram.findPublicBidTradeStateAddress(
-    buyer,
-    auctionHouse,
-    treasuryMint,
-    tokenMint,
-    buyerPrice,
-    1
-  );
+  const [escrowPaymentAccount, escrowPaymentBump] = getAuctionHouseBuyerEscrow(auctionHouse, buyer);
+  const [buyerTradeState, tradeStateBump] = getBuyerTradeState(auctionHouse, buyer, tokenAccount, treasuryMint, tokenMint, buyerPrice, 1);
 
   let publicBuyInstruction = createPublicBuyInstruction(
     {
@@ -105,7 +106,7 @@ export const createBuyTransaction = async (
     });
   }
 
-  const [receipt, receiptBump] = await AuctionHouseProgram.findBidReceiptAddress(buyerTradeState);
+  const [receipt, receiptBump] = getPrintBidReceiptAddress(buyerTradeState);
 
   const printBidReceiptInstruction = createPrintBidReceiptInstruction(
     {
@@ -134,7 +135,7 @@ export const createBuyTransaction = async (
     transaction.add(createRevokeInstruction);
   }
 
-  const [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(seller, auctionHouse!, tokenAccount, treasuryMint, tokenMint, buyerPrice, 1);
+  const [sellerTradeState] = getSellerTradeState(auctionHouse, seller, tokenAccount, treasuryMint, tokenMint, buyerPrice, 1);
 
   const executeSaleInstruction = await createExecuteSaleInstructions(
     buyer,
@@ -153,7 +154,7 @@ export const createBuyTransaction = async (
   );
   transaction.add(executeSaleInstruction);
 
-  const [purchaseReceipt, purchaseReceiptBump] = await AuctionHouseProgram.findPurchaseReceiptAddress(sellerTradeState, buyerTradeState);
+  const [purchaseReceipt, purchaseReceiptBump] = getPurchaseReceiptAddress(sellerTradeState, buyerTradeState);
   const printPurchaseReceiptInstruction = await createPrintPurchaseInstruction(buyer, sellerTradeState, buyerTradeState, purchaseReceipt, purchaseReceiptBump);
   transaction.add(printPurchaseReceiptInstruction);
 
@@ -167,8 +168,8 @@ const createPrintPurchaseInstruction = async (
   purchaseReceipt: PublicKey,
   purchaseReceiptBump: number
 ): Promise<TransactionInstruction> => {
-  const [bidReceipt, _bidReceiptBump] = await AuctionHouseProgram.findBidReceiptAddress(buyerTradeState);
-  const [listingReceipt] = await AuctionHouseProgram.findListingReceiptAddress(sellerTradeState);
+  const [bidReceipt, _bidReceiptBump] = getPrintBidReceiptAddress(buyerTradeState);
+  const [listingReceipt] = getListReceiptAddress(sellerTradeState);
 
   const printPurchaseReceiptInstructionAccounts: PrintPurchaseReceiptInstructionAccounts = {
     bookkeeper: buyer,
@@ -199,17 +200,10 @@ const createExecuteSaleInstructions = async (
   sellerTradeState: PublicKey,
   program: Program<AuctionHouseIDL>
 ): Promise<TransactionInstruction> => {
-  const [programAsSigner, programAsSignerBump] = await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
-  const [buyerReceiptTokenAccount] = await AuctionHouseProgram.findAssociatedTokenAccountAddress(tokenMint, buyer);
-  const [freeTradeState, freeTradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
-    seller,
-    auctionHouse!,
-    tokenAccount,
-    ah.treasuryMint,
-    tokenMint,
-    0,
-    1
-  );
+  const [programAsSigner, programAsSignerBump] = getAuctionHouseProgramAsSignerAddress();
+  const [buyerReceiptTokenAccount] = getAtaForMint(tokenMint, buyer);
+
+  const [freeTradeState, freeTradeStateBump] = getSellerTradeState(auctionHouse, seller, tokenAccount, ah.treasuryMint, tokenMint, 0, 1);
 
   const metadataObj = await program.provider.connection.getAccountInfo(metadata);
   const metadataDecoded: MetadataSchema = decodeMetadata(Buffer.from(metadataObj!.data));
@@ -246,14 +240,12 @@ const createExecuteSaleInstructions = async (
     programAsSignerBump,
     buyerPrice,
     tokenSize: 1,
-    partialOrderSize: null,
-    partialOrderPrice: null,
   };
 
   const _executeSaleInstruction = await createExecuteSaleInstruction(executeSaleInstructionAccounts, createExecuteSaleInstructionArgs);
 
   return new TransactionInstruction({
-    programId: AuctionHouseProgram.PUBKEY,
+    programId: AUCTION_HOUSE_PROGRAM_ID,
     data: _executeSaleInstruction.data,
     keys: [..._executeSaleInstruction.keys, ...creatorAccounts],
   });

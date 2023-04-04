@@ -9,7 +9,6 @@ import {
   createTransferInstruction,
   createUpdateListingTransaction,
 } from './mirage-transactions';
-import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import { NATIVE_MINT } from '@solana/spl-token';
 import { AuctionHouse } from './types';
 import { Mirage } from './mirage';
@@ -18,6 +17,7 @@ import { createUpdateMarketplaceTransaction, UpdateMarketplaceOptions } from './
 import { getStoreFrontConfig, StoreFrontOptions } from './mirage-transactions/store-front';
 import { getAuctionHouseBalance, withdrawFees } from './mirage-transactions/treasury';
 import { AuctionHouseIDL, IDL } from './auctionHouseIdl';
+import * as auctionUtils from './auctionUtils';
 
 export type IAuctionOptions = {
   connection: Connection;
@@ -52,7 +52,7 @@ export class Marketplace {
   }
 
   async getAuctionHouseAddress(authority: PublicKey, treasuryMint?: PublicKey) {
-    return AuctionHouseProgram.findAuctionHouseAddress(authority, treasuryMint || NATIVE_MINT);
+    return auctionUtils.getAuctionHouseAddress(authority, treasuryMint || NATIVE_MINT);
   }
 
   async fetchAuctionHouse(auctionHouse: PublicKey) {

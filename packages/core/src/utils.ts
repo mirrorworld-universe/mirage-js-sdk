@@ -2,10 +2,9 @@ import { TOKEN_PROGRAM_ID, AccountLayout } from '@solana/spl-token';
 import { Connection, PublicKey, Commitment, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import fetch from 'isomorphic-fetch';
 import percentRound from 'percent-round';
-import { BN } from '@project-serum/anchor';
-import { AUCTION_HOUSE, AUCTION_HOUSE_PROGRAM_ID, NFT_STORAGE_API_KEY, SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID, TOKEN_METADATA_PROGRAM_ID } from './constants';
+import { AUCTION_HOUSE_PROGRAM_ID, NFT_STORAGE_API_KEY, SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID, TOKEN_METADATA_PROGRAM_ID } from './constants';
 import { INFTStorageResponse, MetadataObject } from './types';
-import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
+import * as AuctionHouseProgram from '@metaplex-foundation/mpl-auction-house';
 import dayjs from 'dayjs';
 import { TransactionReceipt } from './mirage';
 import { Metaplex } from '@metaplex-foundation/js';
@@ -18,38 +17,6 @@ export const getMetadata = (mint: PublicKey): PublicKey => {
 /** Get associated token for mint */
 export const getAtaForMint = (mint: PublicKey, address: PublicKey): [PublicKey, number] => {
   return PublicKey.findProgramAddressSync([address.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()], SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID);
-};
-
-export const getAuctionHouseProgramAsSigner = (): [PublicKey, number] => {
-  return PublicKey.findProgramAddressSync([Buffer.from(AUCTION_HOUSE), Buffer.from('signer')], AUCTION_HOUSE_PROGRAM_ID);
-};
-
-export const getAuctionHouseTradeState = (
-  auctionHouse: PublicKey,
-  wallet: PublicKey,
-  tokenAccount: PublicKey,
-  treasuryMint: PublicKey,
-  tokenMint: PublicKey,
-  tokenSize: BN,
-  buyPrice: BN
-): [PublicKey, number] => {
-  return PublicKey.findProgramAddressSync(
-    [
-      Buffer.from(AUCTION_HOUSE),
-      wallet.toBuffer(),
-      auctionHouse.toBuffer(),
-      tokenAccount.toBuffer(),
-      treasuryMint.toBuffer(),
-      tokenMint.toBuffer(),
-      buyPrice.toBuffer('le', 8),
-      tokenSize.toBuffer('le', 8),
-    ],
-    AUCTION_HOUSE_PROGRAM_ID
-  );
-};
-
-export const getAuctionHouseBuyerEscrow = (auctionHouse: PublicKey, wallet: PublicKey): [PublicKey, number] => {
-  return PublicKey.findProgramAddressSync([Buffer.from(AUCTION_HOUSE), auctionHouse.toBuffer(), wallet.toBuffer()], AUCTION_HOUSE_PROGRAM_ID);
 };
 
 export enum AccountState {
@@ -254,19 +221,19 @@ export async function getTokenTransactions(
     const parsedAccounts = accounts.map(async (account) => {
       switch (size) {
         case PrintListingReceiptSize:
-          const [ListingReceipt] = AuctionHouseProgram.accounts.ListingReceipt.fromAccountInfo(account.account);
+          const [ListingReceipt] = AuctionHouseProgram.accountProviders.ListingReceipt.fromAccountInfo(account.account);
           return {
             ...ListingReceipt,
             receipt_type: ListingReceipt.canceledAt ? 'cancel_listing_receipt' : 'listing_receipt',
           } as TransactionReceipt;
         case PrintBidReceiptSize:
-          const [BidReceipt] = AuctionHouseProgram.accounts.BidReceipt.fromAccountInfo(account.account);
+          const [BidReceipt] = AuctionHouseProgram.accountProviders.BidReceipt.fromAccountInfo(account.account);
           return {
             ...BidReceipt,
             receipt_type: 'bid_receipt',
           } as TransactionReceipt;
         case PrintPurchaseReceiptSize:
-          const [PurchaseReceipt] = AuctionHouseProgram.accounts.PurchaseReceipt.fromAccountInfo(account.account);
+          const [PurchaseReceipt] = AuctionHouseProgram.accountProviders.PurchaseReceipt.fromAccountInfo(account.account);
           return {
             ...PurchaseReceipt,
             receipt_type: 'purchase_receipt',

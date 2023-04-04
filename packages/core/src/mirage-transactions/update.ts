@@ -2,7 +2,6 @@ import { Connection, LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, Tr
 import { AuctionHouse } from '../types';
 import { getMetadata } from '../utils';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import {
   CancelInstructionAccounts,
   CancelInstructionArgs,
@@ -22,6 +21,7 @@ import type { Program } from '@project-serum/anchor';
 import { getNftOwner } from '../utils';
 import { ListingAlreadyExistsError } from '../errors';
 import { AuctionHouseIDL } from '../auctionHouseIdl';
+import { getAuctionHouseProgramAsSignerAddress, getListReceiptAddress, getSellerTradeState } from '../auctionUtils';
 
 /**
  * Create Update Listing Transaction
@@ -54,19 +54,18 @@ export async function createUpdateListingTransaction(
     throw new Error('You cannot cancel listing of an NFT you do not own.');
   }
 
-  const [programAsSigner, programAsSignerBump] = await AuctionHouseProgram.findAuctionHouseProgramAsSignerAddress();
+  const [programAsSigner, programAsSignerBump] = getAuctionHouseProgramAsSignerAddress();
   const associatedTokenAccount = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, _sellerPublicKey);
-  const [sellerTradeState] = await AuctionHouseProgram.findTradeStateAddress(
-    _sellerPublicKey,
+  const [sellerTradeState] = getSellerTradeState(
     auctionHouse,
+    _sellerPublicKey,
     associatedTokenAccount,
     auctionHouseObj.treasuryMint,
     _mint,
     _currentListingPrice,
     1
   );
-
-  const [listingReceipt] = await AuctionHouseProgram.findListingReceiptAddress(sellerTradeState);
+  const [listingReceipt] = getListReceiptAddress(sellerTradeState);
 
   const auctionHouseFeeAccount = new PublicKey(auctionHouseObj.auctionHouseFeeAccount);
   const receipt = listingReceipt;
@@ -94,9 +93,10 @@ export async function createUpdateListingTransaction(
   // Create new listing transactions
   const listingPrice = _newListingPrice;
   const nftMetadataAccount = await getMetadata(_mint);
-  const [newSellerTradeState, newTradeStateBump] = await AuctionHouseProgram.findTradeStateAddress(
-    sellerPublicKey,
+
+  const [newSellerTradeState, newTradeStateBump] = getSellerTradeState(
     auctionHouse,
+    sellerPublicKey,
     associatedTokenAccount,
     auctionHouseObj.treasuryMint,
     _mint,
@@ -113,16 +113,16 @@ export async function createUpdateListingTransaction(
     throw new ListingAlreadyExistsError();
   }
 
-  const [newFreeTradeState, newFreeTradeBump] = await AuctionHouseProgram.findTradeStateAddress(
-    sellerPublicKey,
+  const [newFreeTradeState, newFreeTradeBump] = getSellerTradeState(
     auctionHouse,
+    sellerPublicKey,
     associatedTokenAccount,
     auctionHouseObj.treasuryMint,
     _mint,
     0,
     1
   );
-  const [newListingReceipt, newListingReceiptBump] = await AuctionHouseProgram.findListingReceiptAddress(newSellerTradeState);
+  const [newListingReceipt, newListingReceiptBump] = getListReceiptAddress(newSellerTradeState);
   console.log('[newSellerTradeState, newListingReceipt]', [newSellerTradeState.toBase58(), newListingReceipt.toBase58()]);
 
   // Create sell instruction accounts

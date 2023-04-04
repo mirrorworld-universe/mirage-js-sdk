@@ -1,6 +1,5 @@
 import { AUCTION_HOUSE_PROGRAM_ID, MINT_CONFIG, NFT_STORAGE_API_KEY, WRAPPED_SOL_MINT } from './constants';
 import { Metaplex, Nft } from '@metaplex-foundation/js';
-import { AuctionHouseProgram } from '@metaplex-foundation/mpl-auction-house';
 import { Commitment, Connection, LAMPORTS_PER_SOL, PublicKey, RpcResponseAndContext, SignatureResult, Transaction } from '@solana/web3.js';
 import type { Wallet } from '@project-serum/anchor';
 import { AnchorProvider, Program, Provider } from '@project-serum/anchor';
@@ -8,6 +7,7 @@ import merge from 'lodash.merge';
 import { getNftOwner, getTokenTransactions, processCreatorShares, uploadNFTFileToStorage } from './utils';
 import { AuctionHouse, MetadataObject } from './types';
 import { AuctionHouseIDL, IDL } from './auctionHouseIdl';
+import * as auctionUtils from './auctionUtils';
 
 import { BidReceipt, ListingReceipt, PurchaseReceipt } from '@metaplex-foundation/mpl-auction-house/dist/src/generated/accounts';
 import { mintNFT, MintNFTResponse } from './mint';
@@ -23,6 +23,7 @@ import {
 import { throwError } from './errors/errors.interface';
 import { createCreateMarketplaceTransaction, CreateMarketplaceActionOptions, CreateMarketplaceOptions } from './mirage-transactions/create-marketplace';
 import { createUpdateMarketplaceTransaction, UpdateMarketplaceOptions } from './mirage-transactions/update-marketplace';
+import * as AuctionHouseProgram from '@metaplex-foundation/mpl-auction-house';
 
 export interface IMirageOptions {
   connection: Connection;
@@ -128,7 +129,7 @@ export class Mirage {
   /** Get the auction house addresses by the owner */
   async getAuctionHouseAddress(treasuryMint: PublicKey = this._treasuryMint): Promise<[PublicKey, number]> {
     if (!this.auctionHouseAuthority) throw new Error('auctionHouseAuthority not provided');
-    return AuctionHouseProgram.findAuctionHouseAddress(this.auctionHouseAuthority, treasuryMint);
+    return auctionUtils.getAuctionHouseAddress(this.auctionHouseAuthority, treasuryMint);
   }
 
   /** Loads provider instance */
@@ -508,7 +509,7 @@ export class Mirage {
     console.debug('result', result!);
     console.debug('Successfully cancelled listing for mint ', mint, ' at ', currentListingPrice, ' SOL');
 
-    const ListingReceipt = await AuctionHouseProgram.accounts.ListingReceipt.fromAccountAddress(this.connection, receipt);
+    const ListingReceipt = await AuctionHouseProgram.accountProviders.ListingReceipt.fromAccountAddress(this.connection, receipt);
     console.debug('listingReceiptObj', JSON.stringify(ListingReceipt, null, 2));
     return [result!, receipt, signature] as const;
   }
