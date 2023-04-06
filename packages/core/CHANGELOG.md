@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.1.19
+
+### Patch Changes
+
+- f1493c2: Fix auction house seller and buyer trade state calculation
+
 ## 2.1.14
 
 ### Patch Changes
