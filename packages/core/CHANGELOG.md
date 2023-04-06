@@ -1,4 +1,4 @@
-# @usemirrorworld/mirage.core
+# @mirrorworld/mirage.core
 
 ## 2.1.14
 
