@@ -1,6 +1,5 @@
 import { Connection, LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, Transaction } from '@solana/web3.js';
 import { AuctionHouse } from '../types';
-import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import {
   CancelInstructionAccounts,
   CancelInstructionArgs,
@@ -12,6 +11,7 @@ import {
 import type { Program } from '@project-serum/anchor';
 import { AuctionHouseIDL } from '../auctionHouseIdl';
 import { getListReceiptAddress, getSellerTradeState } from '../auctionUtils';
+import { getAtaForMint } from '../utils';
 
 /**
  * Create Cancel Listing Transaction
@@ -36,9 +36,8 @@ export async function createCancelListingTransaction(
   const auctionHouseObj = (await program.account.auctionHouse.fetch(auctionHouse)) as any as AuctionHouse;
 
   console.log('Processing cancel listing');
-  let sellerTradeState;
-  const associatedTokenAccount = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, sellerPublicKey);
-  [sellerTradeState] = getSellerTradeState(auctionHouse, sellerPublicKey, associatedTokenAccount, auctionHouseObj.treasuryMint, _mint, buyerPrice, 1);
+  const [associatedTokenAccount] = getAtaForMint(_mint, sellerPublicKey);
+  let [sellerTradeState] = getSellerTradeState(auctionHouse, sellerPublicKey, associatedTokenAccount, auctionHouseObj.treasuryMint, _mint, buyerPrice, 1);
   const [listingReceipt] = getListReceiptAddress(sellerTradeState);
 
   const authority = new PublicKey(auctionHouseObj.authority);
