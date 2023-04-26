@@ -33,7 +33,6 @@ export const createBuyTransaction = async (
   price: number,
   buyer: PublicKey,
   seller: PublicKey,
-  sellerAssociateTokenAccountAddress: PublicKey,
   auctionHouse: PublicKey,
   program: Program<AuctionHouseIDL>
 ) => {
@@ -42,6 +41,7 @@ export const createBuyTransaction = async (
   const authority = new PublicKey(ah.authority);
   const auctionHouseFeeAccount = new PublicKey(ah.auctionHouseFeeAccount);
   const treasuryMint = new PublicKey(ah.treasuryMint);
+  const [sellerAssociateTokenAccountAddress] = getAtaForMint(tokenMint, seller);
   const tokenAccount = sellerAssociateTokenAccountAddress;
   const metadata = await getMetadata(tokenMint);
   const isSplMint = !treasuryMint.equals(NATIVE_MINT);

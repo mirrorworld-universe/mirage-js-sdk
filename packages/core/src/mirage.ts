@@ -269,10 +269,7 @@ export class Mirage {
       throw new Error('You cannot buy your own NFT');
     }
 
-    const results = await connection.getTokenLargestAccounts(mint);
-    const sellerAssociateAccount = results.value[0].address;
-
-    return createBuyTransaction(mint, listingPrice, buyerPublicKey, _sellerPublicKey, sellerAssociateAccount, this.auctionHouse, this.program);
+    return createBuyTransaction(mint, listingPrice, buyerPublicKey, _sellerPublicKey, this.auctionHouse, this.program);
   }
 
   /**
