@@ -200,7 +200,6 @@ export class Marketplace {
     mint: PublicKey,
     listingPrice: number,
     seller: PublicKey,
-    sellerAssociateAccount: PublicKey,
     auctionHouseAddress: PublicKey
   ): Promise<readonly [Transaction, Receipt, Keypair[]]> {
     if (!this.program) {
@@ -210,7 +209,7 @@ export class Marketplace {
       throwError('PROGRAM_NOT_INITIALIZED');
     }
 
-    return createBuyTransaction(mint, listingPrice, userWallet, seller, sellerAssociateAccount, auctionHouseAddress, this.program);
+    return createBuyTransaction(mint, listingPrice, userWallet, seller, auctionHouseAddress, this.program);
   }
 
   async createUpdateListingTransaction(
