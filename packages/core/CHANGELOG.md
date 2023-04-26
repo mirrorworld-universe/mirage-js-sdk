@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.1.20
+
+### Patch Changes
+
+- 14fd11f: Remove passing seller associated account to buy token
+
 ## 2.1.19
 
 ### Patch Changes
