@@ -209,7 +209,7 @@ export class Marketplace {
       throwError('PROGRAM_NOT_INITIALIZED');
     }
 
-    return createBuyTransaction(mint, listingPrice, userWallet, seller, auctionHouseAddress, this.program);
+    return createBuyTransaction(mint, listingPrice, userWallet, seller, auctionHouseAddress, this.program, this.connection);
   }
 
   async createUpdateListingTransaction(
