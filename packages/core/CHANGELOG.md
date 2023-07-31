@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.1.21
+
+### Patch Changes
+
+- 343aadf: Check seller trade state on buy and cancel transactions
+
 ## 2.1.20
 
 ### Patch Changes
