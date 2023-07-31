@@ -19,6 +19,11 @@ export const getAtaForMint = (mint: PublicKey, address: PublicKey): [PublicKey, 
   return PublicKey.findProgramAddressSync([address.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()], SPL_ASSOCIATED_TOKEN_ACCOUNT_PROGRAM_ID);
 };
 
+export const isPdaAddressInitialize = async (connection: Connection, pdaAddress: PublicKey): Promise<boolean> => {
+  const pdaAccountInfo = await connection.getAccountInfo(pdaAddress);
+  return pdaAccountInfo != null;
+};
+
 export enum AccountState {
   Uninitialized = 0,
   Initialized = 1,

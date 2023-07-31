@@ -11,7 +11,7 @@ import {
 import type { Program } from '@project-serum/anchor';
 import { AuctionHouseIDL } from '../auctionHouseIdl';
 import { getListReceiptAddress, getSellerTradeState } from '../auctionUtils';
-import { getAtaForMint } from '../utils';
+import { getAtaForMint, isPdaAddressInitialize } from '../utils';
 
 /**
  * Create Cancel Listing Transaction
@@ -38,6 +38,13 @@ export async function createCancelListingTransaction(
   console.log('Processing cancel listing');
   const [associatedTokenAccount] = getAtaForMint(_mint, sellerPublicKey);
   let [sellerTradeState] = getSellerTradeState(auctionHouse, sellerPublicKey, associatedTokenAccount, auctionHouseObj.treasuryMint, _mint, buyerPrice, 1);
+
+  const tradeStateInitialized = await isPdaAddressInitialize(connection, sellerTradeState);
+
+  if (!tradeStateInitialized) {
+    throw new Error('Trade state account not found. Listing either does not exist or has already been closed.');
+  }
+
   const [listingReceipt] = getListReceiptAddress(sellerTradeState);
 
   const authority = new PublicKey(auctionHouseObj.authority);

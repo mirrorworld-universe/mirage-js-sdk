@@ -1,4 +1,4 @@
-import { Keypair, LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, Transaction, TransactionInstruction } from '@solana/web3.js';
+import { Connection, Keypair, LAMPORTS_PER_SOL, PublicKey, SYSVAR_INSTRUCTIONS_PUBKEY, Transaction, TransactionInstruction } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, NATIVE_MINT, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import {
   createExecuteSaleInstruction,
@@ -8,7 +8,7 @@ import {
 } from '@metaplex-foundation/mpl-auction-house';
 import { Program } from '@project-serum/anchor';
 import { AuctionHouseIDL } from '../auctionHouseIdl';
-import { getAtaForMint, getMetadata } from '../utils';
+import { getAtaForMint, getMetadata, isPdaAddressInitialize } from '../utils';
 import { AuctionHouse } from '../types';
 import {
   ExecuteSaleInstructionAccounts,
@@ -34,7 +34,8 @@ export const createBuyTransaction = async (
   buyer: PublicKey,
   seller: PublicKey,
   auctionHouse: PublicKey,
-  program: Program<AuctionHouseIDL>
+  program: Program<AuctionHouseIDL>,
+  connection: Connection
 ) => {
   const ah = (await program.account.auctionHouse.fetch(auctionHouse)) as any as AuctionHouse;
   const buyerPrice = Number(price) * LAMPORTS_PER_SOL;
@@ -63,6 +64,13 @@ export const createBuyTransaction = async (
     isSplMint,
     buyerPrice,
   });
+
+  const [sellerTradeState] = getSellerTradeState(auctionHouse, seller, tokenAccount, treasuryMint, tokenMint, buyerPrice, 1);
+  const tradeStateInitialized = await isPdaAddressInitialize(connection, sellerTradeState);
+
+  if (!tradeStateInitialized) {
+    throw new Error('Trade state account not found. Listing either does not exist or has already been closed.');
+  }
 
   if (isSplMint) {
     transferAuthority = splTokenTransferAuthority.publicKey;
@@ -134,8 +142,6 @@ export const createBuyTransaction = async (
 
     transaction.add(createRevokeInstruction);
   }
-
-  const [sellerTradeState] = getSellerTradeState(auctionHouse, seller, tokenAccount, treasuryMint, tokenMint, buyerPrice, 1);
 
   const executeSaleInstruction = await createExecuteSaleInstructions(
     buyer,

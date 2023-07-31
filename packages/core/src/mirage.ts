@@ -269,7 +269,7 @@ export class Mirage {
       throw new Error('You cannot buy your own NFT');
     }
 
-    return createBuyTransaction(mint, listingPrice, buyerPublicKey, _sellerPublicKey, this.auctionHouse, this.program);
+    return createBuyTransaction(mint, listingPrice, buyerPublicKey, _sellerPublicKey, this.auctionHouse, this.program, this.connection);
   }
 
   /**
