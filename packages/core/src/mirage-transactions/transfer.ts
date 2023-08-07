@@ -1,17 +1,26 @@
-import { Connection, PublicKey, Transaction } from '@solana/web3.js';
+import { Connection, PublicKey, Transaction, TransactionInstruction } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { getAccountInfo } from '../utils';
 
-export async function createTransferInstruction(mint: PublicKey, recipient: PublicKey, sender: PublicKey, connection: Connection) {
+export async function createTransferInstruction(mint: PublicKey, recipient: PublicKey, sender: PublicKey, connection: Connection, amount = 1) {
+  const txt = new Transaction();
+
+  const instructions = await createRawTransferInstructions(mint, recipient, sender, connection, amount);
+  txt.add(...instructions);
+
+  return txt;
+}
+
+export const createRawTransferInstructions = async (mint: PublicKey, recipient: PublicKey, sender: PublicKey, connection: Connection, amount = 1) => {
   const _mint = new PublicKey(mint);
   const _recipient = new PublicKey(recipient);
-
-  const txt = new Transaction();
 
   const senderAta = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, sender);
   const recipientAta = await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, _mint, _recipient);
 
   console.log('recipient  Associated Token Account', recipientAta);
+
+  const instructions: TransactionInstruction[] = [];
 
   try {
     // Here we attempt to get the account information
@@ -24,7 +33,7 @@ export async function createTransferInstruction(mint: PublicKey, recipient: Publ
   } catch (error: any) {
     if (error.message === 'TokenAccountNotFoundError') {
       console.log('Token Account not previously initialized. Creating Associated Token Account Instruction');
-      const createAtaInstruction = await Token.createAssociatedTokenAccountInstruction(
+      const createAtaInstruction = Token.createAssociatedTokenAccountInstruction(
         ASSOCIATED_TOKEN_PROGRAM_ID,
         TOKEN_PROGRAM_ID,
         _mint,
@@ -33,13 +42,12 @@ export async function createTransferInstruction(mint: PublicKey, recipient: Publ
         sender
       );
 
-      txt.add(createAtaInstruction);
+      instructions.push(createAtaInstruction);
     }
   }
 
-  const transferNftInstruction = await Token.createTransferInstruction(TOKEN_PROGRAM_ID, senderAta, recipientAta, sender, [], 1);
+  const transferInstruction = Token.createTransferInstruction(TOKEN_PROGRAM_ID, senderAta, recipientAta, sender, [], amount);
+  instructions.push(transferInstruction);
 
-  txt.add(transferNftInstruction);
-
-  return txt;
-}
+  return instructions;
+};
