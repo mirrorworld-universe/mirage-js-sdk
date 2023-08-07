@@ -1,5 +1,11 @@
 # @mirrorworld/mirage.core
 
+## 2.1.22
+
+### Patch Changes
+
+- f902a42: Support royalties on withdrawing marketplace fees
+
 ## 2.1.21
 
 ### Patch Changes
