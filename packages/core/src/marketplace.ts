@@ -157,7 +157,7 @@ export class Marketplace {
     return getAuctionHouseBalance(auctionHouseAddress, this.program, this.connection);
   }
 
-  async withdrawMarketplaceFees(amount: number, auctionHouseAddress: PublicKey): Promise<Transaction> {
+  async withdrawMarketplaceFees(amount: number, auctionHouseAddress: PublicKey, royaltyBasePoints: number, royaltyReceiver: PublicKey): Promise<Transaction> {
     if (!this.program) {
       this.program = await this.loadAuctionHouseProgram();
     }
@@ -165,7 +165,7 @@ export class Marketplace {
       throwError('PROGRAM_NOT_INITIALIZED');
     }
 
-    return withdrawFees(amount, auctionHouseAddress, this.program);
+    return withdrawFees(amount, auctionHouseAddress, royaltyBasePoints, royaltyReceiver, this.program, this.connection);
   }
 
   async createTransferTransaction(userWallet: PublicKey, mint: PublicKey, recipient: PublicKey): Promise<Transaction> {

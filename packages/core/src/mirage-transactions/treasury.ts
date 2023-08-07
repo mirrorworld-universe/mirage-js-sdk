@@ -1,9 +1,11 @@
-import { Connection, Keypair, PublicKey, Transaction } from '@solana/web3.js';
+import { Connection, Keypair, PublicKey, Transaction, TransactionInstruction } from '@solana/web3.js';
 import { AuctionHouse } from '../types';
 import { Program } from '@project-serum/anchor';
 import { NATIVE_MINT, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { createWithdrawFromTreasuryInstruction } from '@metaplex-foundation/mpl-auction-house/dist/src/generated';
 import { AuctionHouseIDL } from '../auctionHouseIdl';
+import * as web3 from '@solana/web3.js';
+import { createRawTransferInstructions } from './transfer';
 
 export const getAuctionHouseBalance = async (auctionHouse: PublicKey, program: Program<AuctionHouseIDL>, connection: Connection): Promise<number> => {
   const ah = (await program.account.auctionHouse.fetch(auctionHouse)) as any as AuctionHouse;
@@ -27,7 +29,14 @@ export const getAuctionHouseBalance = async (auctionHouse: PublicKey, program: P
   }
 };
 
-export const withdrawFees = async (amount: number, auctionHouse: PublicKey, program: Program<AuctionHouseIDL>): Promise<Transaction> => {
+export const withdrawFees = async (
+  amount: number,
+  auctionHouse: PublicKey,
+  royaltyBasePoints: number,
+  royaltyDestination: PublicKey,
+  program: Program<AuctionHouseIDL>,
+  connection: Connection
+): Promise<Transaction> => {
   const ah = (await program.account.auctionHouse.fetch(auctionHouse)) as any as AuctionHouse;
 
   const withdrawFromTreasuryInstructionAccounts = {
@@ -43,8 +52,30 @@ export const withdrawFees = async (amount: number, auctionHouse: PublicKey, prog
 
   const withdrawFromTreasuryInstruction = createWithdrawFromTreasuryInstruction(withdrawFromTreasuryInstructionAccounts, withdrawFromTreasuryInstructionArgs);
 
+  let royaltyWithdrawFromTreasuryInstruction: TransactionInstruction[] = [];
+  let royaltyAmount = Math.floor((amount * royaltyBasePoints) / 10000);
+
+  if (royaltyAmount && ah.treasuryMint.equals(NATIVE_MINT)) {
+    royaltyWithdrawFromTreasuryInstruction.push(
+      web3.SystemProgram.transfer({
+        fromPubkey: ah.treasuryWithdrawalDestination,
+        toPubkey: royaltyDestination,
+        lamports: royaltyAmount,
+      })
+    );
+  } else if (royaltyAmount) {
+    royaltyWithdrawFromTreasuryInstruction = await createRawTransferInstructions(
+      ah.treasuryMint,
+      royaltyDestination,
+      ah.treasuryWithdrawalDestination,
+      connection,
+      royaltyAmount
+    );
+  }
+
   const txt = new Transaction();
   txt.add(withdrawFromTreasuryInstruction);
+  txt.add(...royaltyWithdrawFromTreasuryInstruction);
 
   return txt;
 };
